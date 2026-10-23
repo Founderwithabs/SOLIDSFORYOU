@@ -101,10 +101,13 @@ def check_structure() -> None:
                 problems.append(f"{name}: author")
             if "version" in m:
                 problems.append(f"{name}: has a version (founders then miss updates)")
-            if not m.get("license"):
-                problems.append(f"{name}: no license field")
-            if not (PLUGINS / name / "LICENSE.md").exists():
+            if m.get("license") != "MIT":
+                problems.append(f"{name}: license is {m.get('license')!r}, must be 'MIT'")
+            lic = PLUGINS / name / "LICENSE.md"
+            if not lic.exists():
                 problems.append(f"{name}: no LICENSE.md")
+            elif lic.read_text() != (ROOT / "LICENSE.md").read_text():
+                problems.append(f"{name}: LICENSE.md differs from the root LICENSE.md")
         assert not problems, "\n".join(problems)
 
     @test
@@ -203,6 +206,18 @@ def check_structure() -> None:
         run([sys.executable, "scripts/build_skill_zip.py", "--check"], cwd=ROOT)
         if (ROOT / "scripts/build_bundle.py").exists():
             run([sys.executable, "scripts/build_bundle.py", "--check"], cwd=ROOT)
+
+    @test
+    def test_no_bash_only_or_old_license_text_ships():
+        # NODE_PATH=$(...) only works in bash; scripts find Playwright themselves.
+        bad = {"NODE_PATH=$(": "bash-only NODE_PATH prefix", "PolyForm": "old license",
+               "Noncommercial": "old license"}
+        problems = []
+        for f in list(PLUGINS.rglob("*")) + [ROOT / "README.md", ROOT / "prompts/README.md"]:
+            if f.is_file() and f.suffix in {".md", ".py", ".cjs", ".json", ".html"}:
+                text = f.read_text(encoding="utf-8")
+                problems += [f"{f.relative_to(ROOT)}: {why}" for s, why in bad.items() if s in text]
+        assert not problems, "\n".join(problems)
 
     @test
     def test_python_and_node_scripts_compile():
@@ -452,11 +467,116 @@ def check_scripts(tmp: Path) -> None:
         assert "too few posts to rank" in report and "## By pillar" in report, report
 
 
+def check_research(tmp: Path) -> None:
+    skill = PLUGINS / "competitor-research/skills/competitor-research"
+    ledger = skill / "scripts/ledger.py"
+
+    @test
+    def test_competitor_research_ledger_pipeline():
+        if not ledger.exists():
+            raise Skip("no competitor-research")
+        import csv
+        folder = tmp / "research"
+        run([sys.executable, str(ledger), "init", str(folder)])
+        with open(folder / "competitors.csv", "a", newline="") as fh:
+            w = csv.writer(fh)
+            w.writerow(["us", "Our Joggers", "Us", "amazon", "https://ex.com/us", ""])
+            w.writerow(["c1", "Rival", "R", "amazon", "https://ex.com/c1", "Direct"])
+            w.writerow(["c2", "Two Pack", "T", "flipkart", "https://ex.com/c2", "Price challenger"])
+        cols = ["id", "competitor_id", "field", "value", "unit", "source_url", "captured_at",
+                "method", "quote", "confidence", "verified"]
+        facts = {
+            "us": [("price_selling", "999", "INR"), ("pack_qty", "1", "piece"), ("rating", "4.3", "stars"),
+                   ("ratings_count", "120", ""), ("claim", "Soft | Stretchy", "")],
+            "c1": [("price_selling", "899", "INR"), ("pack_qty", "1", "piece"), ("rating", "4.1", "stars"),
+                   ("ratings_count", "2400", ""), ("claim", "Cotton | Zip pockets", "")],
+            "c2": [("price_selling", "1199", "INR"), ("pack_qty", "2", "piece"), ("rating", "blocked", ""),
+                   ("ratings_count", "not found", "")],
+        }
+        for cid, rows in facts.items():  # each collector writes its own part file
+            with open(folder / "parts" / f"ledger-{cid}.csv", "w", newline="") as fh:
+                w = csv.DictWriter(fh, cols)
+                w.writeheader()
+                for i, (field, value, unit) in enumerate(rows, 1):
+                    w.writerow(dict(id=f"{cid}-{i:03}", competitor_id=cid, field=field, value=value, unit=unit,
+                                    source_url=f"https://ex.com/{cid}", captured_at="2026-10-23 10:00",
+                                    method="page", quote=value if field == "claim" else "",
+                                    confidence="high", verified=""))
+        run([sys.executable, str(ledger), "merge", str(folder)])
+        run([sys.executable, str(ledger), "check", str(folder)])
+        run([sys.executable, str(ledger), "sample", str(folder)])
+        run([sys.executable, str(ledger), "tables", str(folder)])
+        tables = (folder / "tables.md").read_text()
+        assert "| Two Pack | 1,199 INR | — | — | 2 piece | 599.50 | 1 |" in tables, tables[:900]
+        claim = next(l for l in tables.splitlines() if l.startswith("| Main claim"))
+        assert claim.count("\\|") == 2 and len(re.split(r"(?<!\\)\|", claim)) == 6, claim
+        # A bad row must be caught.
+        with open(folder / "ledger.csv", "a", newline="") as fh:
+            csv.writer(fh).writerow(["c1-099", "c1", "price_selling", "1,299", "INR", "", "", "page", "", "high", ""])
+        bad = subprocess.run([sys.executable, str(ledger), "check", str(folder)], capture_output=True, text=True)
+        assert bad.returncode == 1 and "plain number" in bad.stdout and "source_url" in bad.stdout, bad.stdout
+
+    @test
+    def test_competitor_research_fetches_pages_and_reports_blocks():
+        fetch = skill / "scripts/fetch_page.cjs"
+        if not fetch.exists():
+            raise Skip("no competitor-research")
+        need("node")
+        probe = subprocess.run(["node", "-e", "require('playwright')"], capture_output=True)
+        root = subprocess.run(["npm", "root", "-g"], capture_output=True, text=True).stdout.strip()
+        if probe.returncode != 0 and not (Path(root) / "playwright").exists():
+            raise Skip("playwright not installed")
+        import http.server
+        import threading
+        site = tmp / "site"
+        site.mkdir()
+        (site / "product.html").write_text(
+            '<html><head><meta charset="utf-8"><title>Rival</title><script type="application/ld+json">'
+            '{"@type":"Product","name":"Rival","offers":{"price":"899","priceCurrency":"INR"},'
+            '"aggregateRating":{"ratingValue":"4.1","ratingCount":"2400"}}</script></head>'
+            '<body>₹899 M.R.P.: ₹1,299 500+ bought in past month</body></html>', encoding="utf-8")
+        (site / "captcha.html").write_text("<p>Enter the characters you see below</p>")
+
+        class Handler(http.server.SimpleHTTPRequestHandler):
+            def __init__(self, *a, **k):
+                super().__init__(*a, directory=str(site), **k)
+
+            def do_GET(self):
+                if self.path == "/forbidden":
+                    self.send_response(403)
+                    self.end_headers()
+                    return
+                super().do_GET()
+
+            def log_message(self, *a):
+                pass
+
+        server = http.server.ThreadingHTTPServer(("127.0.0.1", 0), Handler)
+        threading.Thread(target=server.serve_forever, daemon=True).start()
+        base = f"http://127.0.0.1:{server.server_port}"
+        try:
+            results = {}
+            for page in ["product.html", "captcha.html", "forbidden"]:
+                out = tmp / "fetched" / page
+                run(["node", str(fetch), f"{base}/{page}", str(out), "--wait", "200"], timeout=120)
+                results[page] = json.loads((out / "meta.json").read_text())
+        finally:
+            server.shutdown()
+        product = results["product.html"]
+        assert product["blocked"] is False and product["products"][0]["price"] == "899", product
+        assert "₹899" in product["hints"]["prices"], product["hints"]
+        assert (tmp / "fetched/product.html/screenshot.png").exists()
+        assert results["captcha.html"]["blocked"] is True, "captcha page not reported as blocked"
+        assert results["forbidden"]["blocked"] is True and results["forbidden"]["status"] == 403
+
+
 def main() -> None:
     fast = "--fast" in sys.argv
     check_structure()
     with tempfile.TemporaryDirectory(prefix="sfy_scripts_") as tmp:
         check_scripts(Path(tmp))
+    with tempfile.TemporaryDirectory(prefix="sfy_research_") as tmp:
+        check_research(Path(tmp))
     if not fast:
         with tempfile.TemporaryDirectory(prefix="sfy_tests_") as tmp:
             check_media(Path(tmp))

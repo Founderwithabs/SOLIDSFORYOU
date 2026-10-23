@@ -25,6 +25,7 @@ These are the tools the Master Skill manages. When a task needs one:
 | harsh-buyer-review | Feedback on anything customers see; videos for customers | `plugins/harsh-buyer-review/skills/harsh-buyer-review/harsh-buyer-reviewer.md` |
 | motion-design-taste | Making, reviewing or fixing videos | `plugins/motion-design-taste/skills/motion-design-taste/motion-design-taste.md` |
 | audio-review | Audio tasks; the sound of any video | `plugins/audio-review/skills/audio-review/initiation_prompt.md` |
+| competitor-research | Competitor, market and pricing research on marketplaces, websites, social media and ad libraries; competitor data for feedback | `plugins/competitor-research/skills/competitor-research/competitor-research.md` |
 | social-media | Social media strategy, calendars, posts, scripts, analytics and replies; the script and posting plan for social videos | `plugins/social-media/skills/social-media/social-media.md` |
 | Video workflow | Making or editing a video | `plugins/master/skills/master/workflows/video.md` |
 
@@ -93,10 +94,18 @@ posts and ads that sell a product. When a post is a video to be made, write
 the script with social-media, then build it with the video workflow.
 
 **Feedback.** Run harsh-buyer-review in full (competitor research, one-on-one
-comparison, A to J feedback). Apply careful-mode to every fact and figure in
-it before handing it over.
+comparison, A to J feedback). When the feedback needs fresh competitor data,
+run competitor-research first and give the buyer its `report.md` and
+`tables.md` instead of researching twice. Apply careful-mode to every fact
+and figure before handing it over.
 
-**Research.** With economy-mode, let cheaper helpers gather sources in
+**Competitor research.** Run competitor-research. In Claude Code its four
+helpers do the work on Haiku while you only coordinate, so deep research
+stays cheap. Hand its `report.md` and `tables.md` to harsh-buyer-review when
+the founder wants feedback, so the buyer doesn't research again.
+
+**Research.** For anything that isn't about competitors, markets or pricing:
+with economy-mode, let cheaper helpers gather sources in
 parallel (searches, pages, figures). Then you check and combine them: every
 fact gets a source and a date; anything you could not confirm is marked "not
 found" or "unconfirmed". Run careful-mode on the final answer. For product or

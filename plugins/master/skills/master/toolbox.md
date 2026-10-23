@@ -11,8 +11,9 @@ skill only when its row below says so; never load one "just in case".
 | Review a video | motion-design-taste; + harsh-buyer-review if for customers; + audio-review if the sound matters |
 | Audio | audio-review |
 | Social media | social-media; + harsh-buyer-review for posts that sell; + the video workflow to make a reel |
-| Feedback on a product, listing, ad, copy or price | harsh-buyer-review |
-| Research | economy-mode helpers gather sources; you verify and cite every fact; careful-mode |
+| Feedback on a product, listing, ad, copy or price | harsh-buyer-review; competitor-research first when the feedback needs fresh competitor data |
+| Competitors, market or pricing research | competitor-research (its helpers run on Haiku) |
+| Other research | economy-mode helpers gather sources; you verify and cite every fact; careful-mode |
 
 Mixed task: use each part's tools. Unsure: pick the row with more checks.
 

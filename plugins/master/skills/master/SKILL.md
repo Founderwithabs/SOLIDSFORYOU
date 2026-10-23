@@ -17,8 +17,8 @@ loaded from. Below, `SKILL_DIR` means that folder.
    start to finish. Its build tools are in `SKILL_DIR/templates/` and
    `SKILL_DIR/scripts/`.
 4. The other tools are separate SOLIDS FOR YOU skills: economy-mode,
-   careful-mode, harsh-buyer-review, motion-design-taste, audio-review and
-   social-media.
+   careful-mode, harsh-buyer-review, motion-design-taste, audio-review,
+   social-media and competitor-research.
    When a task needs one, invoke it. If it is missing, tell the user once how
    to add it (`/plugin install <name>@solidsforyou` in Claude Code), then do
    the closest thing you can.

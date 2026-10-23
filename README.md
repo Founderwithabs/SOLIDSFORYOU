@@ -18,6 +18,7 @@ desktop, mobile), or **any Claude chat** as a paste-in prompt.
 | 🏆 **Master Skill** | Keeps every tool below ready and uses only what each task needs. Making a video runs the full video workflow: it plans, builds, reviews as your buyer and as a motion designer, checks the sound, then fixes and re-renders until the video scores 85 out of 100 or more. Social media, feedback and research get their specialists, and simple tasks get none, so you save credits and get better work | Always on. Install it with the other tools and Claude picks the right ones for each task |
 | 📱 **Social Media** | Your head of social media: strategy, content calendars, posts, hooks, carousels and reel scripts for Instagram, TikTok, YouTube, LinkedIn, X and more. Every post passes a 100-point scorecard before you see it, growth stays honest, and it learns from your own results | Planning, writing, reviewing or analysing anything for social media |
 | 🎬 **Motion Design Taste** | A senior motion designer's review of a video: a score out of 100, ranking against references, and exact fixes (and Claude applies them when it has the source). It learns your taste over time | Before you ship an explainer, reel, ad or product video |
+| 🔎 **Competitor Research** | Deep competitor analysis on Amazon, Flipkart, Meesho, Myntra and any other marketplace, plus competitor websites, social media and ads. Every fact is sourced and dated, a separate pass double-checks it, and you get price, review and listing comparisons with ranked actions. Runs on Claude's cheapest model (Haiku) to save credits | Before you price, launch, change a listing, or ask for harsh buyer feedback |
 | 🛒 **Harsh Buyer Review** | A real buyer tears into your listing: researches 3 to 5 competitors, compares one-on-one, and tells you exactly why they would or wouldn't buy | Before you launch or change a product listing, images, video, copy or price |
 | ✅ **Careful Mode** | Claude checks every piece of work three times (is it right, is it complete, how could it go wrong) before handing it over | Anything high-stakes: prices, contracts, customer emails, launches |
 | 💰 **Economy Mode** | Claude sends simple tasks to cheaper models and keeps the strongest one for decisions, to cut cost | Long Claude Code sessions where cost adds up (Claude Code only) |
@@ -42,6 +43,7 @@ Then install the tools you want:
 /plugin install economy-mode@solidsforyou
 /plugin install master@solidsforyou
 /plugin install social-media@solidsforyou
+/plugin install competitor-research@solidsforyou
 ```
 
 Or just run `/plugin` and pick them from the list. After that, ask naturally
@@ -67,8 +69,9 @@ always on".
 needs `numpy` (`pip install numpy`). The Master Skill needs
 [Node.js](https://nodejs.org) with Playwright and Chromium to render videos
 (`npm install -g playwright` then `npx playwright install chromium`), and
-works best with all the other tools installed. Harsh Buyer Review needs web
-search, which Claude Code has built in.
+works best with all the other tools installed. Competitor Research needs web
+search and works best with Node.js and Playwright for reading marketplace
+pages. Harsh Buyer Review needs web search, which Claude Code has built in.
 
 ### Option 2: claude.ai, Claude Desktop or Claude Mobile
 
@@ -78,6 +81,7 @@ search, which Claude Code has built in.
    [Harsh Buyer Review](dist/harsh-buyer-review-skill.zip) ·
    [Careful Mode](dist/careful-mode-skill.zip) ·
    [Social Media](dist/social-media-skill.zip) ·
+   [Competitor Research](dist/competitor-research-skill.zip) ·
    [Master Skill](dist/master-skill.zip) (upload the others too: it uses
    them)
 2. In Claude's settings, turn on code execution, then upload the zip as a
