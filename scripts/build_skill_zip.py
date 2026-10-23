@@ -15,7 +15,7 @@ SKILLS = [
     "motion-design-taste",
     "harsh-buyer-review",
     "careful-mode",
-    "video-masterpiece",
+    "master",
 ]
 
 (ROOT / "dist").mkdir(exist_ok=True)
