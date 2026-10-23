@@ -1,16 +1,23 @@
 #!/usr/bin/env python3
-"""Build dist/audio-review-skill.zip, the folder people upload to claude.ai as a custom skill."""
+"""Build dist/<skill>-skill.zip for each tool that works on claude.ai.
+
+These are the files people upload to claude.ai as custom skills. Run this
+after changing any skill. Economy mode is left out because it needs Claude
+Code's subagents.
+"""
 
 import zipfile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-SKILL = ROOT / "plugins/audio-review/skills/audio-review"
-OUT = ROOT / "dist/audio-review-skill.zip"
+SKILLS = ["audio-review", "motion-design-taste", "harsh-buyer-review", "careful-mode"]
 
-OUT.parent.mkdir(exist_ok=True)
-with zipfile.ZipFile(OUT, "w", zipfile.ZIP_DEFLATED) as z:
-    for f in sorted(SKILL.rglob("*")):
-        if f.is_file() and "__pycache__" not in f.parts:
-            z.write(f, Path("audio-review") / f.relative_to(SKILL))
-print(f"Wrote {OUT.relative_to(ROOT)}")
+(ROOT / "dist").mkdir(exist_ok=True)
+for name in SKILLS:
+    folder = ROOT / "plugins" / name / "skills" / name
+    out = ROOT / "dist" / f"{name}-skill.zip"
+    with zipfile.ZipFile(out, "w", zipfile.ZIP_DEFLATED) as z:
+        for f in sorted(folder.rglob("*")):
+            if f.is_file() and "__pycache__" not in f.parts:
+                z.write(f, Path(name) / f.relative_to(folder))
+    print(f"Wrote {out.relative_to(ROOT)}")

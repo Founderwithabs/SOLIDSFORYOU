@@ -1,90 +1,97 @@
-# SOLIDSFORYOU: Claude tools for founders
+# SOLIDS FOR YOU: Everything a Founder Needs
 
-Free tools that make Claude better at real founder work. Use them in Claude
-Code, on claude.ai, or in any Claude chat.
+Free Claude tools for starting and running a business. Each one turns Claude
+into a specialist you'd otherwise have to hire: an audio designer, a motion
+design director, a harsh customer, a meticulous reviewer.
 
-## SOLIDS FOR YOU Audio Review: Claude listens like a senior audio designer
+Every tool works wherever you use Claude: **Claude Code**, **claude.ai** (web,
+desktop, mobile), or **any Claude chat** as a paste-in prompt.
 
-Give Claude a podcast, ad, song, voice-over or product sound. You get back
-what a senior audio designer would tell you:
+## The tools
 
-- a score out of 10 and whether it's ready to ship
-- how it actually sounds (muddy, harsh, squashed, noisy, wide, punchy…)
-- ranked problems, with the exact time or frequency of each
-- a fix list an engineer can apply straight away
-- a loudness check against Spotify, Apple Music, YouTube, podcast, broadcast,
-  game and social specs
+| Tool | What you get | Use it when |
+|---|---|---|
+| 🎧 **Audio Review** | A senior audio designer's review of any audio: a score out of 10, how it sounds, ranked problems with timestamps, a fix list, and loudness checks for Spotify, YouTube, podcasts, broadcast and ads | Before you publish a podcast, ad, song, voice-over or product sound |
+| 🎬 **Motion Design Taste** | A senior motion designer's review of a video: a score out of 100, ranking against references, and exact fixes (and Claude applies them when it has the source). It learns your taste over time | Before you ship an explainer, reel, ad or product video |
+| 🛒 **Harsh Buyer Review** | A real buyer tears into your listing: researches 3 to 5 competitors, compares one-on-one, and tells you exactly why they would or wouldn't buy | Before you launch or change a product listing, images, video, copy or price |
+| ✅ **Careful Mode** | Claude checks every piece of work three times (is it right, is it complete, how could it go wrong) before handing it over | Anything high-stakes: prices, contracts, customer emails, launches |
+| 💰 **Economy Mode** | Claude sends simple tasks to cheaper models and keeps the strongest one for decisions, to cut cost | Long Claude Code sessions where cost adds up (Claude Code only) |
 
-Claude can't hear audio directly, so the tool measures it the way an engineer
-reads meters: loudness, dynamics, frequency balance, stereo, noise, clicks,
-hum and clipping. It also draws a spectrogram and waveform for Claude to look
-at.
+## Set it up
 
-### Connect it to your Claude
+### Option 1: Claude Code (recommended; every tool works fully)
 
-Pick the option that matches where you use Claude.
-
-**1. Claude Code (recommended: it runs the full analysis)**
-
-Inside a Claude Code session:
-
-```
-/plugin install audio-review --marketplace Founderwithabs/SOLIDSFORYOU
-```
-
-On older Claude Code versions, run these two commands instead:
+In a Claude Code session, add the SOLIDS FOR YOU catalog once:
 
 ```
 /plugin marketplace add Founderwithabs/SOLIDSFORYOU
+```
+
+Then install the tools you want:
+
+```
 /plugin install audio-review@solidsforyou
+/plugin install motion-design-taste@solidsforyou
+/plugin install harsh-buyer-review@solidsforyou
+/plugin install careful-mode@solidsforyou
+/plugin install economy-mode@solidsforyou
 ```
 
-Then share an audio file and ask *"How does this sound?"*, or run
-`/audio-review:audio-review`. You need `ffmpeg` and Python with `numpy`
-installed.
+Or just run `/plugin` and pick them from the list. After that, ask naturally
+("how does this audio sound?", "review this listing like a harsh buyer",
+"careful mode on"). You can also run a tool by name, for example
+`/careful-mode:careful-mode`.
 
-**2. claude.ai, Claude Desktop or Claude Mobile (as a custom skill)**
+To get updates, run `/plugin marketplace update solidsforyou`, or turn on
+auto-update for the catalog under **Marketplaces** in `/plugin`.
 
-1. Download [`dist/audio-review-skill.zip`](dist/audio-review-skill.zip).
-2. In Claude, open **Settings → Capabilities**, turn on code execution, and
-   upload the zip under **Skills**.
-3. In any chat, upload an audio file and ask Claude to review it.
+**Requirements:** Audio Review and Motion Design Taste need
+[ffmpeg](https://ffmpeg.org/download.html) and Python 3. Audio Review also
+needs `numpy` (`pip install numpy`). Harsh Buyer Review needs web search,
+which Claude Code has built in.
 
-**3. Any Claude chat (paste-in prompt, no setup)**
+### Option 2: claude.ai, Claude Desktop or Claude Mobile
 
-Copy everything in
-[`initiation_prompt.md`](plugins/audio-review/skills/audio-review/initiation_prompt.md)
-into a new chat, or into a Claude Project's instructions, then upload your
-audio. If that Claude can browse the web, you can also just tell it:
+1. Download the tool's skill file from [`dist/`](dist):
+   [Audio Review](dist/audio-review-skill.zip) ·
+   [Motion Design Taste](dist/motion-design-taste-skill.zip) ·
+   [Harsh Buyer Review](dist/harsh-buyer-review-skill.zip) ·
+   [Careful Mode](dist/careful-mode-skill.zip)
+2. In Claude's settings, turn on code execution, then upload the zip as a
+   custom skill.
+3. Start a chat and ask for the tool, for example by uploading a video and
+   asking Claude to review it.
 
-> Read https://raw.githubusercontent.com/Founderwithabs/SOLIDSFORYOU/main/plugins/audio-review/skills/audio-review/initiation_prompt.md and follow it for this conversation.
+### Option 3: Any Claude chat (no setup)
 
-**4. Your own code (Claude API)**
+Open the tool's prompt, copy all of it, and paste it as your first message,
+or into a Claude Project's instructions so every chat in that project has it.
+All prompts are listed in [`prompts/`](prompts/README.md).
 
-```bash
-git clone https://github.com/Founderwithabs/SOLIDSFORYOU
-cd SOLIDSFORYOU/plugins/audio-review/skills/audio-review
-pip install -r requirements.txt     # also needs ffmpeg
-export ANTHROPIC_API_KEY=...
-python review.py your_mix.wav --context "podcast episode for Spotify"
+## What happens to your files
+
+- **Claude Code:** the audio and video tools measure your files on your own
+  computer with ffmpeg. Claude then sees the measurements and still images,
+  not the raw file.
+- **claude.ai and chats:** files you upload are handled by Claude under your
+  plan's normal terms.
+- Nothing is sent to SOLIDS FOR YOU.
+
+## Repository layout
+
+```
+.claude-plugin/marketplace.json   The catalog Claude Code reads
+plugins/<tool>/                   One installable plugin per tool
+  skills/<tool>/SKILL.md          What Claude follows
+  skills/<tool>/*.md              The full prompt (also the paste-in version)
+dist/                             Skill zips for claude.ai
+prompts/README.md                 Links to every paste-in prompt
+taste/motion/                     SOLIDS FOR YOU's own motion taste notes
+.claude/skills/                   Lets the tools work inside this repo too
+scripts/build_skill_zip.py        Rebuilds the zips in dist/
 ```
 
-Add `--reference pro_track.wav` to compare against a track you love.
+## Add or change a tool
 
-### What it can't do
-
-It judges the measurable sound: level, balance, noise, width, artifacts and
-delivery specs. It can't judge performance, emotion or taste, so it tells you
-what to double-check by ear.
-
-## Also in this repo (for Claude Code)
-
-- **Economy mode** (`/economy-mode`) routes simple tasks to cheaper models.
-- **Careful mode** (`/careful-mode`) makes Claude review its work three times
-  before it hands it over.
-
-## For Claude, if you're reading this repository
-
-To review audio, follow
-`plugins/audio-review/skills/audio-review/SKILL.md`. If you can't run code,
-follow `plugins/audio-review/skills/audio-review/initiation_prompt.md`.
+See [`CLAUDE.md`](CLAUDE.md): it has the checklist, and Claude Code follows
+it when you ask it to add a tool.

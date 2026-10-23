@@ -1,15 +1,35 @@
 {
   "name": "solidsforyou",
-  "description": "SOLIDS FOR YOU: Claude tools for founders",
+  "description": "SOLIDS FOR YOU: everything a founder needs, as Claude tools",
   "owner": {
     "name": "SOLIDS FOR YOU",
-    "url": "https://github.com/Founderwithabs/solidsforyou"
+    "url": "https://github.com/Founderwithabs/SOLIDSFORYOU"
   },
   "plugins": [
     {
       "name": "audio-review",
       "source": "./plugins/audio-review",
       "description": "SOLIDS FOR YOU Audio Review: Claude listens to audio like a senior audio designer (loudness, dynamics, tonal balance, stereo, noise and artifacts) and gives a scored review with a fix list."
+    },
+    {
+      "name": "motion-design-taste",
+      "source": "./plugins/motion-design-taste",
+      "description": "SOLIDS FOR YOU Motion Design Taste: Claude judges motion graphics videos like a senior motion designer, scores them out of 100, ranks them against references, and lists or applies exact fixes."
+    },
+    {
+      "name": "harsh-buyer-review",
+      "source": "./plugins/harsh-buyer-review",
+      "description": "SOLIDS FOR YOU Harsh Buyer Review: Claude becomes a real buyer, researches your competitors, compares one-on-one, and gives brutally specific feedback on listings, images, video, copy and price."
+    },
+    {
+      "name": "careful-mode",
+      "source": "./plugins/careful-mode",
+      "description": "SOLIDS FOR YOU Careful Mode: Claude reviews every piece of work three times (correctness, completeness, how could this go wrong) before handing it over."
+    },
+    {
+      "name": "economy-mode",
+      "source": "./plugins/economy-mode",
+      "description": "SOLIDS FOR YOU Economy Mode: Claude sends simple tasks to cheaper models (Haiku, Sonnet) and keeps the strongest model for decisions and review, to cut cost."
     }
   ]
 }
