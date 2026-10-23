@@ -91,6 +91,13 @@ owner's explicit decision.
 - **Motion design taste:** `scripts/inspect_video.py` inspects; the prompt
   holds the rubric. Use it before delivering any video Claude made.
 - **Harsh buyer review:** needs web search for its competitor research.
+- **Competitor research:** analysis only. `competitor-research.md` is the
+  method, written so Haiku can follow it step by step. Four Haiku helpers in
+  `plugins/competitor-research/agents/` (scout, collector, verifier, analyst)
+  do the work; the main conversation only coordinates. `scripts/ledger.py`
+  checks, merges, samples and computes every table; `scripts/fetch_page.cjs`
+  reads pages without getting around blocks. Research folders live in the
+  user's project under `research/`.
 - **Social media:** `social-media.md` holds the whole method (strategy,
   calendar, creation, 100-point pre-publish scorecard, repurposing, trends,
   community, platform playbook, compliance); `scripts/content_log.py`

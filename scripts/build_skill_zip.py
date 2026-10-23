@@ -17,6 +17,7 @@ SKILLS = [
     "careful-mode",
     "master",
     "social-media",
+    "competitor-research",
 ]
 
 (ROOT / "dist").mkdir(exist_ok=True)

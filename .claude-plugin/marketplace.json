@@ -40,6 +40,11 @@
       "name": "social-media",
       "source": "./plugins/social-media",
       "description": "SOLIDS FOR YOU Social Media: Claude becomes your head of social media. Strategy, content calendars, posts, hooks, carousels and reel scripts for every major platform, a 100-point pre-publish scorecard, honest growth rules, and analytics that learn what works for your account."
+    },
+    {
+      "name": "competitor-research",
+      "source": "./plugins/competitor-research",
+      "description": "SOLIDS FOR YOU Competitor Research: deep competitor analysis on any marketplace (Amazon, Flipkart, Meesho and more), competitor websites, social media and ad libraries. Every fact is sourced and dated, a separate pass verifies it, scripts do the maths, and the research runs on Haiku to save credits."
     }
   ]
 }
