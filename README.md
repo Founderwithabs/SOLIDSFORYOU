@@ -13,6 +13,7 @@ business. Every tool works two ways:
 |---|---|---|---|
 | Careful mode | Reviews every piece of work three times (correctness, completeness, "how could this go wrong") before submitting | `/careful-mode` | [`prompts/careful-mode.md`](prompts/careful-mode.md) |
 | Harsh buyer review | Acts as a real buyer: researches competitors, compares one-on-one, and gives harsh, specific feedback on listings, images, video and copy | `/harsh-buyer-review` | [`prompts/harsh-buyer-reviewer.md`](prompts/harsh-buyer-reviewer.md) |
+| Motion design taste | Judges motion graphics videos like a senior motion designer: inspects frames, scores on a 100-point rubric, compares and ranks against other videos, lists exact fixes, and fixes them when it has the source | `/motion-design-taste` | [`prompts/motion-design-taste.md`](prompts/motion-design-taste.md) |
 | Economy mode | Sends low-importance work to cheaper models (Haiku, Sonnet) and keeps the strongest model for decisions and review | `/economy-mode` | Claude Code only (needs subagents) |
 
 ## Repository layout
@@ -21,6 +22,7 @@ business. Every tool works two ways:
 prompts/              Paste-ready prompts for any Claude chat
 .claude/skills/       Claude Code skills (slash commands)
 .claude/agents/       Claude Code helper agents used by economy mode
+taste/motion/         Taste notes learned from videos you like and dislike
 CLAUDE.md             Instructions Claude Code reads automatically
 *.webp, *.png         Solids for You product page images (Solid Joggers)
 ```

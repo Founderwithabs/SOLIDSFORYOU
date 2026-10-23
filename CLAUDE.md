@@ -8,6 +8,7 @@ full list.
 - `prompts/`: paste-ready prompts that work in any Claude chat.
 - `.claude/skills/`: Claude Code skills (slash commands).
 - `.claude/agents/`: helper agents used by economy mode.
+- `taste/motion/`: taste notes learned from real videos.
 - Root image files: Solids for You product page images. Do not move or rename
   them without asking; they may be linked from outside this repo.
 
@@ -45,3 +46,13 @@ Definitions: `.claude/skills/careful-mode/SKILL.md` (Claude Code) and
 - Claude acts as a real buyer: researches competitors, compares one-on-one,
   and gives harsh, specific feedback on listings, images, video and copy.
 - The full prompt is in `prompts/harsh-buyer-reviewer.md`; the skill loads it.
+
+## Motion design taste (video review, ranking and fixing)
+
+- Turn it on with `/motion-design-taste`, and use it before delivering any
+  video you made.
+- Inspects the rendered video with `scripts/inspect_video.py`, scores it out
+  of 100, compares and ranks it against other videos, lists exact fixes, and
+  applies and re-checks them when the source is available.
+- Learns the user's taste in `taste/motion/taste-notes.md`.
+- The full prompt is in `prompts/motion-design-taste.md`; the skill loads it.
