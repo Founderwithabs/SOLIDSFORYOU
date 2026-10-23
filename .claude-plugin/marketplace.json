@@ -35,6 +35,11 @@
       "name": "master",
       "source": "./plugins/master",
       "description": "SOLIDS FOR YOU Master Skill: keeps every SOLIDS FOR YOU tool ready in every session and uses only the ones each task needs, from the full video workflow (plan, build, review as a buyer and a motion designer, fix and re-render until it scores 85+) to feedback, research and quick answers."
+    },
+    {
+      "name": "social-media",
+      "source": "./plugins/social-media",
+      "description": "SOLIDS FOR YOU Social Media: Claude becomes your head of social media. Strategy, content calendars, posts, hooks, carousels and reel scripts for every major platform, a 100-point pre-publish scorecard, honest growth rules, and analytics that learn what works for your account."
     }
   ]
 }

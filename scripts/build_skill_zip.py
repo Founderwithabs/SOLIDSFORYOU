@@ -16,6 +16,7 @@ SKILLS = [
     "harsh-buyer-review",
     "careful-mode",
     "master",
+    "social-media",
 ]
 
 (ROOT / "dist").mkdir(exist_ok=True)
