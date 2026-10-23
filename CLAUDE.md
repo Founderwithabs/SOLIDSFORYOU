@@ -26,3 +26,11 @@ are available and may be used for clearly simple work.
   reviews are always done by the main model.
 
 Definition: `.claude/skills/careful-mode/SKILL.md`.
+
+## Harsh buyer review (consumer persona)
+
+- Turn it on with `/harsh-buyer-review` (or say "review this like a harsh buyer").
+- Claude acts as a real buyer: researches competitors, compares one-on-one,
+  and gives harsh, specific feedback on listings, images, video and copy.
+- The full prompt is in `prompts/harsh-buyer-reviewer.md`, written so it can
+  also be pasted into any Claude chat.
