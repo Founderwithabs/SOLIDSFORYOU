@@ -111,7 +111,8 @@ Copyright Solids for You Private Limited. The tools are licensed under the
 - **Free** for personal use (study, testing, hobby projects) and for
   charities, schools, research and government organizations.
 - **Using them for a business or any commercial purpose needs a separate
-  commercial license** from Solids for You Private Limited.
+  commercial license** from Solids for You Private Limited. To get one,
+  email [shashwat@solidsforyou.com](mailto:shashwat@solidsforyou.com).
 - If you share the tools or anything built from them, include the license
   terms (or their link) and the `Required Notice:` line from
   [`LICENSE.md`](LICENSE.md).

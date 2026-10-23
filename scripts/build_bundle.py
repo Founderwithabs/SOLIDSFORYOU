@@ -55,7 +55,8 @@ def build(src):
         "Required Notice: Copyright Solids for You Private Limited "
         "(https://github.com/Founderwithabs/SOLIDSFORYOU). Licensed under the "
         "PolyForm Noncommercial License 1.0.0 "
-        "(https://polyformproject.org/licenses/noncommercial/1.0.0).",
+        "(https://polyformproject.org/licenses/noncommercial/1.0.0). "
+        "For a commercial license, email shashwat@solidsforyou.com.",
         "",
         text.rstrip(),
         "",
