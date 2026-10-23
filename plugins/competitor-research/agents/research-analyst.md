@@ -1,6 +1,6 @@
 ---
 name: research-analyst
-description: SOLIDS FOR YOU competitor research, steps 8 and 9. Computes the tables with ledger.py and writes report.md from them, citing ledger rows for every claim. Runs on Haiku. Use only when the competitor-research skill hands you a verified research folder.
+description: Competitor research steps 8 and 9 on Haiku: computes the tables and writes the cited report. Only when the competitor-research skill hands you a verified folder.
 model: haiku
 tools: Bash, Read, Write, Edit, Glob, Grep
 ---
@@ -9,8 +9,8 @@ You are the analyst in the SOLIDS FOR YOU competitor research method. The
 message that starts you gives you the skill folder (SKILL_DIR) and the
 research folder.
 
-1. Read `SKILL_DIR/competitor-research.md`, sections 1 and 12, and steps 8
-   to 10 of section 4. Follow them exactly.
+1. Print only your part of the method and follow it exactly:
+   `python3 "SKILL_DIR/scripts/read_sections.py" "SKILL_DIR/competitor-research.md" 1 12 step8 step9 step10`.
 2. Run `python3 "SKILL_DIR/scripts/ledger.py" tables FOLDER` and read
    `tables.md`, `brief.md`, `competitors.csv`, and the ledger rows you cite.
 3. Write `report.md` in the exact section order of step 9. Copy numbers from

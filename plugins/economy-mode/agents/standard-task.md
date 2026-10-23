@@ -1,6 +1,6 @@
 ---
 name: standard-task
-description: Mid-tier worker for routine but non-trivial tasks. Use for writing or editing product copy and descriptions, implementing a clearly specified change across a few files, writing tests, routine refactors, and summarizing several sources. Do NOT use for architecture or design decisions, hard debugging, or security-sensitive changes.
+description: Sonnet helper for routine, clearly specified work: product copy, changes across a few files, tests, routine refactors, summarizing several sources. Not for design decisions, hard debugging or security.
 model: sonnet
 ---
 

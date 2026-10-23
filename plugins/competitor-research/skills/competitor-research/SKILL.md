@@ -1,6 +1,6 @@
 ---
 name: competitor-research
-description: SOLIDS FOR YOU Competitor Research: deep, evidence-based competitor analysis on any marketplace (Amazon, Flipkart, Meesho, Myntra, Ajio, Nykaa, Blinkit, Etsy, eBay, Walmart and more), competitor websites, social media and ad libraries. Use whenever a task involves competitors, comparison, market or pricing research, benchmarking, or feedback that needs competitor context (including before a harsh buyer review), and before creating listings, ads or content that must beat competitors. Analysis only: it researches, verifies and compares, and does not write copy. Built to run on Haiku to save credits.
+description: Evidence-based competitor research on marketplaces (Amazon, Flipkart, Meesho and more), competitor websites, social media and ad libraries: every fact sourced, verified and computed by script, run by cheap Haiku helpers. Use for competitors, market or pricing research, benchmarking, or competitor data before feedback. Analysis only, no copy.
 ---
 
 The files this skill uses sit next to this SKILL.md. In Claude Code that
@@ -16,7 +16,8 @@ only: never write copy, listings or ads here.
 Keep the main conversation cheap. Don't fetch pages or read raw data
 yourself; the helpers do that on Haiku and send back short summaries.
 
-1. Read sections 1 to 4 (step 1 only) and 11 of the method. Write
+1. Print only what you need from the method:
+   `python3 "SKILL_DIR/scripts/read_sections.py" "SKILL_DIR/competitor-research.md" 1 2 3 step1 11`. Write
    `brief.md` (step 1) in `research/<short-name>-<YYYY-MM-DD>/` in the
    user's project, asking the user only for what you can't find. Then run
    `python3 "SKILL_DIR/scripts/ledger.py" init <folder>`.
@@ -50,3 +51,5 @@ cheap; the method is built for it.
   Playwright with Chromium).
 - `SKILL_DIR/scripts/ledger.py`: init, check, merge, sample and tables
   (needs only Python 3).
+- `SKILL_DIR/scripts/read_sections.py`: prints only the sections of the
+  method a step needs, so nobody reads the whole file (`--list` shows them).

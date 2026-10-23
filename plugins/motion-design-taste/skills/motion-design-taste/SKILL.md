@@ -1,6 +1,6 @@
 ---
 name: motion-design-taste
-description: Judge motion graphics videos with a senior motion designer's taste. Inspects a rendered video (contact sheets, frame-by-frame strips, cuts, loudness), scores it on a 100-point rubric, compares and ranks it against any other videos, lists exact fixes, and when the source is available applies the fixes, re-renders and re-scores. Use for any video review, "is this video good", "compare these videos", "rank these", "fix the animation", "/motion-design-taste", and before delivering any video Claude made.
+description: Judge motion graphics videos like a senior motion designer: inspect frames, score out of 100, compare and rank against other videos, list exact fixes, and apply them when the source is available. Use for any video review, "compare or rank these videos", "fix the animation", and before delivering a video Claude made.
 ---
 
 The files this skill uses sit next to this SKILL.md. In Claude Code that

@@ -1,6 +1,6 @@
 ---
 name: careful-mode
-description: Turn on careful mode, where Claude works as an extremely careful person and reviews every piece of work at least three times, in three separate passes, before submitting it. Use when the user says "careful mode", "be extremely careful", "triple check", "review everything", "/careful-mode", or when the work is high-stakes (customer-facing, money, prices, legal, production, anything hard to undo).
+description: Careful mode: review every piece of work three times (is it right, is it complete, how could it go wrong) before submitting. Use for "careful mode", "triple check", "be extremely careful", or high-stakes work: money, prices, legal, customer-facing, production, anything hard to undo.
 ---
 
 # Careful mode

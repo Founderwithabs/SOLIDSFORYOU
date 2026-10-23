@@ -95,6 +95,27 @@ Open the tool's prompt, copy all of it, and paste it as your first message,
 or into a Claude Project's instructions so every chat in that project has it.
 All prompts are listed in [`prompts/`](prompts/README.md).
 
+## Use fewer credits
+
+The tools are built to keep Claude's usage low: the Master Skill gives each
+task only the tools it needs, long prompts are read a section at a time, and
+bulk research runs on cheaper models (Competitor Research's helpers run on
+Haiku). Your habits matter as much:
+
+- **Keep the Master Skill on.** It costs a few hundred tokens a session and
+  stops Claude loading tools a task doesn't need.
+- **Install only the tools you use.** Every installed tool adds its short
+  description to every session. Turn one off with `/plugin` (or
+  `claude plugin disable <tool>@solidsforyou`) and back on when you need it.
+- **Start fresh for a new task.** `/clear` when you switch to something
+  unrelated, so Claude stops re-reading the old conversation with every
+  message. In a long session, `/compact` shrinks what it carries.
+- **Use a smaller model for simple work.** `/model` lets you pick Haiku or
+  Sonnet for routine sessions; turn on Economy Mode in long ones so simple
+  steps go to cheaper models automatically.
+- **Ask once, completely.** Give the files, links, goal and constraints in
+  your first message instead of over several back-and-forths.
+
 ## What happens to your files
 
 - **Claude Code:** the audio and video tools measure your files on your own

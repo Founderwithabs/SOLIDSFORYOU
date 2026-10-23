@@ -1,6 +1,6 @@
 ---
 name: master
-description: SOLIDS FOR YOU Master Skill: routes each task to only the SOLIDS FOR YOU tools it needs, and runs the full video workflow. Use to make or edit any video (reel, ad, explainer, animation, product video, footage edit, GIF), for tasks that combine several SOLIDS FOR YOU tools, or when the user asks for the Master Skill or "/master".
+description: SOLIDS FOR YOU Master Skill: routes each task to only the SOLIDS FOR YOU tools it needs and runs the full video workflow. Use to make or edit any video (reel, ad, explainer, animation, product video, GIF), for tasks that combine several SOLIDS FOR YOU tools, or when asked for the Master Skill.
 ---
 
 The files this skill uses sit next to this SKILL.md. In Claude Code that
@@ -11,11 +11,12 @@ loaded from. Below, `SKILL_DIR` means that folder.
    now. Keep it in mind for the rest of the conversation; don't re-read it for
    each task. (In Claude Code's default always-on mode it is loaded at session
    start; see `SKILL_DIR/master.md` section 2.)
-2. Read `SKILL_DIR/master.md` and follow it: decide the task type, then use
-   only the tools that type needs.
-3. For a video task, read `SKILL_DIR/workflows/video.md` and follow it from
-   start to finish. Its build tools are in `SKILL_DIR/templates/` and
-   `SKILL_DIR/scripts/`.
+2. For a video task, go straight to `SKILL_DIR/workflows/video.md` and
+   follow it from start to finish; you don't need `master.md` for it. Its
+   build tools are in `SKILL_DIR/templates/` and `SKILL_DIR/scripts/`.
+3. For anything else (a task that combines several tools, or a question
+   about how the Master Skill works or how to change its mode), read
+   `SKILL_DIR/master.md` and follow it.
 4. The other tools are separate SOLIDS FOR YOU skills: economy-mode,
    careful-mode, harsh-buyer-review, motion-design-taste, audio-review,
    social-media and competitor-research.

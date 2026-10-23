@@ -126,6 +126,51 @@ def check_structure() -> None:
         assert not problems, "\n".join(problems)
 
     @test
+    def test_descriptions_stay_short():
+        # Every installed skill's and helper's description is in every session.
+        problems = []
+        for name in plugin_names():
+            for f in (PLUGINS / name).glob("skills/*/SKILL.md"):
+                words = len(frontmatter(f)["description"].split())
+                if words > 55:
+                    problems.append(f"{f.relative_to(ROOT)}: {words} words (max 55)")
+            for f in (PLUGINS / name).glob("agents/*.md"):
+                words = len(frontmatter(f)["description"].split())
+                if words > 40:
+                    problems.append(f"{f.relative_to(ROOT)}: {words} words (max 40)")
+        assert not problems, "\n".join(problems)
+
+    @test
+    def test_section_reader_is_lossless_and_finds_steps():
+        readers = list(PLUGINS.glob("*/skills/*/scripts/read_sections.py"))
+        if not readers:
+            raise Skip("no read_sections.py")
+        first = readers[0].read_bytes()
+        assert all(r.read_bytes() == first for r in readers), "the read_sections.py copies differ"
+        reader = readers[0]
+        for prompt in [PLUGINS / "social-media/skills/social-media/social-media.md",
+                       PLUGINS / "competitor-research/skills/competitor-research/competitor-research.md"]:
+            if not prompt.exists():
+                continue
+            listing = run([sys.executable, str(reader), str(prompt), "--list"]).stdout
+            tops = [l[1:l.index("]")] for l in listing.splitlines() if l[1:l.index("]")].isdigit()]
+            joined = run([sys.executable, str(reader), str(prompt), *tops]).stdout
+            text = prompt.read_text(encoding="utf-8")
+            assert joined == text[text.index("\n## ") + 1:], f"{prompt.name}: sections don't rejoin to the file"
+        method = PLUGINS / "competitor-research/skills/competitor-research/competitor-research.md"
+        if method.exists():
+            one = run([sys.executable, str(reader), str(method), "1"]).stdout
+            assert "### Step" not in one, "section 1 must not pull in the steps"
+            step = run([sys.executable, str(reader), str(method), "step3"]).stdout
+            assert step.startswith("### Step 3.") and "### Step 4." not in step, step[:80]
+        # Every section list a skill or helper asks for must exist.
+        calls = re.compile(r'read_sections\.py" "SKILL_DIR/([\w.-]+)" ([\w. ]+)`')
+        for doc in list(PLUGINS.glob("*/skills/*/SKILL.md")) + list(PLUGINS.glob("*/agents/*.md")):
+            for target, keys in calls.findall(doc.read_text(encoding="utf-8")):
+                path = next((PLUGINS / doc.relative_to(PLUGINS).parts[0]).glob(f"skills/*/{target}"))
+                run([sys.executable, str(reader), str(path), *keys.split()])
+
+    @test
     def test_repo_pointer_skills_match_plugins():
         problems = []
         for name in plugin_names():

@@ -49,6 +49,11 @@ ask for it.
    Store anything a tool learns over time in the user's project or in
    `${CLAUDE_PLUGIN_DATA}`, never inside the plugin folder (it is replaced on
    update).
+   Keep the description to 55 words or fewer (helper agents: 40): every
+   installed description is paid for in every founder's session, and the
+   tests enforce the caps. If the full prompt is long, give it numbered
+   `## N.` sections and have the skill print only the sections a job needs
+   with `scripts/read_sections.py` (copy it from the social-media skill).
 3. Where the tool can work outside Claude Code, include a self-contained
    prompt in the same folder and list it in `prompts/README.md`.
 4. Add an entry to `.claude-plugin/marketplace.json`, a pointer in
