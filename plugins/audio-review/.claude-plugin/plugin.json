@@ -1,0 +1,17 @@
+{
+  "name": "audio-review",
+  "displayName": "Audio Review by SOLIDS FOR YOU",
+  "description": "SOLIDS FOR YOU Audio Review: Claude listens to audio like a senior audio designer (loudness, dynamics, tonal balance, stereo, noise and artifacts) and gives a scored review with a fix list.",
+  "author": {
+    "name": "SOLIDS FOR YOU"
+  },
+  "homepage": "https://github.com/Founderwithabs/solidsforyou",
+  "keywords": [
+    "audio",
+    "mixing",
+    "mastering",
+    "loudness",
+    "podcast",
+    "sound design"
+  ]
+}
