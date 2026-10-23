@@ -47,6 +47,10 @@ The output goes to `audio_reviews/<name>/` (metrics.json, the images and
 review.md). You can also run the analyzer alone with
 `python tools/audio_review/analyze.py mix.wav --out some_dir`.
 
+## Use it in any Claude chat
+
+`initiation_prompt.md` is a self-contained prompt. Paste it into any Claude conversation (claude.ai, the desktop or mobile apps, or a Project's instructions) and Claude will act as an audio designer for the rest of the chat. Where Claude can run code, it analyses uploaded audio itself.
+
 ## Limits
 
 The review judges the measurable sound: level, balance, noise, width,
