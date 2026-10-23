@@ -1,19 +1,30 @@
-# SOLIDSFORYOU
+# Everything a Founder Needs
+
+A toolkit of Claude skills and prompts for founders. See `README.md` for the
+full list.
+
+## Layout
+
+- `prompts/`: paste-ready prompts that work in any Claude chat.
+- `.claude/skills/`: Claude Code skills (slash commands).
+- `.claude/agents/`: helper agents used by economy mode.
+- Root image files: Solids for You product page images. Do not move or rename
+  them without asking; they may be linked from outside this repo.
+
+When adding a tool, add both a skill and (where it can work outside Claude
+Code) a paste-ready prompt, and list it in the README table.
 
 ## Economy mode (cheaper models for less important tasks)
 
-This repo ships an **economy mode** for Claude Code agents:
-
-- Turn it on with `/economy-mode` (or say "economy mode on").
+- Turn it on with `/economy-mode` (or say "economy mode on"); turn it off by
+  saying "economy mode off".
 - It routes low-importance tasks to the `quick-task` subagent (Haiku) and
   routine tasks to the `standard-task` subagent (Sonnet), and keeps the main
   model for decisions, debugging, and final review.
-- Turn it off by saying "economy mode off".
+- The `quick-task` and `standard-task` subagents may be used for clearly
+  simple work even when economy mode is off.
 
 Definitions: `.claude/skills/economy-mode/SKILL.md` and `.claude/agents/`.
-
-Even when economy mode is off, the `quick-task` and `standard-task` subagents
-are available and may be used for clearly simple work.
 
 ## Careful mode (triple review before submitting)
 
@@ -25,12 +36,12 @@ are available and may be used for clearly simple work.
 - Can be combined with economy mode: cheaper models may do the work, but the
   reviews are always done by the main model.
 
-Definition: `.claude/skills/careful-mode/SKILL.md`.
+Definitions: `.claude/skills/careful-mode/SKILL.md` (Claude Code) and
+`prompts/careful-mode.md` (paste version). Keep the two in step.
 
 ## Harsh buyer review (consumer persona)
 
 - Turn it on with `/harsh-buyer-review` (or say "review this like a harsh buyer").
 - Claude acts as a real buyer: researches competitors, compares one-on-one,
   and gives harsh, specific feedback on listings, images, video and copy.
-- The full prompt is in `prompts/harsh-buyer-reviewer.md`, written so it can
-  also be pasted into any Claude chat.
+- The full prompt is in `prompts/harsh-buyer-reviewer.md`; the skill loads it.
