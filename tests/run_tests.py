@@ -234,13 +234,13 @@ def check_structure() -> None:
                             assert r.returncode == 0, f"{root.name} {event} hook failed: {r.stderr[-300:]}"
 
     @test
-    def test_master_is_task_specific_by_default_and_always_on_by_choice():
+    def test_master_is_on_by_default_cheap_and_switchable():
         root = PLUGINS / "master"
         if not root.exists():
             raise Skip("no master plugin")
         need("sh")
         mode = json.loads((root / ".claude-plugin/plugin.json").read_text())["userConfig"]["mode"]
-        assert mode["default"] == "task-specific", mode
+        assert mode["default"] == "always-on", mode
         assert set(mode["options"]) == {"task-specific", "always-on"}, mode
         cmd = json.loads((root / "hooks/hooks.json").read_text())["hooks"]["SessionStart"][0]["hooks"][0]["command"]
         cmd = cmd.replace("${CLAUDE_PLUGIN_ROOT}", str(root))
@@ -251,11 +251,14 @@ def check_structure() -> None:
                 env["CLAUDE_PLUGIN_OPTION_MODE"] = value
             return subprocess.run(["sh", "-c", cmd], capture_output=True, text=True, env=env, timeout=30).stdout
 
+        router = session_start("always-on")
+        assert "SOLIDS FOR YOU Master" in router, "always-on must load the router"
+        assert session_start(None) == router, "an unset mode must behave as the always-on default"
         assert session_start("task-specific") == "", "task-specific mode must add nothing to the session"
-        assert session_start(None) == "", "an unset mode must behave as task-specific"
-        assert "SOLIDS FOR YOU toolbox" in session_start("always-on"), "always-on must load the toolbox"
+        # Both are paid for in every session, so keep them small.
+        assert len(router.split()) <= 400, f"router is {len(router.split())} words; keep it under 400"
         description = frontmatter(root / "skills/master/SKILL.md")["description"]
-        assert "EVERY task" not in description, "the skill must not claim every task"
+        assert len(description.split()) <= 70, f"master description is {len(description.split())} words"
 
     @test
     def test_claude_plugin_validate():

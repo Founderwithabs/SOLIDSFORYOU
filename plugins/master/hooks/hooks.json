@@ -5,7 +5,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "if [ \"$CLAUDE_PLUGIN_OPTION_MODE\" = \"always-on\" ]; then cat \"${CLAUDE_PLUGIN_ROOT}/skills/master/toolbox.md\"; fi"
+            "command": "if [ \"$CLAUDE_PLUGIN_OPTION_MODE\" != \"task-specific\" ]; then cat \"${CLAUDE_PLUGIN_ROOT}/skills/master/toolbox.md\"; fi"
           }
         ]
       }

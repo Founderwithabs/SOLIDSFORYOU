@@ -15,7 +15,7 @@ desktop, mobile), or **any Claude chat** as a paste-in prompt.
 | Tool | What you get | Use it when |
 |---|---|---|
 | 🎧 **Audio Review** | A senior audio designer's review of any audio: a score out of 10, how it sounds, ranked problems with timestamps, a fix list, and loudness checks for Spotify, YouTube, podcasts, broadcast and ads | Before you publish a podcast, ad, song, voice-over or product sound |
-| 🏆 **Master Skill** | Keeps every tool below ready and uses only what each task needs. Making a video runs the full video workflow: it plans, builds, reviews as your buyer and as a motion designer, checks the sound, then fixes and re-renders until the video scores 85 out of 100 or more. Social media, feedback and research get only the tools they need. Task-specific by default; you can switch it to always-on | Install it with the other tools and Claude picks the right ones for each task |
+| 🏆 **Master Skill** | Keeps every tool below ready and uses only what each task needs. Making a video runs the full video workflow: it plans, builds, reviews as your buyer and as a motion designer, checks the sound, then fixes and re-renders until the video scores 85 out of 100 or more. Social media, feedback and research get their specialists, and simple tasks get none, so you save credits and get better work | Always on. Install it with the other tools and Claude picks the right ones for each task |
 | 📱 **Social Media** | Your head of social media: strategy, content calendars, posts, hooks, carousels and reel scripts for Instagram, TikTok, YouTube, LinkedIn, X and more. Every post passes a 100-point scorecard before you see it, growth stays honest, and it learns from your own results | Planning, writing, reviewing or analysing anything for social media |
 | 🎬 **Motion Design Taste** | A senior motion designer's review of a video: a score out of 100, ranking against references, and exact fixes (and Claude applies them when it has the source). It learns your taste over time | Before you ship an explainer, reel, ad or product video |
 | 🛒 **Harsh Buyer Review** | A real buyer tears into your listing: researches 3 to 5 competitors, compares one-on-one, and tells you exactly why they would or wouldn't buy | Before you launch or change a product listing, images, video, copy or price |
@@ -52,12 +52,15 @@ Or just run `/plugin` and pick them from the list. After that, ask naturally
 To get updates, run `/plugin marketplace update solidsforyou`, or turn on
 auto-update for the catalog under **Marketplaces** in `/plugin`.
 
-**Choose how the Master Skill works.** By default it is **task-specific**: it
-only steps in for video, audio, social media, feedback and research tasks,
-and adds nothing to your other sessions. If you'd rather have every task
-routed through it, switch it to **always-on** with
-`/plugin configure master@solidsforyou` (or its row in `/config`). For a
-single conversation, just say "Master Skill always on" or "Master Skill off".
+**Master is on in every session (recommended).** It loads a compact router
+of a few hundred tokens, so Claude uses only the tools each task needs: a
+quick question gets a quick answer with no tools, while a video, a listing or
+a social post gets the right specialist. The full instructions for a tool
+load only when a task needs it. If you'd rather Master only stepped in for
+video, audio, social media, feedback and research, switch it to
+**task-specific** with `/plugin configure master@solidsforyou` (or its row in
+`/config`). For a single conversation, say "Master Skill off" or "Master Skill
+always on".
 
 **Requirements:** Audio Review and Motion Design Taste need
 [ffmpeg](https://ffmpeg.org/download.html) and Python 3. Audio Review also

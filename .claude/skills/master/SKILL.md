@@ -1,6 +1,6 @@
 ---
 name: master
-description: The SOLIDS FOR YOU Master Skill. Use it for tasks that need SOLIDS FOR YOU tools: making, editing or reviewing a video, checking audio, social media work, feedback on a product, listing or ad, and research; or when the user asks for the Master Skill or "/master". It keeps all SOLIDS FOR YOU tools ready (economy mode, careful mode, harsh buyer review, motion design taste, audio review, social media, video build tools) and picks only the ones a task needs: the full video workflow for making or editing any video (MP4, reel, ad, explainer, animation, motion graphic, product video, footage edit, GIF), social media for posts, calendars and growth, harsh buyer review for feedback, careful research for research, and a direct answer for questions.
+description: SOLIDS FOR YOU Master Skill: routes each task to only the SOLIDS FOR YOU tools it needs, and runs the full video workflow. Use to make or edit any video (reel, ad, explainer, animation, product video, footage edit, GIF), for tasks that combine several SOLIDS FOR YOU tools, or when the user asks for the Master Skill or "/master".
 ---
 
 This lets the tool work in sessions opened inside this repository. The real

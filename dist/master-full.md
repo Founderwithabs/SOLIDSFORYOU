@@ -34,17 +34,19 @@ These are the tools the Master Skill manages. When a task needs one:
 
 ## 2. When the Master Skill runs (the founder chooses)
 
-The Master Skill has two modes. The founder picks one; never switch it for
-them.
+The Master Skill is meant to be on: its job is to help founders save credits
+and get better results by having Claude pick only the tools each task needs.
+It has two modes. The founder picks one; never switch it for them.
 
-- **Task-specific (default).** The Master Skill runs only for tasks that need
-  SOLIDS FOR YOU tools: making, editing or reviewing a video, audio, social
-  media, feedback on something customers see, and research. Questions and
-  everyday work run as normal Claude, without the toolbox or any routing
-  line. Nothing is added to sessions that don't need it.
-- **Always-on.** The toolbox is loaded at the start of every Claude Code
-  session and every task is routed through it, including questions and other
-  work (section 3).
+- **Always-on (default).** A compact router (`toolbox.md`, a few hundred
+  tokens) is loaded at the start of every Claude Code session, and every task
+  is routed through it, including questions and other work (section 3). The
+  full tool instructions load only when a task needs that tool, so simple
+  tasks stay cheap and skilled tasks get the right specialist.
+- **Task-specific.** Nothing is loaded at session start. The Master Skill
+  runs only for tasks that need SOLIDS FOR YOU tools: making, editing or
+  reviewing a video, audio, social media, feedback on something customers
+  see, and research.
 
 How the founder chooses:
 - **Claude Code:** `/plugin configure master@solidsforyou` (or the Master
@@ -135,49 +137,34 @@ This skill is meant to grow. To add a SOLIDS FOR YOU tool:
 
 ---
 
-# SOLIDS FOR YOU toolbox
+# SOLIDS FOR YOU Master (on)
 
-You have the SOLIDS FOR YOU Master Skill. It keeps these tools ready for
-every task, so you never have to go looking for them. Before starting any
-task, pick the task type below and use only the tools it lists. Do not load
-tools a task doesn't need.
+Route every task to the fewest SOLIDS FOR YOU tools it needs. Invoke a tool's
+skill only when its row below says so; never load one "just in case".
 
-## The tools
-
-| Tool | What it does |
+| Task | Use |
 |---|---|
-| `economy-mode` | Sends simple, low-judgment work (finding, fetching, running commands, reformatting) to cheaper models; keeps decisions and reviews on the main model |
-| `careful-mode` | Three reviews before anything is handed over: is it right, is it complete, how could it go wrong |
-| `harsh-buyer-review` | A real buyer researches competitors, compares one-on-one, and gives harsh, specific feedback |
-| `motion-design-taste` | Inspects a video, scores it out of 100, ranks it against references, lists and applies exact fixes |
-| `audio-review` | Measures and judges audio like a senior audio designer, with a score and a fix list |
-| `social-media` | A head of social media: strategy, calendars, posts, hooks and scripts, a 100-point pre-publish scorecard, analytics and replies |
-| Video build tools | Scene template, frame-by-frame renderer and sound-effects mixer, in the `master` skill's folder |
+| Question, quick answer | Answer directly, no tools. careful-mode only if money, legal, health or something hard to undo is involved |
+| Other work (writing, code, docs, planning) | No tools by default. careful-mode if high-stakes; economy-mode if long and multi-step |
+| Make or edit a video | `master` skill: its video workflow |
+| Review a video | motion-design-taste; + harsh-buyer-review if for customers; + audio-review if the sound matters |
+| Audio | audio-review |
+| Social media | social-media; + harsh-buyer-review for posts that sell; + the video workflow to make a reel |
+| Feedback on a product, listing, ad, copy or price | harsh-buyer-review |
+| Research | economy-mode helpers gather sources; you verify and cite every fact; careful-mode |
 
-## Pick the task type, then use only its tools
+Mixed task: use each part's tools. Unsure: pick the row with more checks.
 
-| Task type | Looks like | Use | Don't use |
-|---|---|---|---|
-| **Video** | Make or edit any video: reel, ad, explainer, animation, motion graphic, product video, footage edit, animated GIF | The full video workflow (`workflows/video.md` in the `master` skill): economy-mode, careful-mode, motion-design-taste, video build tools, audio-review for the sound, harsh-buyer-review | Nothing is skipped |
-| **Video review** | "Is this video good?", compare or rank videos, without making one | motion-design-taste, harsh-buyer-review if it's for customers, audio-review if the sound matters, careful-mode | Video build tools (unless asked to fix it) |
-| **Audio** | Review, check or fix audio, voiceover, podcast, music, mix | audio-review, careful-mode | Video and design tools |
-| **Social media** | Strategy, content calendar, posts, captions, carousels, hooks, reel or short scripts, trends, post analytics, replying to comments | social-media, careful-mode; harsh-buyer-review for posts or ads that sell; the video workflow when a reel or short must be made | Audio tools (unless the post has sound to check) |
-| **Feedback** | Feedback on a product, listing, image, copy, packaging, price or offer | harsh-buyer-review, careful-mode | Video and audio tools |
-| **Research** | Markets, competitors, suppliers, prices, facts, trends | economy-mode (helpers gather sources), careful-mode (check every fact and cite it); harsh-buyer-review's competitor method for product comparisons | Video and audio tools |
-| **Question** | A direct question or quick answer | Answer directly; careful-mode if money, legal, health or anything hard to undo is involved | Every other tool |
-| **Other work** | Writing, planning, code, documents | careful-mode for anything high-stakes, economy-mode for long multi-step work | Video and audio tools |
+Save credits: no tools for simple tasks; send bulk reading, searching and
+reformatting to cheaper helpers (economy-mode); don't re-read files already
+in context; keep simple answers short.
+Keep quality: careful-mode on anything customers see or that is hard to undo;
+maths in code; never invent facts, prices or sources; every review and
+sign-off is yours, never a cheaper model's.
 
-If a task mixes types, use the tools of each type it contains. If you are
-unsure of the type, pick the one with more checks.
-
-## Rules for every task
-
-- Maths is always done in code and checked, never in your head and never on
-  a cheaper model.
-- Never invent facts, prices, claims or sources. Say "not found" instead.
-- Every review and final sign-off is done by you, never by a cheaper model.
-- Full instructions for any tool: use that tool's skill. Full rules for the
-  Master Skill: `master.md` in the `master` skill's folder.
+Full rules: the `master` skill. A routing line ("Master: video task, using
+...") only for tasks that use a tool. Founders can switch Master to
+task-specific with `/plugin configure master@solidsforyou`.
 
 ---
 

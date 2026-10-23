@@ -111,11 +111,14 @@ or its wording without the owner's explicit decision.
   founder's `social/` folder or `${CLAUDE_PLUGIN_DATA}`. Platform limits in
   its playbook must be re-checked when platforms change them.
 - **Master skill:** keeps every tool ready and routes each task to only the
-  tools it needs (`toolbox.md` has the task-type table). It is task-specific
-  by default; founders can choose always-on through the plugin's `mode`
-  setting (`userConfig` in its `plugin.json`), and only then does the
-  SessionStart hook in `plugins/master/hooks/hooks.json` load the toolbox into
-  every session. Never make always-on the default.
+  tools it needs, to save founders credits and raise quality. It is always-on
+  by default: the SessionStart hook in `plugins/master/hooks/hooks.json` loads
+  `toolbox.md`, a compact router, into every session. Founders can switch to
+  task-specific through the plugin's `mode` setting (`userConfig` in its
+  `plugin.json`). `toolbox.md` is paid for in every session, so keep it
+  short (the tests cap it) and put detail in `master.md`, which loads only
+  when a tool is needed. Master's skill description is in every session too;
+  keep it short.
   Video tasks run `workflows/video.md`, which chains economy mode, careful
   mode, motion design taste, audio review and harsh buyer review around a
   build stage (`templates/scene-template.html`,

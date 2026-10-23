@@ -34,7 +34,7 @@
     {
       "name": "master",
       "source": "./plugins/master",
-      "description": "SOLIDS FOR YOU Master Skill: keeps every SOLIDS FOR YOU tool ready and uses only the ones each task needs, from the full video workflow (plan, build, review as a buyer and a motion designer, fix and re-render until it scores 85+) to social media, feedback and research. Task-specific by default; you can switch it to always-on."
+      "description": "SOLIDS FOR YOU Master Skill: on in every session, it has Claude use only the SOLIDS FOR YOU tools each task needs, to save credits and raise quality: the full video workflow (plan, build, review, fix and re-render until it scores 85+), social media, feedback and research get their specialists; simple tasks get none. You can switch it to task-specific."
     },
     {
       "name": "social-media",

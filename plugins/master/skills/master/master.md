@@ -30,17 +30,19 @@ These are the tools the Master Skill manages. When a task needs one:
 
 ## 2. When the Master Skill runs (the founder chooses)
 
-The Master Skill has two modes. The founder picks one; never switch it for
-them.
+The Master Skill is meant to be on: its job is to help founders save credits
+and get better results by having Claude pick only the tools each task needs.
+It has two modes. The founder picks one; never switch it for them.
 
-- **Task-specific (default).** The Master Skill runs only for tasks that need
-  SOLIDS FOR YOU tools: making, editing or reviewing a video, audio, social
-  media, feedback on something customers see, and research. Questions and
-  everyday work run as normal Claude, without the toolbox or any routing
-  line. Nothing is added to sessions that don't need it.
-- **Always-on.** The toolbox is loaded at the start of every Claude Code
-  session and every task is routed through it, including questions and other
-  work (section 3).
+- **Always-on (default).** A compact router (`toolbox.md`, a few hundred
+  tokens) is loaded at the start of every Claude Code session, and every task
+  is routed through it, including questions and other work (section 3). The
+  full tool instructions load only when a task needs that tool, so simple
+  tasks stay cheap and skilled tasks get the right specialist.
+- **Task-specific.** Nothing is loaded at session start. The Master Skill
+  runs only for tasks that need SOLIDS FOR YOU tools: making, editing or
+  reviewing a video, audio, social media, feedback on something customers
+  see, and research.
 
 How the founder chooses:
 - **Claude Code:** `/plugin configure master@solidsforyou` (or the Master
