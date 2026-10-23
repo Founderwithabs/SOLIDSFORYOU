@@ -2,8 +2,8 @@
 
 **Make your Claude solid.**
 
-Claude tools for starting and running a business, free for personal and
-noncommercial use (see [License](#license)). Each one turns Claude
+Free, open-source Claude tools for starting and running a business (MIT
+licensed, see [License](#license)). Each one turns Claude
 into a specialist you'd otherwise have to hire: an audio designer, a motion
 design director, a harsh customer, a meticulous reviewer.
 
@@ -15,7 +15,7 @@ desktop, mobile), or **any Claude chat** as a paste-in prompt.
 | Tool | What you get | Use it when |
 |---|---|---|
 | 🎧 **Audio Review** | A senior audio designer's review of any audio: a score out of 10, how it sounds, ranked problems with timestamps, a fix list, and loudness checks for Spotify, YouTube, podcasts, broadcast and ads | Before you publish a podcast, ad, song, voice-over or product sound |
-| 🏆 **Master Skill** | Keeps every tool below ready in every session and uses only what each task needs. Making a video runs the full video workflow: it plans, builds, reviews as your buyer and as a motion designer, checks the sound, then fixes and re-renders until the video scores 85 out of 100 or more. Feedback, research and questions get only the tools they need | Always. Install it with the other tools and Claude picks the right ones for you |
+| 🏆 **Master Skill** | Keeps every tool below ready and uses only what each task needs. Making a video runs the full video workflow: it plans, builds, reviews as your buyer and as a motion designer, checks the sound, then fixes and re-renders until the video scores 85 out of 100 or more. Social media, feedback and research get only the tools they need. Task-specific by default; you can switch it to always-on | Install it with the other tools and Claude picks the right ones for each task |
 | 📱 **Social Media** | Your head of social media: strategy, content calendars, posts, hooks, carousels and reel scripts for Instagram, TikTok, YouTube, LinkedIn, X and more. Every post passes a 100-point scorecard before you see it, growth stays honest, and it learns from your own results | Planning, writing, reviewing or analysing anything for social media |
 | 🎬 **Motion Design Taste** | A senior motion designer's review of a video: a score out of 100, ranking against references, and exact fixes (and Claude applies them when it has the source). It learns your taste over time | Before you ship an explainer, reel, ad or product video |
 | 🛒 **Harsh Buyer Review** | A real buyer tears into your listing: researches 3 to 5 competitors, compares one-on-one, and tells you exactly why they would or wouldn't buy | Before you launch or change a product listing, images, video, copy or price |
@@ -51,6 +51,13 @@ Or just run `/plugin` and pick them from the list. After that, ask naturally
 
 To get updates, run `/plugin marketplace update solidsforyou`, or turn on
 auto-update for the catalog under **Marketplaces** in `/plugin`.
+
+**Choose how the Master Skill works.** By default it is **task-specific**: it
+only steps in for video, audio, social media, feedback and research tasks,
+and adds nothing to your other sessions. If you'd rather have every task
+routed through it, switch it to **always-on** with
+`/plugin configure master@solidsforyou` (or its row in `/config`). For a
+single conversation, just say "Master Skill always on" or "Master Skill off".
 
 **Requirements:** Audio Review and Motion Design Taste need
 [ffmpeg](https://ffmpeg.org/download.html) and Python 3. Audio Review also
@@ -110,17 +117,16 @@ tests/run_tests.py                Tests every tool (runs on each push)
 
 ## License
 
-Copyright Solids for You Private Limited. The tools are licensed under the
-[PolyForm Noncommercial License 1.0.0](LICENSE.md).
+Copyright (c) 2026 Solids for You Private Limited. Released under the
+[MIT License](LICENSE.md).
 
-- **Free** for personal use (study, testing, hobby projects) and for
-  charities, schools, research and government organizations.
-- **Using them for a business or any commercial purpose needs a separate
-  commercial license** from Solids for You Private Limited. To get one,
-  email [shashwat@solidsforyou.com](mailto:shashwat@solidsforyou.com).
-- If you share the tools or anything built from them, include the license
-  terms (or their link) and the `Required Notice:` line from
-  [`LICENSE.md`](LICENSE.md).
+- **Free for everyone, including businesses.** Use the tools for your own
+  company or your clients, change them, and build on them.
+- If you share the tools, or copies of substantial parts of them, keep the
+  copyright notice and the license text from [`LICENSE.md`](LICENSE.md)
+  with them. Every plugin folder and skill zip already includes it.
+- The tools come with no warranty: check what Claude produces before you
+  rely on it.
 
 ## Add or change a tool
 

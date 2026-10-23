@@ -1,4 +1,4 @@
-# SOLIDS FOR YOU toolbox (always loaded)
+# SOLIDS FOR YOU toolbox
 
 You have the SOLIDS FOR YOU Master Skill. It keeps these tools ready for
 every task, so you never have to go looking for them. Before starting any

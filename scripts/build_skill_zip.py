@@ -44,7 +44,7 @@ def build(name):
         for f in sorted(folder.rglob("*")):
             if f.is_file() and "__pycache__" not in f.parts:
                 add(z, f, Path(name) / f.relative_to(folder))
-        # The license's Required Notice must travel with every copy.
+        # MIT requires the copyright and license notice in every copy.
         add(z, ROOT / "plugins" / name / "LICENSE.md", Path(name) / "LICENSE.md")
     return data.getvalue()
 

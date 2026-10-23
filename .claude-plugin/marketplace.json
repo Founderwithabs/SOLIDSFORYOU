@@ -34,7 +34,7 @@
     {
       "name": "master",
       "source": "./plugins/master",
-      "description": "SOLIDS FOR YOU Master Skill: keeps every SOLIDS FOR YOU tool ready in every session and uses only the ones each task needs, from the full video workflow (plan, build, review as a buyer and a motion designer, fix and re-render until it scores 85+) to feedback, research and quick answers."
+      "description": "SOLIDS FOR YOU Master Skill: keeps every SOLIDS FOR YOU tool ready and uses only the ones each task needs, from the full video workflow (plan, build, review as a buyer and a motion designer, fix and re-render until it scores 85+) to social media, feedback and research. Task-specific by default; you can switch it to always-on."
     },
     {
       "name": "social-media",

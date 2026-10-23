@@ -5,12 +5,13 @@ guide; keep it accurate whenever anything here changes.
 
 Tagline: **Make your Claude solid.**
 
-## Always: start every task with the Master Skill
+## Use the Master Skill for tasks that need its tools
 
-Use the `master` skill at the start of every task in this repo. It picks the
-tools the task needs; any video you produce goes through its full video
-workflow (`plugins/master/skills/master/workflows/video.md`), even if the
-user did not ask for it.
+Use the `master` skill for any task in this repo that needs SOLIDS FOR YOU
+tools (video, audio, social media, feedback, research). Any video you produce
+goes through its full video workflow
+(`plugins/master/skills/master/workflows/video.md`), even if the user did not
+ask for it.
 
 ## How the repo is built
 
@@ -39,9 +40,8 @@ user did not ask for it.
    "SOLIDS FOR YOU <Tool>:"), `author` `{"name": "SOLIDS FOR YOU"}`,
    `homepage` and `keywords`. Leave out `version`, so founders get every
    update.
-   Add `"license": "PolyForm-Noncommercial-1.0.0"` after `homepage`, and
-   copy `plugins/careful-mode/LICENSE.md` (the Required Notice) into
-   `plugins/<tool>/`.
+   Add `"license": "MIT"` after `homepage`, and copy the root `LICENSE.md`
+   into `plugins/<tool>/`.
 2. Put the skill in `plugins/<tool>/skills/<tool>/SKILL.md`. Its frontmatter
    may only use `name` and `description`, so the claude.ai upload works.
    Refer to bundled files as being "next to this SKILL.md" and give the
@@ -80,11 +80,11 @@ machine, not that the check passed.
 
 ## License
 
-The repo is licensed under the PolyForm Noncommercial License 1.0.0
-(`LICENSE.md`), copyright Solids for You Private Limited. Every plugin folder
-carries a `LICENSE.md` with the Required Notice, and the skill zips and the
-video bundle include it. Don't change the license or its wording without the
-owner's explicit decision.
+The repo is licensed under the MIT License (`LICENSE.md`), copyright (c) 2026
+Solids for You Private Limited. Every plugin folder carries a copy of
+`LICENSE.md`, and the skill zips and the Master bundle include it, because
+MIT requires the notice to travel with every copy. Don't change the license
+or its wording without the owner's explicit decision.
 
 ## Tool notes
 
@@ -111,8 +111,11 @@ owner's explicit decision.
   founder's `social/` folder or `${CLAUDE_PLUGIN_DATA}`. Platform limits in
   its playbook must be re-checked when platforms change them.
 - **Master skill:** keeps every tool ready and routes each task to only the
-  tools it needs (`toolbox.md` has the task-type table; a SessionStart hook in
-  `plugins/master/hooks/hooks.json` loads it into every Claude Code session).
+  tools it needs (`toolbox.md` has the task-type table). It is task-specific
+  by default; founders can choose always-on through the plugin's `mode`
+  setting (`userConfig` in its `plugin.json`), and only then does the
+  SessionStart hook in `plugins/master/hooks/hooks.json` load the toolbox into
+  every session. Never make always-on the default.
   Video tasks run `workflows/video.md`, which chains economy mode, careful
   mode, motion design taste, audio review and harsh buyer review around a
   build stage (`templates/scene-template.html`,

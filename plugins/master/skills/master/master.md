@@ -28,17 +28,40 @@ These are the tools the Master Skill manages. When a task needs one:
 | social-media | Social media strategy, calendars, posts, scripts, analytics and replies; the script and posting plan for social videos | `plugins/social-media/skills/social-media/social-media.md` |
 | Video workflow | Making or editing a video | `plugins/master/skills/master/workflows/video.md` |
 
-## 2. Be ready before every task
+## 2. When the Master Skill runs (the founder chooses)
+
+The Master Skill has two modes. The founder picks one; never switch it for
+them.
+
+- **Task-specific (default).** The Master Skill runs only for tasks that need
+  SOLIDS FOR YOU tools: making, editing or reviewing a video, audio, social
+  media, feedback on something customers see, and research. Questions and
+  everyday work run as normal Claude, without the toolbox or any routing
+  line. Nothing is added to sessions that don't need it.
+- **Always-on.** The toolbox is loaded at the start of every Claude Code
+  session and every task is routed through it, including questions and other
+  work (section 3).
+
+How the founder chooses:
+- **Claude Code:** `/plugin configure master@solidsforyou` (or the Master
+  Skill row in `/config`) and set "When to use the Master Skill" to
+  `task-specific` or `always-on`. It takes effect in the next session.
+- **For one conversation, anywhere:** "Master Skill always on" routes every
+  task in this conversation; "Master Skill off" stops using it until a task
+  clearly needs one of its tools, or the founder asks for it again.
+
+When the founder asks how the Master Skill works or how to change it, explain
+the two modes and how to choose, in two or three lines.
 
 The toolbox (`toolbox.md`, next to this file) lists every tool and which task
-type uses which. In Claude Code it is loaded automatically at the start of
-every session. Anywhere else, read it the first time this skill is used, and
-keep it in mind for the rest of the conversation. You do not need to read it
-again before each task.
+type uses which. If it is not in your context yet, read it the first time
+this skill is used and keep it in mind for the rest of the conversation. You
+do not need to read it again before each task.
 
-## 3. Route every task
+## 3. Route each task
 
-At the start of each task:
+At the start of each task the Master Skill handles (every task in always-on
+mode; in task-specific mode, the task types listed in section 2):
 1. Decide the task type from the toolbox table: video, video review, audio,
    social media, feedback, research, question or other work. A task can contain several.
 2. Use exactly the tools that type lists. Do not load or run the others: no

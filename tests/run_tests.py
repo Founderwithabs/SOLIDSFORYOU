@@ -13,6 +13,7 @@ all of them, so nothing is skipped there.
 from __future__ import annotations
 
 import json
+import os
 import re
 import shutil
 import subprocess
@@ -213,23 +214,48 @@ def check_structure() -> None:
                 run(["node", "--check", str(js)])
 
     @test
-    def test_plugin_hooks_run_and_print_something():
+    def test_plugin_hooks_run():
         hook_files = list(PLUGINS.glob("*/hooks/hooks.json"))
         if not hook_files:
             raise Skip("no plugin hooks")
         need("sh")
         for hf in hook_files:
             root = hf.parent.parent
+            options = json.loads((root / ".claude-plugin/plugin.json").read_text()).get("userConfig", {})
+            # Run each hook once with every option at its default, as a new user has it.
+            env = {**os.environ, **{f"CLAUDE_PLUGIN_OPTION_{k.upper()}": str(v.get("default", ""))
+                                    for k, v in options.items()}}
             for event, groups in json.loads(hf.read_text())["hooks"].items():
                 for group in groups:
                     for hook in group["hooks"]:
-                        if hook.get("type") != "command":
-                            continue
-                        cmd = hook["command"].replace("${CLAUDE_PLUGIN_ROOT}", str(root))
-                        r = subprocess.run(["sh", "-c", cmd], capture_output=True, text=True, timeout=30)
-                        assert r.returncode == 0, f"{root.name} {event} hook failed: {r.stderr[-300:]}"
-                        if event == "SessionStart":
-                            assert r.stdout.strip(), f"{root.name} SessionStart hook printed nothing"
+                        if hook.get("type") == "command":
+                            cmd = hook["command"].replace("${CLAUDE_PLUGIN_ROOT}", str(root))
+                            r = subprocess.run(["sh", "-c", cmd], capture_output=True, text=True, env=env, timeout=30)
+                            assert r.returncode == 0, f"{root.name} {event} hook failed: {r.stderr[-300:]}"
+
+    @test
+    def test_master_is_task_specific_by_default_and_always_on_by_choice():
+        root = PLUGINS / "master"
+        if not root.exists():
+            raise Skip("no master plugin")
+        need("sh")
+        mode = json.loads((root / ".claude-plugin/plugin.json").read_text())["userConfig"]["mode"]
+        assert mode["default"] == "task-specific", mode
+        assert set(mode["options"]) == {"task-specific", "always-on"}, mode
+        cmd = json.loads((root / "hooks/hooks.json").read_text())["hooks"]["SessionStart"][0]["hooks"][0]["command"]
+        cmd = cmd.replace("${CLAUDE_PLUGIN_ROOT}", str(root))
+
+        def session_start(value):
+            env = {k: v for k, v in os.environ.items() if k != "CLAUDE_PLUGIN_OPTION_MODE"}
+            if value is not None:
+                env["CLAUDE_PLUGIN_OPTION_MODE"] = value
+            return subprocess.run(["sh", "-c", cmd], capture_output=True, text=True, env=env, timeout=30).stdout
+
+        assert session_start("task-specific") == "", "task-specific mode must add nothing to the session"
+        assert session_start(None) == "", "an unset mode must behave as task-specific"
+        assert "SOLIDS FOR YOU toolbox" in session_start("always-on"), "always-on must load the toolbox"
+        description = frontmatter(root / "skills/master/SKILL.md")["description"]
+        assert "EVERY task" not in description, "the skill must not claim every task"
 
     @test
     def test_claude_plugin_validate():
