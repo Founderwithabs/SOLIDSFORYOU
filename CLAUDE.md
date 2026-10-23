@@ -38,6 +38,9 @@ user did not ask for it.
    "SOLIDS FOR YOU <Tool>:"), `author` `{"name": "SOLIDS FOR YOU"}`,
    `homepage` and `keywords`. Leave out `version`, so founders get every
    update.
+   Add `"license": "PolyForm-Noncommercial-1.0.0"` after `homepage`, and
+   copy `plugins/careful-mode/LICENSE.md` (the Required Notice) into
+   `plugins/<tool>/`.
 2. Put the skill in `plugins/<tool>/skills/<tool>/SKILL.md`. Its frontmatter
    may only use `name` and `description`, so the claude.ai upload works.
    Refer to bundled files as being "next to this SKILL.md" and give the
@@ -58,6 +61,14 @@ user did not ask for it.
    `python3 scripts/build_bundle.py` (`--check` tells you if it's stale).
 7. Run `claude plugin validate .` (the only expected warnings are the missing
    versions) and test-install the plugin before pushing.
+
+## License
+
+The repo is licensed under the PolyForm Noncommercial License 1.0.0
+(`LICENSE.md`), copyright Solids for You Private Limited. Every plugin folder
+carries a `LICENSE.md` with the Required Notice, and the skill zips and the
+video bundle include it. Don't change the license or its wording without the
+owner's explicit decision.
 
 ## Tool notes
 

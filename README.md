@@ -2,7 +2,8 @@
 
 **Make your Claude solid.**
 
-Free Claude tools for starting and running a business. Each one turns Claude
+Claude tools for starting and running a business, free for personal and
+noncommercial use (see [License](#license)). Each one turns Claude
 into a specialist you'd otherwise have to hire: an audio designer, a motion
 design director, a harsh customer, a meticulous reviewer.
 
@@ -101,6 +102,19 @@ taste/motion/                     SOLIDS FOR YOU's own motion taste notes
 scripts/build_skill_zip.py        Rebuilds the zips in dist/
 scripts/build_bundle.py           Rebuilds dist/video-masterpiece-full.md
 ```
+
+## License
+
+Copyright Solids for You Private Limited. The tools are licensed under the
+[PolyForm Noncommercial License 1.0.0](LICENSE.md).
+
+- **Free** for personal use (study, testing, hobby projects) and for
+  charities, schools, research and government organizations.
+- **Using them for a business or any commercial purpose needs a separate
+  commercial license** from Solids for You Private Limited.
+- If you share the tools or anything built from them, include the license
+  terms (or their link) and the `Required Notice:` line from
+  [`LICENSE.md`](LICENSE.md).
 
 ## Add or change a tool
 

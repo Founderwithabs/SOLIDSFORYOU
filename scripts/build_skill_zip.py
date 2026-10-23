@@ -26,4 +26,6 @@ for name in SKILLS:
         for f in sorted(folder.rglob("*")):
             if f.is_file() and "__pycache__" not in f.parts:
                 z.write(f, Path(name) / f.relative_to(folder))
+        # The license's Required Notice must travel with every copy.
+        z.write(ROOT / "plugins" / name / "LICENSE.md", Path(name) / "LICENSE.md")
     print(f"Wrote {out.relative_to(ROOT)}")
