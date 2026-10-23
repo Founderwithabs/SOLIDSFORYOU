@@ -61,6 +61,18 @@ user did not ask for it.
    `python3 scripts/build_bundle.py` (`--check` tells you if it's stale).
 7. Run `claude plugin validate .` (the only expected warnings are the missing
    versions) and test-install the plugin before pushing.
+8. Run `python3 tests/run_tests.py` and push only when it reports 0 failed.
+   If you add a script, add a test for it in `tests/run_tests.py`.
+
+## Testing
+
+`tests/run_tests.py` checks the whole toolkit: the catalog and manifests,
+claude.ai-safe frontmatter, pointer skills, every file a skill refers to,
+links in the docs, that `dist/` is up to date, and every script run on
+synthetic audio and video it builds itself. `--fast` runs only the structure
+and docs checks. GitHub Actions (`.github/workflows/tests.yml`) runs the full
+suite on every push and pull request. A SKIP means a tool was missing on that
+machine, not that the check passed.
 
 ## License
 

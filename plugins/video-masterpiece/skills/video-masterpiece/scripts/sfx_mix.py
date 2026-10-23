@@ -38,10 +38,34 @@ SOUNDS = {
 }
 
 
+TARGET_I, TARGET_TP, TARGET_LRA = -14.0, -1.5, 11.0
+
+
 def run(cmd):
     r = subprocess.run(cmd, capture_output=True, text=True)
     if r.returncode != 0:
         sys.exit("ffmpeg failed:\n" + r.stderr[-2000:])
+    return r
+
+
+def normalize(src, out):
+    """Two-pass loudnorm: measure first, then correct with the measured values.
+
+    One-pass loudnorm guesses as it goes and can miss the target by more than
+    1 LU on short or sparse mixes; the second pass lands on it.
+    """
+    target = f"I={TARGET_I}:TP={TARGET_TP}:LRA={TARGET_LRA}"
+    r = run(["ffmpeg", "-hide_banner", "-nostats", "-i", src,
+             "-af", f"loudnorm={target}:print_format=json", "-f", "null", "-"])
+    m = json.loads(r.stderr[r.stderr.rindex("{"):r.stderr.rindex("}") + 1])
+    if m["input_i"] in ("-inf", "inf"):
+        run(["ffmpeg", "-y", "-i", src, "-ar", "48000", out])  # silent mix: nothing to do
+        return
+    run(["ffmpeg", "-y", "-i", src, "-af",
+         f"loudnorm={target}:measured_I={m['input_i']}:measured_TP={m['input_tp']}:"
+         f"measured_LRA={m['input_lra']}:measured_thresh={m['input_thresh']}:"
+         f"offset={m['target_offset']}:linear=true",
+         "-ar", "48000", out])
 
 
 def main():
@@ -86,10 +110,11 @@ def main():
     if not labels:
         sys.exit("nothing to mix")
     chains.append("".join(labels) + f"amix=inputs={len(labels)}:normalize=0,"
-                  f"apad=whole_dur={args.duration},atrim=0:{args.duration},"
-                  "loudnorm=I=-14:TP=-1.5:LRA=11[out]")
+                  f"apad=whole_dur={args.duration},atrim=0:{args.duration}[out]")
+    raw = os.path.join(tmp, "raw_mix.wav")
     run(["ffmpeg", "-y", *inputs, "-filter_complex", ";".join(chains),
-         "-map", "[out]", "-ar", "48000", args.out])
+         "-map", "[out]", "-ar", "48000", "-c:a", "pcm_f32le", raw])
+    normalize(raw, args.out)
     print(f"wrote {args.out}: {len(cues)} effects"
           + (" over the voiceover" if args.vo else "") + f", {args.duration} s")
 

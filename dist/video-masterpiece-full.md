@@ -28,8 +28,11 @@ These are the SOLIDS FOR YOU skills this workflow uses. When a stage names a
 skill, use it the first time that stage starts:
 - **Installed** (Claude Code plugin or claude.ai skill): invoke the skill by
   its name, for example the `careful-mode` skill.
-- **Not installed:** follow its prompt file from the table. In the bundled
-  single-file version of this workflow, every prompt is appended at the end.
+- **Not installed:** follow its prompt file from the table. If the file is
+  not on disk (for example, only this plugin is installed), read it from
+  `https://raw.githubusercontent.com/Founderwithabs/SOLIDSFORYOU/main/`
+  followed by the path in the table. In the bundled single-file version of
+  this workflow, every prompt is appended at the end.
 - **Neither available:** say so once, and apply the stage's instructions
   below as well as you can.
 
@@ -158,7 +161,7 @@ per scene) from the scene template:
   rendering the whole video.
 
 ```
-NODE_PATH=$(npm root -g) node "SKILL_DIR/scripts/render_html_video.cjs" \
+node "SKILL_DIR/scripts/render_html_video.cjs" \
   scene.html draft.mp4 --fps 30 --width 1920 --height 1080 [--audio mix.wav] [--from 0 --to 6]
 ```
 
@@ -200,7 +203,7 @@ transparent; }`), render them with `--transparent` to a ProRes 4444 `.mov`
 with alpha, and lay them over the footage:
 
 ```
-NODE_PATH=$(npm root -g) node "SKILL_DIR/scripts/render_html_video.cjs" \
+node "SKILL_DIR/scripts/render_html_video.cjs" \
   graphics.html graphics.mov --transparent
 ffmpeg -i footage.mp4 -i graphics.mov -filter_complex "[0:v][1:v]overlay=0:0:eof_action=pass[v]" \
   -map "[v]" -map 0:a -c:v libx264 -crf 17 -pix_fmt yuv420p -c:a aac final.mp4

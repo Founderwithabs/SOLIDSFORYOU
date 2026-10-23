@@ -1,0 +1,382 @@
+#!/usr/bin/env python3
+"""Test the whole SOLIDS FOR YOU toolkit: structure, docs and every script.
+
+  python3 tests/run_tests.py           run everything that can run here
+  python3 tests/run_tests.py --fast    structure and docs only (no media)
+
+Media tests build their own synthetic audio and video with ffmpeg, so no test
+files are stored in the repo. A test whose tool is missing (ffmpeg, node with
+Playwright, the claude CLI) is reported as SKIP, not as a pass. CI installs
+all of them, so nothing is skipped there.
+"""
+
+from __future__ import annotations
+
+import json
+import re
+import shutil
+import subprocess
+import sys
+import tempfile
+import traceback
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parent.parent
+PLUGINS = ROOT / "plugins"
+ALLOWED_FRONTMATTER = {"name", "description"}  # what claude.ai skill uploads accept
+RESULTS: list[tuple[str, str, str]] = []
+
+
+class Skip(Exception):
+    pass
+
+
+def test(fn):
+    """Run fn now and record PASS, FAIL or SKIP."""
+    name = fn.__name__.removeprefix("test_").replace("_", " ")
+    try:
+        fn()
+        RESULTS.append(("PASS", name, ""))
+    except Skip as e:
+        RESULTS.append(("SKIP", name, str(e)))
+    except Exception as e:  # noqa: BLE001 - every failure is reported, none hidden
+        detail = str(e) or traceback.format_exc(limit=2)
+        RESULTS.append(("FAIL", name, detail))
+    return fn
+
+
+def need(*tools: str) -> None:
+    missing = [t for t in tools if shutil.which(t) is None]
+    if missing:
+        raise Skip("missing " + ", ".join(missing))
+
+
+def run(cmd: list[str], cwd: Path | None = None, timeout: int = 600) -> subprocess.CompletedProcess:
+    r = subprocess.run(cmd, cwd=cwd, capture_output=True, text=True, timeout=timeout)
+    if r.returncode != 0:
+        raise AssertionError(f"{' '.join(map(str, cmd))} exited {r.returncode}:\n{(r.stderr or r.stdout)[-1500:]}")
+    return r
+
+
+def frontmatter(path: Path) -> dict[str, str]:
+    text = path.read_text(encoding="utf-8")
+    assert text.startswith("---\n"), f"{path.relative_to(ROOT)}: no frontmatter"
+    block = text[4 : text.index("\n---", 4)]
+    out = {}
+    for line in block.splitlines():
+        if line and not line.startswith(" "):
+            key, _, value = line.partition(":")
+            out[key.strip()] = value.strip()
+    return out
+
+
+def plugin_names() -> list[str]:
+    return sorted(p.name for p in PLUGINS.iterdir() if (p / ".claude-plugin" / "plugin.json").exists())
+
+
+# ---------------------------------------------------------------- structure
+
+def check_structure() -> None:
+    @test
+    def test_catalog_lists_every_plugin():
+        catalog = json.loads((ROOT / ".claude-plugin/marketplace.json").read_text())
+        listed = {e["name"]: e for e in catalog["plugins"]}
+        assert sorted(listed) == plugin_names(), f"catalog {sorted(listed)} vs folders {plugin_names()}"
+        for name, entry in listed.items():
+            assert entry["source"] == f"./plugins/{name}", f"{name}: source {entry['source']}"
+
+    @test
+    def test_plugin_manifests_are_complete_and_branded():
+        problems = []
+        for name in plugin_names():
+            m = json.loads((PLUGINS / name / ".claude-plugin/plugin.json").read_text())
+            if m.get("name") != name:
+                problems.append(f"{name}: manifest name is {m.get('name')!r}")
+            if not str(m.get("displayName", "")).endswith("by SOLIDS FOR YOU"):
+                problems.append(f"{name}: displayName {m.get('displayName')!r}")
+            if not str(m.get("description", "")).startswith("SOLIDS FOR YOU"):
+                problems.append(f"{name}: description should start 'SOLIDS FOR YOU'")
+            if m.get("author", {}).get("name") != "SOLIDS FOR YOU":
+                problems.append(f"{name}: author")
+            if "version" in m:
+                problems.append(f"{name}: has a version (founders then miss updates)")
+            if not m.get("license"):
+                problems.append(f"{name}: no license field")
+            if not (PLUGINS / name / "LICENSE.md").exists():
+                problems.append(f"{name}: no LICENSE.md")
+        assert not problems, "\n".join(problems)
+
+    @test
+    def test_skills_have_claude_ai_safe_frontmatter():
+        problems = []
+        for name in plugin_names():
+            for skill in (PLUGINS / name / "skills").glob("*/SKILL.md"):
+                fm = frontmatter(skill)
+                extra = set(fm) - ALLOWED_FRONTMATTER
+                if extra:
+                    problems.append(f"{skill.relative_to(ROOT)}: claude.ai rejects {sorted(extra)}")
+                if fm.get("name") != skill.parent.name:
+                    problems.append(f"{skill.relative_to(ROOT)}: name {fm.get('name')!r} != folder")
+                if len(fm.get("description", "")) < 40:
+                    problems.append(f"{skill.relative_to(ROOT)}: description too short to trigger well")
+        assert not problems, "\n".join(problems)
+
+    @test
+    def test_repo_pointer_skills_match_plugins():
+        problems = []
+        for name in plugin_names():
+            for skill in (PLUGINS / name / "skills").glob("*/SKILL.md"):
+                pointer = ROOT / ".claude/skills" / skill.parent.name / "SKILL.md"
+                if not pointer.exists():
+                    problems.append(f"missing pointer {pointer.relative_to(ROOT)}")
+                elif frontmatter(pointer) != frontmatter(skill):
+                    problems.append(f"{pointer.relative_to(ROOT)}: frontmatter differs from the plugin's")
+        assert not problems, "\n".join(problems)
+
+    @test
+    def test_bundled_files_referenced_by_skills_exist():
+        # Paths written as SKILL_DIR/... or ${CLAUDE_SKILL_DIR}/... must exist
+        # next to the SKILL.md, or the installed tool breaks.
+        pattern = re.compile(r"(?:\$\{CLAUDE_SKILL_DIR\}|SKILL_DIR)/([\w./-]+\w)")
+        problems = []
+        for name in plugin_names():
+            for skill_dir in (PLUGINS / name / "skills").iterdir():
+                for doc in skill_dir.rglob("*.md"):
+                    for rel in pattern.findall(doc.read_text(encoding="utf-8")):
+                        if "<" in rel or "*" in rel:
+                            continue
+                        if not (skill_dir / rel).exists():
+                            problems.append(f"{doc.relative_to(ROOT)} -> SKILL_DIR/{rel} does not exist")
+        assert not problems, "\n".join(problems)
+
+    @test
+    def test_workflow_registry_paths_exist():
+        md = PLUGINS / "video-masterpiece/skills/video-masterpiece/video-masterpiece.md"
+        if not md.exists():
+            raise Skip("no video-masterpiece")
+        text = md.read_text(encoding="utf-8")
+        table = text[text.index("<!-- REGISTRY"):]
+        paths = re.findall(r"`(plugins/[^`]+)`", table.split("\n\n")[0])
+        assert paths, "registry table has no paths"
+        missing = [p for p in paths if not (ROOT / p).exists()]
+        assert not missing, f"registry paths missing: {missing}"
+
+    @test
+    def test_relative_links_in_docs_resolve():
+        problems = []
+        docs = [ROOT / "README.md", ROOT / "CLAUDE.md", ROOT / "prompts/README.md"]
+        docs += list(PLUGINS.glob("*/skills/*/README.md"))
+        for doc in docs:
+            if not doc.exists():
+                continue
+            for target in re.findall(r"\]\(([^)#\s]+)(?:#[^)]*)?\)", doc.read_text(encoding="utf-8")):
+                if re.match(r"[a-z]+:", target):
+                    continue
+                if not (doc.parent / target).resolve().exists():
+                    problems.append(f"{doc.relative_to(ROOT)} -> {target}")
+        assert not problems, "broken links:\n" + "\n".join(problems)
+
+    @test
+    def test_raw_github_links_point_at_real_files():
+        problems = []
+        prefix = "https://raw.githubusercontent.com/Founderwithabs/SOLIDSFORYOU/main/"
+        for doc in [ROOT / "README.md", ROOT / "prompts/README.md"]:
+            for path in re.findall(re.escape(prefix) + r"([\w./-]+\w)", doc.read_text(encoding="utf-8")):
+                if not (ROOT / path).exists():
+                    problems.append(f"{doc.relative_to(ROOT)} -> {path}")
+        assert not problems, "\n".join(problems)
+
+    @test
+    def test_readme_installs_every_plugin():
+        readme = (ROOT / "README.md").read_text(encoding="utf-8")
+        missing = [n for n in plugin_names() if f"/plugin install {n}@solidsforyou" not in readme]
+        assert not missing, f"README has no install line for {missing}"
+
+    @test
+    def test_generated_files_are_up_to_date():
+        run([sys.executable, "scripts/build_skill_zip.py", "--check"], cwd=ROOT)
+        if (ROOT / "scripts/build_bundle.py").exists():
+            run([sys.executable, "scripts/build_bundle.py", "--check"], cwd=ROOT)
+
+    @test
+    def test_python_and_node_scripts_compile():
+        for py in list(ROOT.glob("**/*.py")):
+            if ".git" not in py.parts:
+                compile(py.read_text(encoding="utf-8"), str(py), "exec")
+        if shutil.which("node"):
+            for js in ROOT.glob("plugins/**/*.cjs"):
+                run(["node", "--check", str(js)])
+
+    @test
+    def test_claude_plugin_validate():
+        need("claude")
+        r = run(["claude", "plugin", "validate", "."], cwd=ROOT)
+        out = r.stdout + r.stderr
+        warnings = [l.strip() for l in out.splitlines() if l.strip().startswith(">")]
+        unexpected = [w for w in warnings if "No version specified" not in w]
+        assert not unexpected, "unexpected warnings:\n" + "\n".join(unexpected)
+
+
+# -------------------------------------------------------------------- media
+
+def ffmpeg(*args: str) -> None:
+    run(["ffmpeg", "-v", "error", "-y", *args])
+
+
+def check_media(tmp: Path) -> None:
+    audio_dir = PLUGINS / "audio-review/skills/audio-review"
+    analyze = audio_dir / "analyze.py"
+
+    def analyse(path: Path) -> dict:
+        out = tmp / (path.stem + "_out")
+        run([sys.executable, str(analyze), str(path), "--out", str(out)])
+        return json.loads((out / "metrics.json").read_text())
+
+    @test
+    def test_audio_review_measures_a_clean_stereo_file():
+        need("ffmpeg")
+        f = tmp / "clean.wav"
+        ffmpeg("-f", "lavfi", "-i", "anoisesrc=c=pink:a=0.1:d=8", "-ac", "2", "-ar", "44100", str(f))
+        m = analyse(f)
+        assert m["loudness"]["integrated_lufs"] is not None
+        assert set(m["images"]) == {"spectrogram", "spectrogram_linear", "waveform"}, m["images"]
+        assert all(Path(p).stat().st_size > 1000 for p in m["images"].values())
+        assert m["levels"]["clipped_runs"] == 0
+        assert not any("hum" in f.lower() for f in m["flags"]), m["flags"]
+
+    @test
+    def test_audio_review_catches_hum_lossy_cutoff_and_phase():
+        need("ffmpeg")
+        f = tmp / "dirty.mp3"
+        ffmpeg("-f", "lavfi", "-i", "anoisesrc=c=pink:a=0.3:d=10", "-f", "lavfi", "-i", "sine=60:d=10",
+               "-filter_complex", "[0][1]amix=2:weights=1 0.5,pan=stereo|c0=c0|c1=-1*c0",
+               "-ar", "44100", "-b:a", "96k", str(f))
+        m = analyse(f)
+        flags = " ".join(m["flags"])
+        assert "60 Hz" in flags, flags
+        assert m["spectrum"]["effective_bandwidth_hz"] < 17500, m["spectrum"]["effective_bandwidth_hz"]
+        assert m["stereo"]["correlation"] < -0.9, m["stereo"]
+
+    @test
+    def test_audio_review_counts_clipping():
+        need("ffmpeg")
+        f = tmp / "clipped.wav"
+        ffmpeg("-f", "lavfi", "-i", "sine=200:d=3,volume=16", "-ar", "48000", "-c:a", "pcm_s16le", str(f))
+        m = analyse(f)
+        assert m["levels"]["clipped_runs"] > 100, m["levels"]["clipped_runs"]
+
+    @test
+    def test_audio_review_survives_silence_mono_and_tiny_files():
+        need("ffmpeg")
+        cases = {
+            "silent.wav": ["-f", "lavfi", "-i", "anullsrc=r=48000:cl=stereo", "-t", "3"],
+            "mono.wav": ["-f", "lavfi", "-i", "sine=440:d=3", "-ac", "1"],
+            "tiny.wav": ["-f", "lavfi", "-i", "sine=440:d=0.3"],
+        }
+        for name, args in cases.items():
+            f = tmp / name
+            ffmpeg(*args, str(f))
+            m = analyse(f)
+            assert "flags" in m, name
+        assert analyse(tmp / "mono.wav")["stereo"]["mono"] is True
+
+    @test
+    def test_audio_review_reads_audio_from_video_files():
+        need("ffmpeg")
+        f = tmp / "with_sound.mp4"
+        ffmpeg("-f", "lavfi", "-i", "testsrc2=s=320x240:d=3", "-f", "lavfi", "-i", "sine=440:d=3",
+               "-shortest", "-pix_fmt", "yuv420p", str(f))
+        assert analyse(f)["loudness"]["integrated_lufs"] is not None
+
+    @test
+    def test_audio_review_api_script_builds_its_request():
+        need("ffmpeg")
+        f = tmp / "clean.wav"
+        if not f.exists():
+            raise Skip("clean.wav not built")
+        r = run([sys.executable, str(audio_dir / "review.py"), str(f), "--dry-run",
+                 "--out", str(tmp / "dry"), "--context", "podcast"])
+        assert "DRY RUN" in r.stdout and r.stdout.count("[image]") == 3, r.stdout[-400:]
+
+    inspect = PLUGINS / "motion-design-taste/skills/motion-design-taste/scripts/inspect_video.py"
+
+    @test
+    def test_motion_taste_inspects_a_video_with_sound():
+        need("ffmpeg", "ffprobe")
+        f = tmp / "cut.mp4"
+        ffmpeg("-f", "lavfi", "-i", "testsrc2=s=640x360:r=30:d=3", "-f", "lavfi", "-i",
+               "color=c=navy:s=640x360:r=30:d=3", "-f", "lavfi", "-i", "sine=440:d=6",
+               "-filter_complex", "[0][1]concat=n=2:v=1:a=0[v]", "-map", "[v]", "-map", "2",
+               "-shortest", "-pix_fmt", "yuv420p", str(f))
+        out = tmp / "cut_inspect"
+        r = run([sys.executable, str(inspect), str(f), str(out), "--zoom", "1", "--at", "2"])
+        assert "Hard cuts (scene score >= 0.3): 1" in r.stdout, r.stdout
+        assert "LUFS integrated" in r.stdout and "dBTP" in r.stdout, r.stdout
+        for img in ["hook.png", "sheet_01.png", "zoom_1.00.png", "at_2.00.png", "report.md"]:
+            assert (out / img).exists(), img
+
+    @test
+    def test_motion_taste_inspects_a_silent_vertical_video():
+        need("ffmpeg", "ffprobe")
+        f = tmp / "vertical.mp4"
+        ffmpeg("-f", "lavfi", "-i", "testsrc2=s=360x640:r=25:d=2", "-pix_fmt", "yuv420p", str(f))
+        r = run([sys.executable, str(inspect), str(f), str(tmp / "vertical_inspect")])
+        assert "Audio: NONE" in r.stdout, r.stdout
+
+    vm = PLUGINS / "video-masterpiece/skills/video-masterpiece"
+
+    @test
+    def test_video_masterpiece_sound_mix_hits_minus_14_lufs():
+        need("ffmpeg")
+        if not vm.exists():
+            raise Skip("no video-masterpiece")
+        cues = tmp / "cues.json"
+        cues.write_text(json.dumps([{"t": t, "sfx": s, "gain": 0.3} for t, s in
+                                    [(0.1, "whoosh"), (1, "pop"), (2, "ding"), (3, "thump"), (4, "riser"), (5, "tick")]]))
+        vo = tmp / "vo.wav"
+        ffmpeg("-f", "lavfi", "-i", "sine=200:d=8,volume=0.2", str(vo))
+        mix = tmp / "mix.wav"
+        run([sys.executable, str(vm / "scripts/sfx_mix.py"), "--cues", str(cues),
+             "--duration", "8", "--vo", str(vo), "--out", str(mix)])
+        log = subprocess.run(["ffmpeg", "-hide_banner", "-nostats", "-i", str(mix), "-af", "ebur128=peak=true",
+                              "-f", "null", "-"], capture_output=True, text=True).stderr
+        lufs = float(re.findall(r"I:\s+(-?[\d.]+) LUFS", log)[-1])
+        peak = float(re.findall(r"Peak:\s+(-?[\d.]+) dBFS", log)[-1])
+        assert abs(lufs + 14) <= 1.0, f"integrated {lufs} LUFS, target -14 +/- 1"
+        assert peak <= -1.0, f"true peak {peak} dBTP"
+
+    @test
+    def test_video_masterpiece_renders_the_scene_template():
+        need("ffmpeg", "ffprobe", "node")
+        if not vm.exists():
+            raise Skip("no video-masterpiece")
+        probe = subprocess.run(["node", "-e", "require('playwright')"], capture_output=True)
+        root = subprocess.run(["npm", "root", "-g"], capture_output=True, text=True).stdout.strip()
+        if probe.returncode != 0 and not (Path(root) / "playwright").exists():
+            raise Skip("playwright not installed")
+        out = tmp / "template.mp4"
+        run(["node", str(vm / "scripts/render_html_video.cjs"), str(vm / "templates/scene-template.html"),
+             str(out), "--from", "0", "--to", "1", "--width", "640", "--height", "360"], timeout=300)
+        frames = run(["ffprobe", "-v", "error", "-count_frames", "-select_streams", "v:0", "-show_entries",
+                      "stream=nb_read_frames,width,height", "-of", "csv=p=0", str(out)]).stdout.strip()
+        assert frames == "640,360,30", frames
+
+
+def main() -> None:
+    fast = "--fast" in sys.argv
+    check_structure()
+    if not fast:
+        with tempfile.TemporaryDirectory(prefix="sfy_tests_") as tmp:
+            check_media(Path(tmp))
+    width = max(len(n) for _, n, _ in RESULTS)
+    for status, name, detail in RESULTS:
+        print(f"{status:4}  {name:<{width}}  {detail.splitlines()[0] if detail and status != 'FAIL' else ''}")
+        if status == "FAIL":
+            print("      " + detail.replace("\n", "\n      "))
+    counts = {s: sum(1 for r in RESULTS if r[0] == s) for s in ("PASS", "FAIL", "SKIP")}
+    print(f"\n{counts['PASS']} passed, {counts['FAIL']} failed, {counts['SKIP']} skipped")
+    sys.exit(1 if counts["FAIL"] else 0)
+
+
+if __name__ == "__main__":
+    main()

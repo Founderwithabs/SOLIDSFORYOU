@@ -52,10 +52,11 @@ auto-update for the catalog under **Marketplaces** in `/plugin`.
 
 **Requirements:** Audio Review and Motion Design Taste need
 [ffmpeg](https://ffmpeg.org/download.html) and Python 3. Audio Review also
-needs `numpy` (`pip install numpy`). Video Masterpiece also needs Node.js
-with Playwright and Chromium to render, and works best with all the other
-tools installed. Harsh Buyer Review needs web search,
-which Claude Code has built in.
+needs `numpy` (`pip install numpy`). Video Masterpiece also needs
+[Node.js](https://nodejs.org) with Playwright and Chromium to render
+(`npm install -g playwright` then `npx playwright install chromium`), and
+works best with all the other tools installed. Harsh Buyer Review needs web
+search, which Claude Code has built in.
 
 ### Option 2: claude.ai, Claude Desktop or Claude Mobile
 
@@ -101,6 +102,7 @@ taste/motion/                     SOLIDS FOR YOU's own motion taste notes
 .claude/skills/                   Lets the tools work inside this repo too
 scripts/build_skill_zip.py        Rebuilds the zips in dist/
 scripts/build_bundle.py           Rebuilds dist/video-masterpiece-full.md
+tests/run_tests.py                Tests every tool (runs on each push)
 ```
 
 ## License

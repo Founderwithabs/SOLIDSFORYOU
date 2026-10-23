@@ -29,6 +29,7 @@ import numpy as np
 # shows everything up to 24 kHz, which covers lossy-codec cutoffs and "air".
 MAX_ANALYSIS_RATE = 48000
 SILENCE_DBFS = -60.0
+CHUNK_SAMPLES = 1 << 20  # about 22 s at 48 kHz per chunk of measurements
 EPS = 1e-12
 
 # Frequency bands named the way designers talk about them.
@@ -100,16 +101,46 @@ def probe(path: Path) -> dict:
     }
 
 
-def decode(path: Path, rate: int, channels: int) -> np.ndarray:
-    """Decode to float32, shape (channels, samples). Surround folds to stereo."""
+def decode(path: Path, rate: int, channels: int, duration_s: float | None = None) -> np.ndarray:
+    """Decode to float32, shape (channels, samples). Surround folds to stereo.
+
+    The result is a view on ffmpeg's output buffer (no copy), and the
+    measurements below work through it in chunks, so memory stays close to
+    one copy of the decoded audio even for hour-long podcasts.
+    """
     ch = 1 if channels == 1 else 2
-    out = subprocess.run(
+    proc = subprocess.Popen(
         ["ffmpeg", "-v", "error", "-i", str(path), "-vn",
          "-ac", str(ch), "-ar", str(rate), "-f", "f32le", "-"],
-        capture_output=True, check=True,
+        stdout=subprocess.PIPE, stderr=subprocess.PIPE,
     )
-    audio = np.frombuffer(out.stdout, dtype="<f4")
-    return audio.reshape(-1, ch).T.copy()
+    # Read straight into one growing buffer instead of letting subprocess
+    # collect pieces and join them (which briefly holds two copies).
+    expected = int((duration_s or 0) * rate * ch * 4 * 1.01) + (1 << 20)
+    buf = bytearray(expected)
+    view, filled = memoryview(buf), 0
+    while True:
+        if filled == len(buf):
+            view.release()
+            buf.extend(bytes(len(buf)))  # double the capacity
+            view = memoryview(buf)
+        got = proc.stdout.readinto(view[filled:])
+        if not got:
+            break
+        filled += got
+    view.release()
+    err = proc.stderr.read()
+    if proc.wait() != 0:
+        raise subprocess.CalledProcessError(proc.returncode, "ffmpeg", stderr=err)
+    usable = filled - filled % (4 * ch)
+    del buf[usable:]
+    return np.frombuffer(buf, dtype="<f4").reshape(-1, ch).T
+
+
+def chunks(n: int, size: int):
+    """(start, end) pairs covering n samples, size samples at a time."""
+    for start in range(0, n, size):
+        yield start, min(start + size, n)
 
 
 # --------------------------------------------------------------------------
@@ -174,21 +205,50 @@ def frame_rms(audio: np.ndarray, size: int) -> np.ndarray:
     channels don't cancel the way an L+R fold would)."""
     n = audio.shape[1] // size
     if n == 0:
-        return np.array([np.sqrt(np.mean(audio ** 2) + EPS)])
-    frames = audio[:, : n * size].reshape(audio.shape[0], n, size)
-    return np.sqrt(np.mean(frames ** 2, axis=(0, 2)) + EPS)
+        return np.array([np.sqrt(np.mean(np.square(audio, dtype=np.float64)) + EPS)])
+    per_block = max(1, CHUNK_SAMPLES // size)
+    out = []
+    for f0 in range(0, n, per_block):
+        f1 = min(f0 + per_block, n)
+        frames = audio[:, f0 * size : f1 * size].reshape(audio.shape[0], f1 - f0, size)
+        out.append(np.sqrt(np.mean(np.square(frames, dtype=np.float64), axis=(0, 2)) + EPS))
+    return np.concatenate(out)
 
 
 def levels(audio: np.ndarray, rate: int) -> dict:
-    peak = float(np.max(np.abs(audio)))
-    rms = float(np.sqrt(np.mean(audio ** 2)))
-
-    # Clipping: runs of 3+ consecutive samples pinned at full scale.
+    nch, n = audio.shape
+    peak, sq_sum = 0.0, 0.0
+    ch_sum = np.zeros(nch)
     clipped_runs = 0
-    for ch in audio:
-        hot = np.abs(ch) >= 0.999
-        starts = np.flatnonzero(hot[2:] & hot[1:-1] & hot[:-2] & ~np.r_[False, hot[:-3]])
-        clipped_runs += int(starts.size)
+    click_times: list[float] = []
+    for s0, s1 in chunks(n, CHUNK_SAMPLES):
+        block = audio[:, s0:s1]
+        peak = max(peak, float(np.max(np.abs(block))))
+        sq_sum += float(np.sum(np.square(block, dtype=np.float64)))
+        ch_sum += block.sum(axis=1, dtype=np.float64)
+
+        # Clipping: runs of 3+ consecutive samples pinned at full scale. Look
+        # one sample back and two ahead so runs across chunk edges count once.
+        lo = max(s0 - 1, 0)
+        hot = np.abs(audio[:, lo : min(s1 + 2, n)]) >= 0.999
+        first = s0 - lo
+        for h in hot:
+            run3 = h[:-2] & h[1:-1] & h[2:]
+            prev = np.r_[False, h[:-1]][: len(run3)]
+            clipped_runs += int(np.count_nonzero((run3 & ~prev)[first : first + (s1 - s0)]))
+
+        # Clicks/pops: second-difference outliers far beyond the local spread
+        # (median taken per chunk, so a loud section doesn't hide a click in a
+        # quiet one).
+        seg = audio[:, lo : min(s1 + 1, n)]
+        if seg.shape[1] > 2:
+            d2 = np.abs(np.diff(seg, n=2, axis=1)).max(axis=0)
+            mad = np.median(d2) + EPS
+            for idx in np.flatnonzero((d2 > 40 * mad) & (d2 > 0.1)):
+                t = (lo + idx + 1) / rate
+                if not click_times or t - click_times[-1] > 0.05:
+                    click_times.append(t)
+    rms = np.sqrt(sq_sum / max(audio.size, 1))
 
     # Leading/trailing silence and the noise floor, from 50 ms windows.
     win = int(0.05 * rate)
@@ -205,23 +265,13 @@ def levels(audio: np.ndarray, rate: int) -> dict:
     fr400 = fr400[fr400 > SILENCE_DBFS]
     macro_dr = np.percentile(fr400, 95) - np.percentile(fr400, 10) if fr400.size else 0.0
 
-    # Clicks/pops: second-difference outliers far beyond the signal's own spread.
-    d2 = np.abs(np.diff(audio, n=2, axis=1)).max(axis=0)
-    mad = np.median(d2) + EPS
-    clicks = np.flatnonzero((d2 > 40 * mad) & (d2 > 0.1))
-    click_times = []
-    for idx in clicks:
-        t = idx / rate
-        if not click_times or t - click_times[-1] > 0.05:
-            click_times.append(t)
-
     return {
         "sample_peak_dbfs": r(db(peak)),
         "rms_dbfs": r(db(rms)),
         "crest_factor_db": r(db(peak) - db(rms)),
         "macro_dynamics_db": r(macro_dr),
         "clipped_runs": clipped_runs,
-        "dc_offset": [r(float(np.mean(ch)), 5) for ch in audio],
+        "dc_offset": [r(float(x / max(n, 1)), 5) for x in ch_sum],
         "noise_floor_dbfs": r(noise_floor),
         "signal_to_noise_db": r(program - noise_floor),
         "leading_silence_s": r(lead),
@@ -235,20 +285,28 @@ def levels(audio: np.ndarray, rate: int) -> dict:
 # Spectrum: tonal balance, resonances, hum, sibilance, bandwidth
 # --------------------------------------------------------------------------
 
-def avg_spectrum(mono: np.ndarray, rate: int, nfft: int = 8192) -> tuple[np.ndarray, np.ndarray]:
-    """Welch-style average power spectrum over non-silent frames."""
+def avg_spectrum(audio: np.ndarray, rate: int, weights=None, nfft: int = 8192) -> tuple[np.ndarray, np.ndarray]:
+    """Welch-style average power spectrum over non-silent frames.
+
+    audio is (channels, samples) or a 1-D signal. weights mixes the channels
+    frame by frame (e.g. [0.5, 0.5] for mid, [0.5, -0.5] for side), so no
+    full-length mixed copy is ever made.
+    """
+    if audio.ndim == 1:
+        audio = audio[np.newaxis, :]
+    w = np.asarray(weights if weights is not None else [1.0] * audio.shape[0], dtype=np.float64)
+    n = audio.shape[1]
     hop = nfft // 2
     window = np.hanning(nfft)
-    frames = []
-    for start in range(0, max(len(mono) - nfft, 1), hop):
-        seg = mono[start : start + nfft]
+    total, count = np.zeros(nfft // 2 + 1), 0
+    for start in range(0, max(n - nfft, 1), hop):
+        seg = w @ audio[:, start : start + nfft]
         if len(seg) < nfft:
             seg = np.pad(seg, (0, nfft - len(seg)))
         if db(np.sqrt(np.mean(seg ** 2))) > SILENCE_DBFS:
-            frames.append(np.abs(np.fft.rfft(seg * window)) ** 2)
-    if not frames:
-        frames = [np.zeros(nfft // 2 + 1)]
-    return np.fft.rfftfreq(nfft, 1 / rate), np.mean(frames, axis=0)
+            total += np.abs(np.fft.rfft(seg * window)) ** 2
+            count += 1
+    return np.fft.rfftfreq(nfft, 1 / rate), total / max(count, 1)
 
 
 def band_power(freqs: np.ndarray, psd: np.ndarray, lo: float, hi: float) -> float:
@@ -271,7 +329,7 @@ def smooth_octave(freqs: np.ndarray, spec_db: np.ndarray, fraction: float) -> np
 
 def spectrum(audio: np.ndarray, rate: int) -> dict:
     # Average the channels' power spectra rather than analysing L+R.
-    spectra = [avg_spectrum(ch, rate) for ch in audio]
+    spectra = [avg_spectrum(ch, rate) for ch in audio]  # rows are views
     freqs = spectra[0][0]
     psd = np.mean([p for _, p in spectra], axis=0)
     total = psd[(freqs >= 20) & (freqs <= 20000)].sum() + EPS
@@ -340,16 +398,28 @@ def spectrum(audio: np.ndarray, rate: int) -> dict:
 def stereo(audio: np.ndarray) -> dict:
     if audio.shape[0] < 2:
         return {"mono": True}
-    left, right = audio[0], audio[1]
-    corr = float(np.corrcoef(left, right)[0, 1]) if np.std(left) > EPS and np.std(right) > EPS else 1.0
-    mid, side = (left + right) / 2, (left - right) / 2
-    side_ratio = db(np.sqrt(np.mean(side ** 2))) - db(np.sqrt(np.mean(mid ** 2)))
-    lr_balance = db(np.sqrt(np.mean(left ** 2))) - db(np.sqrt(np.mean(right ** 2)))
+    # Accumulate sums chunk by chunk; mid and side energies follow from them:
+    # mid^2 = (L^2 + R^2 + 2LR) / 4, side^2 = (L^2 + R^2 - 2LR) / 4.
+    n = audio.shape[1]
+    sl = sr = sll = srr = slr = 0.0
+    for s0, s1 in chunks(n, CHUNK_SAMPLES):
+        left = audio[0, s0:s1].astype(np.float64)
+        right = audio[1, s0:s1].astype(np.float64)
+        sl += left.sum(); sr += right.sum()
+        sll += left @ left; srr += right @ right; slr += left @ right
+    ll, rr, lr = sll / n, srr / n, slr / n
+    var_l, var_r = ll - (sl / n) ** 2, rr - (sr / n) ** 2
+    cov = lr - (sl / n) * (sr / n)
+    corr = cov / np.sqrt(var_l * var_r) if var_l > EPS and var_r > EPS else 1.0
+    mid2 = max((ll + rr + 2 * lr) / 4, 0.0)
+    side2 = max((ll + rr - 2 * lr) / 4, 0.0)
+    side_ratio = db(np.sqrt(side2)) - db(np.sqrt(mid2))
+    lr_balance = db(np.sqrt(ll)) - db(np.sqrt(rr))
     # Level lost when folded to mono, relative to the stereo average.
-    mono_loss = db(np.sqrt(np.mean(mid ** 2))) - db(np.sqrt((np.mean(left ** 2) + np.mean(right ** 2)) / 2))
+    mono_loss = db(np.sqrt(mid2)) - db(np.sqrt((ll + rr) / 2))
     return {
         "mono": False,
-        "correlation": r(corr),
+        "correlation": r(float(np.clip(corr, -1, 1))),
         "side_to_mid_db": r(np.clip(side_ratio, -120, 120), 1),
         "left_right_balance_db": r(lr_balance, 1),
         "mono_fold_loss_db": r(mono_loss, 1),
@@ -360,8 +430,8 @@ def stereo_low_end(audio: np.ndarray, rate: int) -> float | None:
     """Side/mid energy below 150 Hz; bass should usually sit close to mono."""
     if audio.shape[0] < 2:
         return None
-    f, pm = avg_spectrum((audio[0] + audio[1]) / 2, rate)
-    _, ps = avg_spectrum((audio[0] - audio[1]) / 2, rate)
+    f, pm = avg_spectrum(audio[:2], rate, weights=[0.5, 0.5])
+    _, ps = avg_spectrum(audio[:2], rate, weights=[0.5, -0.5])
     m = band_power(f, pm, 20, 150)
     s = band_power(f, ps, 20, 150)
     return r(np.clip(power_db((s + EPS) / (m + EPS)), -120, 120), 1)
@@ -380,12 +450,13 @@ def sections(audio: np.ndarray, rate: int, count: int = 12) -> list[dict]:
         n = seg.shape[1]
         if n < rate // 4:
             break
-        spec = (np.abs(np.fft.rfft(seg * np.hanning(n), axis=1)) ** 2).mean(axis=0)
-        fr = np.fft.rfftfreq(n, 1 / rate)
+        nfft = min(8192, 1 << (n.bit_length() - 1))
+        per_ch = [avg_spectrum(c, rate, nfft=nfft) for c in seg]
+        fr, spec = per_ch[0][0], np.mean([p for _, p in per_ch], axis=0)
         out.append({
             "start_s": r(start / rate, 1),
             "end_s": r((start + n) / rate, 1),
-            "rms_dbfs": r(db(np.sqrt(np.mean(seg ** 2)))),
+            "rms_dbfs": r(db(np.sqrt(np.mean(np.square(seg, dtype=np.float64))))),
             "peak_dbfs": r(db(np.max(np.abs(seg)))),
             "centroid_hz": round(float((fr * spec).sum() / (spec.sum() + EPS))),
         })
@@ -479,7 +550,7 @@ def analyze(path: str | Path, out_dir: str | Path | None = None, images: bool = 
     path = Path(path)
     info = probe(path)
     rate = min(info["sample_rate"], MAX_ANALYSIS_RATE)
-    audio = decode(path, rate, info["channels"])
+    audio = decode(path, rate, info["channels"], info["duration_s"])
     if audio.size == 0:
         raise ValueError(f"{path} decoded to no samples")
 

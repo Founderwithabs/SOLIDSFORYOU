@@ -1,0 +1,36 @@
+name: Tests
+
+# Runs the full toolkit test suite (structure, docs, and every script on
+# synthetic audio and video) on every push and pull request.
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Install ffmpeg
+        run: sudo apt-get update && sudo apt-get install -y ffmpeg
+
+      - name: Install Python packages
+        run: pip install -r plugins/audio-review/skills/audio-review/requirements.txt
+
+      - name: Install Playwright, Chromium and Claude Code
+        run: |
+          npm install -g playwright @anthropic-ai/claude-code
+          npx playwright install --with-deps chromium
+
+      - name: Run tests
+        run: python3 tests/run_tests.py
