@@ -22,7 +22,14 @@ jobs:
           node-version: "22"
 
       - name: Install ffmpeg
-        run: sudo apt-get update && sudo apt-get install -y ffmpeg
+        # A slow package mirror once hung this step for over 6 minutes; give
+        # each attempt 4 minutes and retry instead of waiting for the job timeout.
+        run: |
+          for attempt in 1 2 3; do
+            sudo timeout 240 sh -c 'apt-get update && apt-get install -y --no-install-recommends ffmpeg' && exit 0
+            echo "ffmpeg install attempt $attempt failed or timed out; retrying"
+          done
+          exit 1
 
       - name: Install Python packages
         run: pip install -r plugins/audio-review/skills/audio-review/requirements.txt
