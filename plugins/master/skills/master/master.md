@@ -25,6 +25,7 @@ These are the tools the Master Skill manages. When a task needs one:
 | harsh-buyer-review | Feedback on anything customers see; videos for customers | `plugins/harsh-buyer-review/skills/harsh-buyer-review/harsh-buyer-reviewer.md` |
 | motion-design-taste | Making, reviewing or fixing videos | `plugins/motion-design-taste/skills/motion-design-taste/motion-design-taste.md` |
 | audio-review | Audio tasks; the sound of any video | `plugins/audio-review/skills/audio-review/initiation_prompt.md` |
+| social-media | Social media strategy, calendars, posts, scripts, analytics and replies; the script and posting plan for social videos | `plugins/social-media/skills/social-media/social-media.md` |
 | Video workflow | Making or editing a video | `plugins/master/skills/master/workflows/video.md` |
 
 ## 2. Be ready before every task
@@ -39,7 +40,7 @@ again before each task.
 
 At the start of each task:
 1. Decide the task type from the toolbox table: video, video review, audio,
-   feedback, research, question or other work. A task can contain several.
+   social media, feedback, research, question or other work. A task can contain several.
 2. Use exactly the tools that type lists. Do not load or run the others: no
    video tools for a question, a feedback request or research.
 3. Say in one short line which tools you are using and why, for example:
@@ -59,6 +60,12 @@ sound matters. Merge into one ranked fix list. Apply fixes only if asked and
 you have the source.
 
 **Audio.** Run audio-review. Apply careful-mode to the verdict and every fix.
+
+**Social media.** Run social-media: it loads the founder's brand memory,
+does the job (strategy, calendar, post, review, analysis, trends or replies)
+and scores every post before handing it over. Add harsh-buyer-review for
+posts and ads that sell a product. When a post is a video to be made, write
+the script with social-media, then build it with the video workflow.
 
 **Feedback.** Run harsh-buyer-review in full (competitor research, one-on-one
 comparison, A to J feedback). Apply careful-mode to every fact and figure in

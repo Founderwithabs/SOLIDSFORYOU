@@ -14,6 +14,7 @@ tools a task doesn't need.
 | `harsh-buyer-review` | A real buyer researches competitors, compares one-on-one, and gives harsh, specific feedback |
 | `motion-design-taste` | Inspects a video, scores it out of 100, ranks it against references, lists and applies exact fixes |
 | `audio-review` | Measures and judges audio like a senior audio designer, with a score and a fix list |
+| `social-media` | A head of social media: strategy, calendars, posts, hooks and scripts, a 100-point pre-publish scorecard, analytics and replies |
 | Video build tools | Scene template, frame-by-frame renderer and sound-effects mixer, in the `master` skill's folder |
 
 ## Pick the task type, then use only its tools
@@ -23,6 +24,7 @@ tools a task doesn't need.
 | **Video** | Make or edit any video: reel, ad, explainer, animation, motion graphic, product video, footage edit, animated GIF | The full video workflow (`workflows/video.md` in the `master` skill): economy-mode, careful-mode, motion-design-taste, video build tools, audio-review for the sound, harsh-buyer-review | Nothing is skipped |
 | **Video review** | "Is this video good?", compare or rank videos, without making one | motion-design-taste, harsh-buyer-review if it's for customers, audio-review if the sound matters, careful-mode | Video build tools (unless asked to fix it) |
 | **Audio** | Review, check or fix audio, voiceover, podcast, music, mix | audio-review, careful-mode | Video and design tools |
+| **Social media** | Strategy, content calendar, posts, captions, carousels, hooks, reel or short scripts, trends, post analytics, replying to comments | social-media, careful-mode; harsh-buyer-review for posts or ads that sell; the video workflow when a reel or short must be made | Audio tools (unless the post has sound to check) |
 | **Feedback** | Feedback on a product, listing, image, copy, packaging, price or offer | harsh-buyer-review, careful-mode | Video and audio tools |
 | **Research** | Markets, competitors, suppliers, prices, facts, trends | economy-mode (helpers gather sources), careful-mode (check every fact and cite it); harsh-buyer-review's competitor method for product comparisons | Video and audio tools |
 | **Question** | A direct question or quick answer | Answer directly; careful-mode if money, legal, health or anything hard to undo is involved | Every other tool |

@@ -386,9 +386,48 @@ def check_media(tmp: Path) -> None:
         assert frames == "640,360,30", frames
 
 
+def check_scripts(tmp: Path) -> None:
+    log = PLUGINS / "social-media/skills/social-media/scripts/content_log.py"
+
+    @test
+    def test_social_media_scorecard_totals_and_ship_rule():
+        if not log.exists():
+            raise Skip("no social-media")
+        ok = run([sys.executable, str(log), "score", *"8 8 8 9 6 9 8 8 8 10".split()]).stdout
+        assert "Total: 81/100. Ready to ship." in ok, ok
+        bad = run([sys.executable, str(log), "score", *"10 10 10 10 10 10 10 10 10 9".split()]).stdout
+        assert "Not ready" in bad and "compliance" in bad, bad
+        wrong = subprocess.run([sys.executable, str(log), "score", "1", "2"], capture_output=True, text=True)
+        assert wrong.returncode != 0, "accepted too few scores"
+
+    @test
+    def test_social_media_analytics_on_a_messy_export():
+        if not log.exists():
+            raise Skip("no social-media")
+        header = run([sys.executable, str(log), "template"]).stdout.strip()
+        rows = [
+            "2026-09-01,Instagram,reel,fit,reach,result,A,,12000,,400,30,50,80,20,5,,42%",
+            "2026-09-03,instagram,carousel,fabric,trust,mistake,B,,5000,,150,12,10,90,6,3,,",
+            '2026-09-05,instagram,reel,fit,reach,relatable,C,,"30,000",,900,60,200,150,70,12,,55%',
+            "2026-09-07,instagram,reel,offer,convert,result,D,,8000,,120,8,2,10,1,40,,",
+            "2026-09-09,instagram,carousel,fabric,trust,mistake,E,,1.2K,,40,4,3,30,2,1,,",
+            "2026-09-10,linkedin,text,founder,trust,contrarian,F,,,,50,10,2,1,4,2,,",
+        ]
+        csv_path = tmp / "posts.csv"
+        csv_path.write_text("\ufeff" + header + "\n" + "\n".join(rows) + "\n", encoding="utf-8")
+        out = tmp / "report.md"
+        run([sys.executable, str(log), "analyze", str(csv_path), "--out", str(out)])
+        report = out.read_text()
+        assert "| instagram | 5 | 8,000 |" in report, report  # "30,000" and "1.2K" both parsed
+        assert "lines 7." in report, report  # only the row with no views or reach
+        assert "too few posts to rank" in report and "## By pillar" in report, report
+
+
 def main() -> None:
     fast = "--fast" in sys.argv
     check_structure()
+    with tempfile.TemporaryDirectory(prefix="sfy_scripts_") as tmp:
+        check_scripts(Path(tmp))
     if not fast:
         with tempfile.TemporaryDirectory(prefix="sfy_tests_") as tmp:
             check_media(Path(tmp))

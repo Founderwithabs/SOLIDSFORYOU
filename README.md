@@ -67,9 +67,9 @@ search, which Claude Code has built in.
    [Motion Design Taste](dist/motion-design-taste-skill.zip) ·
    [Harsh Buyer Review](dist/harsh-buyer-review-skill.zip) ·
    [Careful Mode](dist/careful-mode-skill.zip) ·
-   [Master Skill](dist/master-skill.zip) (upload the other four too: it
-   uses them) ·
-   [Social Media](dist/social-media-skill.zip)
+   [Social Media](dist/social-media-skill.zip) ·
+   [Master Skill](dist/master-skill.zip) (upload the others too: it uses
+   them)
 2. In Claude's settings, turn on code execution, then upload the zip as a
    custom skill.
 3. Start a chat and ask for the tool, for example by uploading a video and
