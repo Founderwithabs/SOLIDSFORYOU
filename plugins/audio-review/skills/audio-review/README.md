@@ -25,27 +25,27 @@ audio file ──► analyze.py ──► metrics.json + spectrogram.png + wavef
 
 ## Two ways to use it
 
-**1. Inside Claude Code (no API key needed).** Share a file and ask "how does
-this sound?" or run `/audio-review`. The skill in
-`.claude/skills/audio-review/SKILL.md` runs the analyzer, looks at the images,
-and writes the review.
+**1. Inside Claude Code (no API key needed).** Install the plugin (see the
+repository README), then share a file and ask "how does this sound?". The
+skill in `SKILL.md` runs the analyzer, looks at the images and writes the
+review.
 
 **2. From the command line, through the Claude API**, for scripts and batch
 jobs:
 
 ```bash
-pip install -r tools/audio_review/requirements.txt   # also needs ffmpeg
+pip install -r plugins/audio-review/skills/audio-review/requirements.txt   # also needs ffmpeg
 export ANTHROPIC_API_KEY=...
 
-python tools/audio_review/review.py mix.wav
-python tools/audio_review/review.py mix.wav --context "podcast episode for Spotify"
-python tools/audio_review/review.py mix.wav --reference pro_master.wav   # A/B against a reference
-python tools/audio_review/review.py mix.wav --dry-run                    # analyse only, no API call
+python plugins/audio-review/skills/audio-review/review.py mix.wav
+python plugins/audio-review/skills/audio-review/review.py mix.wav --context "podcast episode for Spotify"
+python plugins/audio-review/skills/audio-review/review.py mix.wav --reference pro_master.wav   # A/B against a reference
+python plugins/audio-review/skills/audio-review/review.py mix.wav --dry-run                    # analyse only, no API call
 ```
 
 The output goes to `audio_reviews/<name>/` (metrics.json, the images and
 review.md). You can also run the analyzer alone with
-`python tools/audio_review/analyze.py mix.wav --out some_dir`.
+`python plugins/audio-review/skills/audio-review/analyze.py mix.wav --out some_dir`.
 
 ## Use it in any Claude chat
 

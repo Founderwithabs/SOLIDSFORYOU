@@ -8,8 +8,8 @@ review.py (or the audio-review Claude Code skill) hands that evidence to
 Claude to judge.
 
 Usage:
-    python tools/audio_review/analyze.py song.wav --out out/song
-    python tools/audio_review/analyze.py song.mp3 --out out/song --no-images
+    python plugins/audio-review/skills/audio-review/analyze.py song.wav --out out/song
+    python plugins/audio-review/skills/audio-review/analyze.py song.mp3 --out out/song --no-images
 
 Needs ffmpeg/ffprobe on PATH and numpy.
 """

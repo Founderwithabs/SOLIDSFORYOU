@@ -1,0 +1,9 @@
+{
+  "name": "audio-review",
+  "description": "Claude listens to audio like a senior audio designer: loudness, dynamics, tonal balance, stereo, noise and artifacts, with a scored review and fix list.",
+  "author": {
+    "name": "SOLIDSFORYOU"
+  },
+  "homepage": "https://github.com/Founderwithabs/solidsforyou",
+  "keywords": ["audio", "mixing", "mastering", "loudness", "podcast", "sound design"]
+}

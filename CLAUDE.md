@@ -30,10 +30,10 @@ Definition: `.claude/skills/careful-mode/SKILL.md`.
 ## Audio review (Claude listening as an audio designer)
 
 - Share an audio file and ask how it sounds, or run `/audio-review`.
-- `tools/audio_review/analyze.py` measures the file (loudness, dynamics,
-  spectrum, stereo, noise, artifacts) and renders spectrograms. Claude then
-  judges it using `tools/audio_review/designer_rubric.md`.
-- `tools/audio_review/review.py` does the same through the Claude API.
-
-Definition: `.claude/skills/audio-review/SKILL.md`; details in
-`tools/audio_review/README.md`.
+- The tool ships as the `audio-review` plugin in this repo's marketplace
+  (`.claude-plugin/marketplace.json`). Its files live in
+  `plugins/audio-review/skills/audio-review/`: `analyze.py` measures the file,
+  `designer_rubric.md` is how Claude judges it, `review.py` runs it through
+  the Claude API, and `initiation_prompt.md` is a paste-in prompt.
+- After changing the skill, rebuild the claude.ai upload with
+  `python3 scripts/build_skill_zip.py`.

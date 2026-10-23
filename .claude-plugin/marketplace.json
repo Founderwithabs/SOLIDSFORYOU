@@ -1,0 +1,15 @@
+{
+  "name": "solidsforyou",
+  "description": "Claude tools for founders from SOLIDSFORYOU",
+  "owner": {
+    "name": "SOLIDSFORYOU",
+    "url": "https://github.com/Founderwithabs/solidsforyou"
+  },
+  "plugins": [
+    {
+      "name": "audio-review",
+      "source": "./plugins/audio-review",
+      "description": "Claude listens to audio like a senior audio designer: loudness, dynamics, tonal balance, stereo, noise and artifacts, with a scored review and fix list."
+    }
+  ]
+}

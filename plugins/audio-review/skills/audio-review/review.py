@@ -6,10 +6,10 @@ the metrics, spectrograms and waveform to Claude with the audio-designer
 rubric in designer_rubric.md. The review is printed and saved as review.md.
 
 Usage:
-    python tools/audio_review/review.py mix.wav
-    python tools/audio_review/review.py mix.wav --context "podcast intro, Spotify"
-    python tools/audio_review/review.py mix.wav --reference pro_master.wav
-    python tools/audio_review/review.py mix.wav --dry-run   # no API call
+    python plugins/audio-review/skills/audio-review/review.py mix.wav
+    python plugins/audio-review/skills/audio-review/review.py mix.wav --context "podcast intro, Spotify"
+    python plugins/audio-review/skills/audio-review/review.py mix.wav --reference pro_master.wav
+    python plugins/audio-review/skills/audio-review/review.py mix.wav --dry-run   # no API call
 
 Needs ANTHROPIC_API_KEY (or an `ant auth login` profile), ffmpeg, numpy and
 the anthropic package.
