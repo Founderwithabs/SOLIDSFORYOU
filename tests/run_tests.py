@@ -151,15 +151,20 @@ def check_structure() -> None:
 
     @test
     def test_workflow_registry_paths_exist():
-        md = PLUGINS / "video-masterpiece/skills/video-masterpiece/video-masterpiece.md"
-        if not md.exists():
-            raise Skip("no video-masterpiece")
-        text = md.read_text(encoding="utf-8")
-        table = text[text.index("<!-- REGISTRY"):]
-        paths = re.findall(r"`(plugins/[^`]+)`", table.split("\n\n")[0])
-        assert paths, "registry table has no paths"
-        missing = [p for p in paths if not (ROOT / p).exists()]
-        assert not missing, f"registry paths missing: {missing}"
+        problems, tables = [], 0
+        for md in PLUGINS.glob("*/skills/*/**/*.md"):
+            text = md.read_text(encoding="utf-8")
+            if "<!-- REGISTRY" not in text:
+                continue
+            tables += 1
+            table = text[text.index("<!-- REGISTRY"):].split("\n\n")[0]
+            paths = re.findall(r"`(plugins/[^`]+)`", table)
+            if not paths:
+                problems.append(f"{md.relative_to(ROOT)}: registry table has no paths")
+            problems += [f"{md.relative_to(ROOT)} -> {p}" for p in paths if not (ROOT / p).exists()]
+        if not tables:
+            raise Skip("no registry tables")
+        assert not problems, "\n".join(problems)
 
     @test
     def test_relative_links_in_docs_resolve():
@@ -206,6 +211,25 @@ def check_structure() -> None:
         if shutil.which("node"):
             for js in ROOT.glob("plugins/**/*.cjs"):
                 run(["node", "--check", str(js)])
+
+    @test
+    def test_plugin_hooks_run_and_print_something():
+        hook_files = list(PLUGINS.glob("*/hooks/hooks.json"))
+        if not hook_files:
+            raise Skip("no plugin hooks")
+        need("sh")
+        for hf in hook_files:
+            root = hf.parent.parent
+            for event, groups in json.loads(hf.read_text())["hooks"].items():
+                for group in groups:
+                    for hook in group["hooks"]:
+                        if hook.get("type") != "command":
+                            continue
+                        cmd = hook["command"].replace("${CLAUDE_PLUGIN_ROOT}", str(root))
+                        r = subprocess.run(["sh", "-c", cmd], capture_output=True, text=True, timeout=30)
+                        assert r.returncode == 0, f"{root.name} {event} hook failed: {r.stderr[-300:]}"
+                        if event == "SessionStart":
+                            assert r.stdout.strip(), f"{root.name} SessionStart hook printed nothing"
 
     @test
     def test_claude_plugin_validate():
@@ -323,13 +347,13 @@ def check_media(tmp: Path) -> None:
         r = run([sys.executable, str(inspect), str(f), str(tmp / "vertical_inspect")])
         assert "Audio: NONE" in r.stdout, r.stdout
 
-    vm = PLUGINS / "video-masterpiece/skills/video-masterpiece"
+    vm = PLUGINS / "master/skills/master"  # the video build tools
 
     @test
-    def test_video_masterpiece_sound_mix_hits_minus_14_lufs():
+    def test_video_sound_mix_hits_minus_14_lufs():
         need("ffmpeg")
         if not vm.exists():
-            raise Skip("no video-masterpiece")
+            raise Skip("no master skill")
         cues = tmp / "cues.json"
         cues.write_text(json.dumps([{"t": t, "sfx": s, "gain": 0.3} for t, s in
                                     [(0.1, "whoosh"), (1, "pop"), (2, "ding"), (3, "thump"), (4, "riser"), (5, "tick")]]))
@@ -346,10 +370,10 @@ def check_media(tmp: Path) -> None:
         assert peak <= -1.0, f"true peak {peak} dBTP"
 
     @test
-    def test_video_masterpiece_renders_the_scene_template():
+    def test_video_renderer_renders_the_scene_template():
         need("ffmpeg", "ffprobe", "node")
         if not vm.exists():
-            raise Skip("no video-masterpiece")
+            raise Skip("no master skill")
         probe = subprocess.run(["node", "-e", "require('playwright')"], capture_output=True)
         root = subprocess.run(["npm", "root", "-g"], capture_output=True, text=True).stdout.strip()
         if probe.returncode != 0 and not (Path(root) / "playwright").exists():

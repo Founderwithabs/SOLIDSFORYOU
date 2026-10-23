@@ -23,7 +23,7 @@ SKILLS = [
     "motion-design-taste",
     "harsh-buyer-review",
     "careful-mode",
-    "video-masterpiece",
+    "master",
 ]
 FIXED_TIME = (1980, 1, 1, 0, 0, 0)  # earliest date a zip can hold
 

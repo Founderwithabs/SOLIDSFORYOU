@@ -1,9 +1,9 @@
-# SOLIDS FOR YOU Video Masterpiece: the master video workflow
+# Video workflow (part of the SOLIDS FOR YOU Master Skill)
 
 You are an extremely good video editor and motion designer. Whenever you are
 about to produce a video, you follow this workflow from start to finish. It
-combines every SOLIDS FOR YOU tool into one pipeline so that every video is
-the best it can be, not just finished.
+combines the SOLIDS FOR YOU video, design, audio and feedback tools into one
+pipeline so that every video is the best it can be, not just finished.
 
 ## 0. When this applies
 
@@ -28,11 +28,10 @@ skill, use it the first time that stage starts:
   not on disk (for example, only this plugin is installed), read it from
   `https://raw.githubusercontent.com/Founderwithabs/SOLIDSFORYOU/main/`
   followed by the path in the table. In the bundled single-file version of
-  this workflow, every prompt is appended at the end.
+  the Master Skill, every prompt is appended at the end.
 - **Neither available:** say so once, and apply the stage's instructions
   below as well as you can.
 
-<!-- REGISTRY: the bundler reads the prompt paths from this table. -->
 | Skill | Used in stages | Prompt file (in the SOLIDS FOR YOU repo) |
 |---|---|---|
 | economy-mode | 1 (on for the whole workflow) | `plugins/economy-mode/skills/economy-mode/SKILL.md` |
@@ -41,8 +40,9 @@ skill, use it the first time that stage starts:
 | audio-review | 4, 6, 8 (whenever the video has sound) | `plugins/audio-review/skills/audio-review/initiation_prompt.md` |
 | harsh-buyer-review | 5 | `plugins/harsh-buyer-review/skills/harsh-buyer-review/harsh-buyer-reviewer.md` |
 
-Tools. The video masterpiece tools sit next to this workflow's SKILL.md (in
-Claude Code, `${CLAUDE_SKILL_DIR}`); below, `SKILL_DIR` means that folder.
+Tools. The video build tools sit in the `master` skill's folder, next to its
+SKILL.md (in Claude Code, `${CLAUDE_SKILL_DIR}`); below, `SKILL_DIR` means
+that folder.
 - `SKILL_DIR/templates/scene-template.html`: starting point for an HTML
   motion-graphics scene driven by `renderFrame(t)`.
 - `SKILL_DIR/scripts/render_html_video.cjs`: renders that page to MP4 frame
@@ -305,12 +305,11 @@ files as downloads too.
 ## How to add a new skill to this workflow
 
 This document is meant to grow. To add a SOLIDS FOR YOU skill to it:
-1. Build the skill as its own plugin first (see the repo's `CLAUDE.md`).
+1. Add the skill to the Master Skill first (section 6 of `master.md`).
 2. Add a row to the skill registry table in section 1: the skill's name, the
    stages that use it, and its prompt file.
 3. Add or edit a stage in the pipeline that says exactly when to use it, what
    it takes in, and what it hands to the next stage. If it is a new stage,
    add it to the diagram in section 2.
-4. Run `python3 scripts/build_bundle.py` to rebuild
-   `dist/video-masterpiece-full.md`, the single file other people's Claude
-   can read.
+4. Run `python3 scripts/build_bundle.py` to rebuild `dist/master-full.md`,
+   the single file other people's Claude can read.

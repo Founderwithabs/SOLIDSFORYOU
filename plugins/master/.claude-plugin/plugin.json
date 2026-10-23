@@ -1,0 +1,19 @@
+{
+  "name": "master",
+  "displayName": "Master Skill by SOLIDS FOR YOU",
+  "description": "SOLIDS FOR YOU Master Skill: keeps every SOLIDS FOR YOU tool ready in every session and uses only the ones each task needs, from the full video workflow (plan, build, review as a buyer and a motion designer, fix and re-render until it scores 85+) to feedback, research and quick answers.",
+  "author": {
+    "name": "SOLIDS FOR YOU"
+  },
+  "homepage": "https://github.com/Founderwithabs/SOLIDSFORYOU",
+  "license": "PolyForm-Noncommercial-1.0.0",
+  "keywords": [
+    "workflow",
+    "all tools",
+    "video",
+    "video editing",
+    "motion graphics",
+    "feedback",
+    "research"
+  ]
+}
