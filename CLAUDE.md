@@ -26,3 +26,14 @@ are available and may be used for clearly simple work.
   reviews are always done by the main model.
 
 Definition: `.claude/skills/careful-mode/SKILL.md`.
+
+## Audio review (Claude listening as an audio designer)
+
+- Share an audio file and ask how it sounds, or run `/audio-review`.
+- `tools/audio_review/analyze.py` measures the file (loudness, dynamics,
+  spectrum, stereo, noise, artifacts) and renders spectrograms. Claude then
+  judges it using `tools/audio_review/designer_rubric.md`.
+- `tools/audio_review/review.py` does the same through the Claude API.
+
+Definition: `.claude/skills/audio-review/SKILL.md`; details in
+`tools/audio_review/README.md`.
