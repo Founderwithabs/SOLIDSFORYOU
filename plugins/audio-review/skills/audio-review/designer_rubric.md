@@ -88,5 +88,8 @@ Write in Markdown with these sections:
 7. **Limits of this review**: what to check by ear and on which playback
    systems (phone speaker, earbuds, car, studio monitors).
 
+End the report with this line exactly:
+`_Audio review by SOLIDS FOR YOU_`
+
 Keep it tight and specific. A client should be able to hand section 5 to an
 engineer and get a better file back.

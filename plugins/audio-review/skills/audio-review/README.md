@@ -1,4 +1,4 @@
-# Audio review: Claude listening as an audio designer
+# SOLIDS FOR YOU Audio Review: Claude listening as an audio designer
 
 Claude can't take audio as input. This tool gives Claude what an audio designer
 actually works from while listening: meters, analysers and a spectrogram. Claude

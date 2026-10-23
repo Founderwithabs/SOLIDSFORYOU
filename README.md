@@ -3,7 +3,7 @@
 Free tools that make Claude better at real founder work. Use them in Claude
 Code, on claude.ai, or in any Claude chat.
 
-## Audio Review: Claude listens like a senior audio designer
+## SOLIDS FOR YOU Audio Review: Claude listens like a senior audio designer
 
 Give Claude a podcast, ad, song, voice-over or product sound. You get back
 what a senior audio designer would tell you:
