@@ -1,0 +1,16 @@
+{
+  "name": "careful-mode",
+  "displayName": "Careful Mode by SOLIDS FOR YOU",
+  "description": "SOLIDS FOR YOU Careful Mode: Claude reviews every piece of work three times (correctness, completeness, how could this go wrong) before handing it over.",
+  "author": {
+    "name": "SOLIDS FOR YOU"
+  },
+  "homepage": "https://github.com/Founderwithabs/SOLIDSFORYOU",
+  "license": "PolyForm-Noncommercial-1.0.0",
+  "keywords": [
+    "quality",
+    "review",
+    "accuracy",
+    "high stakes"
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "name": "economy-mode",
+  "displayName": "Economy Mode by SOLIDS FOR YOU",
+  "description": "SOLIDS FOR YOU Economy Mode: Claude sends simple tasks to cheaper models (Haiku, Sonnet) and keeps the strongest model for decisions and review, to cut cost.",
+  "author": {
+    "name": "SOLIDS FOR YOU"
+  },
+  "homepage": "https://github.com/Founderwithabs/SOLIDSFORYOU",
+  "license": "PolyForm-Noncommercial-1.0.0",
+  "keywords": [
+    "cost",
+    "tokens",
+    "haiku",
+    "sonnet",
+    "subagents"
+  ]
+}

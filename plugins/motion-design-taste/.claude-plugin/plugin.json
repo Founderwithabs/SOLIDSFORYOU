@@ -1,0 +1,18 @@
+{
+  "name": "motion-design-taste",
+  "displayName": "Motion Design Taste by SOLIDS FOR YOU",
+  "description": "SOLIDS FOR YOU Motion Design Taste: Claude judges motion graphics videos like a senior motion designer, scores them out of 100, ranks them against references, and lists or applies exact fixes.",
+  "author": {
+    "name": "SOLIDS FOR YOU"
+  },
+  "homepage": "https://github.com/Founderwithabs/SOLIDSFORYOU",
+  "license": "PolyForm-Noncommercial-1.0.0",
+  "keywords": [
+    "video",
+    "motion graphics",
+    "animation",
+    "ads",
+    "reels",
+    "review"
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "name": "harsh-buyer-review",
+  "displayName": "Harsh Buyer Review by SOLIDS FOR YOU",
+  "description": "SOLIDS FOR YOU Harsh Buyer Review: Claude becomes a real buyer, researches your competitors, compares one-on-one, and gives brutally specific feedback on listings, images, video, copy and price.",
+  "author": {
+    "name": "SOLIDS FOR YOU"
+  },
+  "homepage": "https://github.com/Founderwithabs/SOLIDSFORYOU",
+  "license": "PolyForm-Noncommercial-1.0.0",
+  "keywords": [
+    "ecommerce",
+    "amazon",
+    "listing",
+    "customer feedback",
+    "competitors",
+    "conversion"
+  ]
+}

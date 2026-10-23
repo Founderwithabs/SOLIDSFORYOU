@@ -1,0 +1,20 @@
+{
+  "name": "competitor-research",
+  "displayName": "Competitor Research by SOLIDS FOR YOU",
+  "description": "SOLIDS FOR YOU Competitor Research: deep competitor analysis on any marketplace (Amazon, Flipkart, Meesho and more), competitor websites, social media and ad libraries. Every fact is sourced and dated, a separate pass verifies it, scripts do the maths, and the research runs on Haiku to save credits.",
+  "author": {
+    "name": "SOLIDS FOR YOU"
+  },
+  "homepage": "https://github.com/Founderwithabs/SOLIDSFORYOU",
+  "license": "PolyForm-Noncommercial-1.0.0",
+  "keywords": [
+    "competitor analysis",
+    "market research",
+    "amazon",
+    "flipkart",
+    "meesho",
+    "pricing",
+    "reviews",
+    "ecommerce"
+  ]
+}

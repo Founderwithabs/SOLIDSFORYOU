@@ -1,15 +1,50 @@
 {
   "name": "solidsforyou",
-  "description": "SOLIDS FOR YOU: Claude tools for founders",
+  "description": "SOLIDS FOR YOU: Make your Claude solid. Everything a founder needs, as Claude tools",
   "owner": {
     "name": "SOLIDS FOR YOU",
-    "url": "https://github.com/Founderwithabs/solidsforyou"
+    "url": "https://github.com/Founderwithabs/SOLIDSFORYOU"
   },
   "plugins": [
     {
       "name": "audio-review",
       "source": "./plugins/audio-review",
       "description": "SOLIDS FOR YOU Audio Review: Claude listens to audio like a senior audio designer (loudness, dynamics, tonal balance, stereo, noise and artifacts) and gives a scored review with a fix list."
+    },
+    {
+      "name": "motion-design-taste",
+      "source": "./plugins/motion-design-taste",
+      "description": "SOLIDS FOR YOU Motion Design Taste: Claude judges motion graphics videos like a senior motion designer, scores them out of 100, ranks them against references, and lists or applies exact fixes."
+    },
+    {
+      "name": "harsh-buyer-review",
+      "source": "./plugins/harsh-buyer-review",
+      "description": "SOLIDS FOR YOU Harsh Buyer Review: Claude becomes a real buyer, researches your competitors, compares one-on-one, and gives brutally specific feedback on listings, images, video, copy and price."
+    },
+    {
+      "name": "careful-mode",
+      "source": "./plugins/careful-mode",
+      "description": "SOLIDS FOR YOU Careful Mode: Claude reviews every piece of work three times (correctness, completeness, how could this go wrong) before handing it over."
+    },
+    {
+      "name": "economy-mode",
+      "source": "./plugins/economy-mode",
+      "description": "SOLIDS FOR YOU Economy Mode: Claude sends simple tasks to cheaper models (Haiku, Sonnet) and keeps the strongest model for decisions and review, to cut cost."
+    },
+    {
+      "name": "master",
+      "source": "./plugins/master",
+      "description": "SOLIDS FOR YOU Master Skill: keeps every SOLIDS FOR YOU tool ready in every session and uses only the ones each task needs, from the full video workflow (plan, build, review as a buyer and a motion designer, fix and re-render until it scores 85+) to feedback, research and quick answers."
+    },
+    {
+      "name": "social-media",
+      "source": "./plugins/social-media",
+      "description": "SOLIDS FOR YOU Social Media: Claude becomes your head of social media. Strategy, content calendars, posts, hooks, carousels and reel scripts for every major platform, a 100-point pre-publish scorecard, honest growth rules, and analytics that learn what works for your account."
+    },
+    {
+      "name": "competitor-research",
+      "source": "./plugins/competitor-research",
+      "description": "SOLIDS FOR YOU Competitor Research: deep competitor analysis on any marketplace (Amazon, Flipkart, Meesho and more), competitor websites, social media and ad libraries. Every fact is sourced and dated, a separate pass verifies it, scripts do the maths, and the research runs on Haiku to save credits."
     }
   ]
 }

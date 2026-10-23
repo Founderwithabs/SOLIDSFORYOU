@@ -1,0 +1,20 @@
+{
+  "name": "social-media",
+  "displayName": "Social Media by SOLIDS FOR YOU",
+  "description": "SOLIDS FOR YOU Social Media: Claude becomes your head of social media. Strategy, content calendars, posts, hooks, carousels and reel scripts for every major platform, a 100-point pre-publish scorecard, honest growth rules, and analytics that learn what works for your account.",
+  "author": {
+    "name": "SOLIDS FOR YOU"
+  },
+  "homepage": "https://github.com/Founderwithabs/SOLIDSFORYOU",
+  "license": "PolyForm-Noncommercial-1.0.0",
+  "keywords": [
+    "social media",
+    "content",
+    "instagram",
+    "tiktok",
+    "linkedin",
+    "youtube",
+    "marketing",
+    "viral"
+  ]
+}
