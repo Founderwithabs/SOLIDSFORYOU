@@ -1,5 +1,7 @@
 # SOLIDS FOR YOU: Everything a Founder Needs
 
+**Make your Claude solid.**
+
 Free Claude tools for starting and running a business. Each one turns Claude
 into a specialist you'd otherwise have to hire: an audio designer, a motion
 design director, a harsh customer, a meticulous reviewer.
@@ -12,6 +14,7 @@ desktop, mobile), or **any Claude chat** as a paste-in prompt.
 | Tool | What you get | Use it when |
 |---|---|---|
 | 🎧 **Audio Review** | A senior audio designer's review of any audio: a score out of 10, how it sounds, ranked problems with timestamps, a fix list, and loudness checks for Spotify, YouTube, podcasts, broadcast and ads | Before you publish a podcast, ad, song, voice-over or product sound |
+| 🏆 **Video Masterpiece** | One workflow for every video Claude makes: it plans, builds, reviews as your buyer and as a motion designer, checks the sound, then fixes and re-renders until the video scores 85 out of 100 or more. Uses all the other tools together | Whenever you want Claude to make or edit a video |
 | 🎬 **Motion Design Taste** | A senior motion designer's review of a video: a score out of 100, ranking against references, and exact fixes (and Claude applies them when it has the source). It learns your taste over time | Before you ship an explainer, reel, ad or product video |
 | 🛒 **Harsh Buyer Review** | A real buyer tears into your listing: researches 3 to 5 competitors, compares one-on-one, and tells you exactly why they would or wouldn't buy | Before you launch or change a product listing, images, video, copy or price |
 | ✅ **Careful Mode** | Claude checks every piece of work three times (is it right, is it complete, how could it go wrong) before handing it over | Anything high-stakes: prices, contracts, customer emails, launches |
@@ -35,6 +38,7 @@ Then install the tools you want:
 /plugin install harsh-buyer-review@solidsforyou
 /plugin install careful-mode@solidsforyou
 /plugin install economy-mode@solidsforyou
+/plugin install video-masterpiece@solidsforyou
 ```
 
 Or just run `/plugin` and pick them from the list. After that, ask naturally
@@ -47,7 +51,9 @@ auto-update for the catalog under **Marketplaces** in `/plugin`.
 
 **Requirements:** Audio Review and Motion Design Taste need
 [ffmpeg](https://ffmpeg.org/download.html) and Python 3. Audio Review also
-needs `numpy` (`pip install numpy`). Harsh Buyer Review needs web search,
+needs `numpy` (`pip install numpy`). Video Masterpiece also needs Node.js
+with Playwright and Chromium to render, and works best with all the other
+tools installed. Harsh Buyer Review needs web search,
 which Claude Code has built in.
 
 ### Option 2: claude.ai, Claude Desktop or Claude Mobile
@@ -56,7 +62,9 @@ which Claude Code has built in.
    [Audio Review](dist/audio-review-skill.zip) ·
    [Motion Design Taste](dist/motion-design-taste-skill.zip) ·
    [Harsh Buyer Review](dist/harsh-buyer-review-skill.zip) ·
-   [Careful Mode](dist/careful-mode-skill.zip)
+   [Careful Mode](dist/careful-mode-skill.zip) ·
+   [Video Masterpiece](dist/video-masterpiece-skill.zip) (upload the other
+   four too: it uses them)
 2. In Claude's settings, turn on code execution, then upload the zip as a
    custom skill.
 3. Start a chat and ask for the tool, for example by uploading a video and
@@ -84,11 +92,14 @@ All prompts are listed in [`prompts/`](prompts/README.md).
 plugins/<tool>/                   One installable plugin per tool
   skills/<tool>/SKILL.md          What Claude follows
   skills/<tool>/*.md              The full prompt (also the paste-in version)
-dist/                             Skill zips for claude.ai
+dist/                             Skill zips for claude.ai, and
+                                  video-masterpiece-full.md (the whole
+                                  video workflow in one paste-in file)
 prompts/README.md                 Links to every paste-in prompt
 taste/motion/                     SOLIDS FOR YOU's own motion taste notes
 .claude/skills/                   Lets the tools work inside this repo too
 scripts/build_skill_zip.py        Rebuilds the zips in dist/
+scripts/build_bundle.py           Rebuilds dist/video-masterpiece-full.md
 ```
 
 ## Add or change a tool

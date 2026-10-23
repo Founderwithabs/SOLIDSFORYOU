@@ -1,6 +1,6 @@
 {
   "name": "solidsforyou",
-  "description": "SOLIDS FOR YOU: everything a founder needs, as Claude tools",
+  "description": "SOLIDS FOR YOU: Make your Claude solid. Everything a founder needs, as Claude tools",
   "owner": {
     "name": "SOLIDS FOR YOU",
     "url": "https://github.com/Founderwithabs/SOLIDSFORYOU"
@@ -30,6 +30,11 @@
       "name": "economy-mode",
       "source": "./plugins/economy-mode",
       "description": "SOLIDS FOR YOU Economy Mode: Claude sends simple tasks to cheaper models (Haiku, Sonnet) and keeps the strongest model for decisions and review, to cut cost."
+    },
+    {
+      "name": "video-masterpiece",
+      "source": "./plugins/video-masterpiece",
+      "description": "SOLIDS FOR YOU Video Masterpiece: one workflow for every video Claude makes. It plans, builds, reviews as a buyer and as a motion designer, fixes and re-renders until the video scores 85 out of 100 or more, using every SOLIDS FOR YOU tool together."
     }
   ]
 }

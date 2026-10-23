@@ -10,7 +10,13 @@ import zipfile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-SKILLS = ["audio-review", "motion-design-taste", "harsh-buyer-review", "careful-mode"]
+SKILLS = [
+    "audio-review",
+    "motion-design-taste",
+    "harsh-buyer-review",
+    "careful-mode",
+    "video-masterpiece",
+]
 
 (ROOT / "dist").mkdir(exist_ok=True)
 for name in SKILLS:

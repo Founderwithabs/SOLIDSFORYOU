@@ -10,6 +10,7 @@ Claude Project's instructions.
 | Motion Design Taste | [motion-design-taste.md](../plugins/motion-design-taste/skills/motion-design-taste/motion-design-taste.md) | Nothing. Claude asks for the video and references |
 | Harsh Buyer Review | [harsh-buyer-reviewer.md](../plugins/harsh-buyer-review/skills/harsh-buyer-review/harsh-buyer-reviewer.md) | Sections 1 to 3: your product, price, market and buyer |
 | Careful Mode | [careful-mode.md](../plugins/careful-mode/skills/careful-mode/careful-mode.md) | Nothing |
+| Video Masterpiece | [video-masterpiece-full.md](../dist/video-masterpiece-full.md) (the whole workflow with every tool it uses, in one file) | Nothing. Claude asks for the brief, script and references |
 
 Economy Mode has no paste-in version, because it needs Claude Code's
 subagents.

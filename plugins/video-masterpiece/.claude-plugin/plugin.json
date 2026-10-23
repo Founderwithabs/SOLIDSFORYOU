@@ -1,0 +1,18 @@
+{
+  "name": "video-masterpiece",
+  "displayName": "Video Masterpiece by SOLIDS FOR YOU",
+  "description": "SOLIDS FOR YOU Video Masterpiece: one workflow for every video Claude makes. It plans, builds, reviews as a buyer and as a motion designer, fixes and re-renders until the video scores 85 out of 100 or more, using every SOLIDS FOR YOU tool together.",
+  "author": {
+    "name": "SOLIDS FOR YOU"
+  },
+  "homepage": "https://github.com/Founderwithabs/SOLIDSFORYOU",
+  "keywords": [
+    "video",
+    "video editing",
+    "motion graphics",
+    "animation",
+    "workflow",
+    "ads",
+    "reels"
+  ]
+}
