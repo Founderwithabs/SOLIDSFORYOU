@@ -103,6 +103,13 @@ owner's explicit decision.
 - **Motion design taste:** `scripts/inspect_video.py` inspects; the prompt
   holds the rubric. Use it before delivering any video Claude made.
 - **Harsh buyer review:** needs web search for its competitor research.
+- **Social media:** `social-media.md` holds the whole method (strategy,
+  calendar, creation, 100-point pre-publish scorecard, repurposing, trends,
+  community, platform playbook, compliance); `scripts/content_log.py`
+  analyses `posts.csv` against the account's own medians. Brand memory
+  (`brand-voice.md`, `strategy.md`, `learnings.md`, `posts.csv`) lives in the
+  founder's `social/` folder or `${CLAUDE_PLUGIN_DATA}`. Platform limits in
+  its playbook must be re-checked when platforms change them.
 - **Master skill:** keeps every tool ready and routes each task to only the
   tools it needs (`toolbox.md` has the task-type table; a SessionStart hook in
   `plugins/master/hooks/hooks.json` loads it into every Claude Code session).
