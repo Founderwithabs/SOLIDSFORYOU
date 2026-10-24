@@ -34,6 +34,7 @@ tools below. When a head needs one:
 | competitor-research | Competitor, market and pricing research on marketplaces, websites, social media and ad libraries; competitor data for feedback | `plugins/competitor-research/skills/competitor-research/competitor-research.md` |
 | ecom | Selling online: listings, product images, unit economics, fees, pricing, ads, returns, stock, launches and sale events | `plugins/ecom/skills/ecom/ecom.md` |
 | ai-visuals | Reviewing, scoring and fixing AI-generated images and video; the fixed prompt; optional generation | `plugins/ai-visuals/skills/ai-visuals/ai-visuals.md` |
+| linkedin | LinkedIn posts, profiles, comments, messages and plans, in the founder's voice | `plugins/linkedin/skills/linkedin/linkedin.md` |
 | humanizer | Making writing customers read sound like the founder, not a model; keeps every fact | `plugins/humanizer/skills/humanizer/humanizer.md` |
 | transcriber | Speech to text: voice notes, podcasts, calls and videos into text and timestamped captions | `plugins/transcriber/skills/transcriber/transcriber.md` |
 | social-media | Social media strategy, calendars, posts, scripts, analytics and replies; the script and posting plan for social videos | `plugins/social-media/skills/social-media/social-media.md` |
@@ -143,8 +144,14 @@ ranked fix list, each fix sent back to the head that made the asset.
 - Maths is always done in code and checked, never in your head and never on a
   cheaper model.
 - Never invent facts, prices, claims or sources.
-- Writing a customer, investor or follower will read goes through the
-  humanizer skill before it's handed over.
+- **The humanizer is always on for anything going public:** posts,
+  captions, listings, emails, video scripts, replies, landing pages, ads and
+  bios, whether or not a head owns the task, and without the founder asking.
+  Run its `check` on the channel, rewrite, check again, then `compare` so no
+  fact changed. If it isn't installed, follow its prompt file from the
+  registry by eye (section 3 of it is the checklist) and tell the founder
+  once: `/plugin install humanizer@solidsforyou`. Internal notes, code and
+  data don't need it.
 - Every review and final sign-off is done by you, never by a cheaper model.
 - Do not change the user's decisions (script, brand, style, prices) without
   asking.

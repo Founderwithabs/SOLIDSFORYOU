@@ -135,6 +135,15 @@ or its wording without the owner's explicit decision.
   must score 85+ on every channel and machine writing under 50, so re-run
   them after editing the patterns. It changes how things are said, never the
   facts, and never promises to beat AI detectors.
+- **LinkedIn:** `linkedin.md` is the ghostwriter's method (rules, the
+  founder's voice and memory in `social/linkedin-samples.md`, a job table,
+  idea mining, post types, the hook and the fold, format, profile, comments
+  and messages, the edit, planning, repurposing, examples, hand-back), read
+  by section. `scripts/linkedin_check.py` checks posts (fold preview, limits,
+  hook, broetry, bait, unicode bold), headlines, About, notes and comments.
+  Every draft also goes through the humanizer on the `linkedin` channel; the
+  Marketing head sends all LinkedIn work here. LinkedIn's limits are marked
+  "check" because they change.
 - **AI visuals:** `ai-visuals.md` is the method (rules, brief, reading an
   image or video, prompt anatomy, fix ladder, scorecard, hand-back);
   `purposes.md` and `generators.md` are references read by section, and
@@ -167,7 +176,8 @@ or its wording without the owner's explicit decision.
   design, review), each a short workflow with five sections (when it runs,
   sub-skills, workflow, hand-offs, done when) that calls only the tools the
   task needs. Careful mode, economy mode and the memory sheet are the
-  foundation every head uses. Every tool must be called by at least one head
+  foundation every head uses, and the humanizer is always on for anything
+  going public, head or no head (a rule in `toolbox.md`). Every tool must be called by at least one head
   (the tests check it), to save founders credits and raise quality. It is always-on
   by default: the SessionStart hook in `plugins/master/hooks/hooks.json` loads
   `toolbox.md`, a compact router, into every session. The same hook gives

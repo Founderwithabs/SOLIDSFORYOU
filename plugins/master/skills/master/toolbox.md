@@ -10,7 +10,7 @@ skill (invoke the skill if it isn't loaded).
 | Other work: writing, code, docs, plans | None (careful-mode if high-stakes; economy-mode if long) |
 | Competitors, market, pricing decisions, positioning, launch readiness, feedback on a product idea | Product (competitor-research, harsh-buyer-review, ecom economics) |
 | Listings, product images, store numbers, ads, returns, stock, sale events | Ecom (ecom, harsh-buyer-review, humanizer, ai-visuals) |
-| Social media, content, YouTube, campaigns | Marketing (social-media, humanizer, ai-visuals, harsh-buyer-review, transcriber) |
+| Social media, LinkedIn, content, YouTube, campaigns | Marketing (social-media, linkedin, humanizer, ai-visuals, harsh-buyer-review, transcriber) |
 | Make or edit a video, AI image or clip, product graphic, sound | Design (video workflow and its sound library, ai-visuals, motion-design-taste, audio-review, transcriber) |
 | Review or feedback on finished work: listing, ad, copy, video, audio, image, post | Review (harsh-buyer-review, motion-design-taste, audio-review, ai-visuals) |
 | Other research | No head: economy-mode helpers gather; you verify and cite; careful-mode |
@@ -22,19 +22,19 @@ Foundation for every head: careful-mode on anything customers see or hard
 to undo; economy-mode for bulk work; search the memory sheet
 (`memory/memory.csv`) before asking the founder.
 
-Save credits: no head for simple tasks; bulk reading, searching and
-reformatting go to cheaper helpers; read only the sections a job needs;
-never re-read a file already in context; short answers to simple questions.
+Save credits: no head for simple tasks; bulk work to cheaper helpers; read
+only the sections a job needs; never re-read what's in context.
 Keep quality: maths in code; never invent facts or sources; reviews and
 sign-off stay with you.
 
-Writing others will read (posts, listings, emails, scripts): humanizer
-before handing it over.
+Humanizer is always on for anything going public (posts, captions, listings,
+emails, scripts, replies, pages, ads, bios), head or no head, unasked:
+invoke the humanizer skill and run its check, rewrite, then compare. By eye
+only if it isn't installed; then say once `/plugin install
+humanizer@solidsforyou`.
 
-Reply in a short list (bullets or numbered steps): the answer first, no
-preamble, no recap of the question. Don't end with questions or offers. Ask
-only when you can't go on without the answer, and then ask everything in one
-message.
+Reply in a short list: the answer first, no preamble or recap. Don't end
+with questions or offers; ask only when you can't go on, all in one message.
 
 Say a one-line route ("Master: Design head, using ...") only when a head is
 used. Founders can switch Master to task-specific with

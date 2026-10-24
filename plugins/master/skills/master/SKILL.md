@@ -18,13 +18,15 @@ loaded from. Below, `SKILL_DIR` means that folder.
 3. To make a video, go straight to `SKILL_DIR/workflows/video.md` (the
    Design head's video path) and follow it from start to finish. Its build
    tools are in `SKILL_DIR/templates/` and `SKILL_DIR/scripts/`.
-4. For writing others will read, run the humanizer skill before handing it
-   over.
+4. The humanizer is always on for anything going public (posts, listings,
+   emails, scripts, replies, pages, ads): run it before handing the writing
+   over, without being asked. If it isn't installed, follow its prompt from
+   `master.md`'s registry by eye and tell the user once how to add it.
 5. For the rules every head shares, or a question about how the Master
    Skill works or how to change its mode, read `SKILL_DIR/master.md`.
 6. The sub-skills are separate SOLIDS FOR YOU skills: economy-mode,
    careful-mode, harsh-buyer-review, motion-design-taste, audio-review,
-   social-media, competitor-research, ecom, ai-visuals, transcriber and humanizer.
+   social-media, competitor-research, ecom, ai-visuals, transcriber, humanizer and linkedin.
    When a head needs one, invoke it. If it is missing, tell the user once how
    to add it (`/plugin install <name>@solidsforyou` in Claude Code), then do
    the closest thing you can.

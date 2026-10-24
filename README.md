@@ -1,6 +1,6 @@
 # SOLIDS FOR YOU: Everything a Founder Needs
 
-**Make your Claude solid.** 12 free Claude specialists for founders: a harsh
+**Make your Claude solid.** 13 free Claude specialists for founders: a harsh
 buyer, an e-commerce operator, a competitor researcher, a head of social
 media, a video team and more. Two commands to install, and they work from
 your phone.
@@ -56,6 +56,7 @@ desktop, mobile), or **any Claude chat** as a paste-in prompt.
 | 🎬 **Motion Design Taste** | A senior motion designer's review of a video: a score out of 100, ranking against references, and exact fixes (and Claude applies them when it has the source). It learns your taste over time | Before you ship an explainer, reel, ad or product video |
 | 🎙️ **Transcriber** | Upload a voice note, podcast, call or video, even from your phone, and Claude transcribes it with OpenAI's Whisper right in the chat: text plus timestamped captions, in English, Hindi, Hinglish and 90+ languages. Nothing to install | Whenever you need the words from a recording: captions, editing, chapters, posts |
 | ✍️ **Humanizer** | Anything your customers will read, rewritten to sound like you, not a chatbot: posts, listings, emails, video scripts and replies, in English, Hindi or Hinglish. It finds the phrases that give machine writing away, follows a guide for each channel, checks that no price or fact changed, and compares the draft with your own writing | Before you post, publish, send or record anything |
+| 💼 **LinkedIn** | Your LinkedIn ghostwriter: finds the post only you could write (a number, a decision, a mistake), writes a hook that works before "see more", and edits every draft through the Humanizer so it sounds like you. Also your headline, About section, comments, messages and a posting plan. Never makes up a story | Anything you post, write or reply to on LinkedIn |
 | 🎨 **AI Visuals** | Made a picture or video with ChatGPT, Midjourney, Gemini, Flux, Ideogram, Firefly, Canva, Sora, Veo, Kling or Runway? Claude checks it for where it'll be used (Amazon, Instagram, LinkedIn, YouTube, ads), scores it, and gives you the exact fixed prompt or edit, with every change explained. With your own OpenAI key it can generate and re-check too | Whenever an AI image or clip isn't quite right |
 | 🛍️ **Ecom** | Your e-commerce operator for Amazon, Walmart, eBay, Etsy, TikTok Shop, Shopify, Flipkart, Meesho and any other marketplace: listings that pass a harsh buyer, product images judged, planned and rendered, profit per order and prices calculated from your real fees, plus ads, returns, stock and launches | Anything about selling online, pricing or margins |
 | 🔎 **Competitor Research** | Deep competitor analysis on Amazon, Flipkart, Meesho, Myntra and any other marketplace, plus competitor websites, social media and ads. Every fact is sourced and dated, a separate pass double-checks it, and you get price, review and listing comparisons with ranked actions. Runs on Claude's cheapest model (Haiku) to save credits | Before you price, launch, change a listing, or ask for harsh buyer feedback |
@@ -88,6 +89,7 @@ Then install the tools you want:
 /plugin install ai-visuals@solidsforyou
 /plugin install transcriber@solidsforyou
 /plugin install humanizer@solidsforyou
+/plugin install linkedin@solidsforyou
 ```
 
 If installing Master says an option is "not yet set", you can ignore it:
@@ -112,8 +114,8 @@ video, audio, social media, feedback and research, switch it to
 always on".
 
 **Writing that sounds like you.** With the Humanizer installed, the Master
-Skill runs anything your customers will read (posts, listings, emails, video
-scripts) through it before you see it: it strips the phrases that make text
+Skill switches it on by itself for anything going public (posts, listings,
+emails, video scripts, replies, pages), whatever you asked for: it strips the phrases that make text
 sound machine-written ("game-changer", "it's not just X, it's Y", recap
 endings) and checks every fact and price stayed exactly as it was.
 
@@ -147,6 +149,7 @@ Code has built in.
    [AI Visuals](dist/ai-visuals-skill.zip) ·
    [Transcriber](dist/transcriber-skill.zip) ·
    [Humanizer](dist/humanizer-skill.zip) ·
+   [LinkedIn](dist/linkedin-skill.zip) ·
    [Master Skill](dist/master-skill.zip) (upload the others too: it uses
    them)
 2. In Claude's settings, turn on code execution, then upload the zip as a

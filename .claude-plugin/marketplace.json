@@ -65,6 +65,11 @@
       "name": "humanizer",
       "source": "./plugins/humanizer",
       "description": "SOLIDS FOR YOU Humanizer: makes posts, listings, emails, scripts and replies sound like the founder wrote them, not a model, keeping every fact exactly as it was."
+    },
+    {
+      "name": "linkedin",
+      "source": "./plugins/linkedin",
+      "description": "SOLIDS FOR YOU LinkedIn: Claude becomes the founder's LinkedIn ghostwriter and editor: posts only the founder could write, hooks for the 'see more' fold, profiles, comments and messages, every draft through the humanizer."
     }
   ]
 }

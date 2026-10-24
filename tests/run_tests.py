@@ -1385,6 +1385,90 @@ def check_humanizer(tmp: Path) -> None:
         assert '"words"' in run_hz("profile", fx / "email.txt")
 
 
+def check_linkedin(tmp: Path) -> None:
+    lc = PLUGINS / "linkedin/skills/linkedin/scripts/linkedin_check.py"
+    fx = ROOT / "tests/fixtures/humanizer"
+
+    def li(*args, ok=True):
+        r = subprocess.run([sys.executable, str(lc), *map(str, args), "--json"], capture_output=True, text=True,
+                           encoding="utf-8")
+        assert (r.returncode == 0) == ok, f"linkedin_check {args}: {r.stdout}{r.stderr}"
+        return json.loads(r.stdout)
+
+    @test
+    def test_linkedin_check_passes_a_good_post_and_shows_the_fold():
+        if not lc.exists():
+            raise Skip("no linkedin")
+        r = li(fx / "linkedin.txt")
+        assert not r["errors"] and not r["warnings"], r
+        assert r["fold_phone"].startswith("We shipped 412 orders in October.") and len(r["fold_phone"]) <= 141, r
+        assert len(r["fold_desktop"]) > len(r["fold_phone"]), r
+
+    @test
+    def test_linkedin_check_catches_influencer_posts():
+        if not lc.exists():
+            raise Skip("no linkedin")
+        r = li(fx / "ai_linkedin.txt", ok=False)
+        text = " ".join(r["errors"] + r["warnings"])
+        for want in ("announcement opener", "emoji", "hashtags", "generic closing question"):
+            assert want in text, (want, r)
+        bait = tmp / "bait.txt"
+        bait.write_text("We hit 1,000 orders.\n\nComment YES if you want the playbook!\n\n♻️ Repost to help others.")
+        assert any("engagement bait" in e for e in li(bait, ok=False)["errors"])
+        long_post = tmp / "long.txt"
+        long_post.write_text("We shipped 412 orders. " * 140)
+        assert any("3000" in e for e in li(long_post, ok=False)["errors"])
+        styled = tmp / "styled.txt"
+        styled.write_text("𝗕𝗶𝗴 𝗻𝗲𝘄𝘀: we shipped 412 orders in October.")
+        assert any("unicode" in e for e in li(styled, ok=False)["errors"])
+
+    @test
+    def test_linkedin_check_headline_about_note_and_comment():
+        if not lc.exists():
+            raise Skip("no linkedin")
+        bad = li("--headline", "--text", "Founder | Visionary | Passionate about innovation | Serial Entrepreneur", ok=False)
+        assert "buzzwords" in bad["errors"][0], bad
+        assert not li("--headline", "--text", "I help D2C brands cut returns: 31% to 11% at Solid Threads")["errors"]
+        assert li("--headline", "--text", "x" * 230, ok=False)["errors"]
+        assert any("pitch" in w for w in li("--note", "--text", "Hi, want a demo of our product?")["warnings"])
+        assert any("empty comment" in w for w in li("--comment", "--text", "Great post!")["warnings"])
+        assert not li("--comment", "--text", "We tried this at Solid Threads and returns fell from 31% to 11%. "
+                                             "Did you see the same with size charts?")["warnings"]
+
+    @test
+    def test_linkedin_check_runs_the_installed_humanizer_itself():
+        if not lc.exists():
+            raise Skip("no linkedin")
+        import shutil as _sh
+        # As founders have it after /plugin install: <marketplace>/<plugin>/<version>/...
+        cache = tmp / "cache" / "solidsforyou"
+        _sh.copytree(PLUGINS / "linkedin", cache / "linkedin" / "abc123")
+        installed = cache / "linkedin/abc123/skills/linkedin/scripts/linkedin_check.py"
+
+        def run_installed():
+            r = subprocess.run([sys.executable, str(installed), "--text", "I'm thrilled to announce our journey!",
+                                "--json"], capture_output=True, text=True, encoding="utf-8")
+            return json.loads(r.stdout)
+        alone = run_installed()
+        assert "humanizer_score" not in alone and any("humanizer@solidsforyou" in w for w in alone["warnings"]), alone
+        _sh.copytree(PLUGINS / "humanizer", cache / "humanizer" / "def456")
+        together = run_installed()
+        assert together["humanizer_score"] < 85 and together["humanizer_flags"], together
+        assert li(fx / "linkedin.txt")["humanizer_score"] >= 85  # repo layout: plugins/humanizer next door
+
+    @test
+    def test_linkedin_runs_the_humanizer_and_master_routes_to_it():
+        skill = PLUGINS / "linkedin/skills/linkedin"
+        if not skill.exists():
+            raise Skip("no linkedin")
+        assert "humanizer" in (skill / "SKILL.md").read_text(encoding="utf-8")
+        method = (skill / "linkedin.md").read_text(encoding="utf-8")
+        assert "--channel linkedin" in method and "compare" in method, "every draft goes through the humanizer"
+        router = (PLUGINS / "master/skills/master/toolbox.md").read_text(encoding="utf-8")
+        assert "linkedin" in router and "Humanizer is always on for anything going public" in router, \
+            "with Master, the humanizer must switch on by itself for public content"
+
+
 def main() -> None:
     fast = "--fast" in sys.argv
     check_structure()
@@ -1402,6 +1486,8 @@ def main() -> None:
         check_transcriber(Path(tmp))
     with tempfile.TemporaryDirectory(prefix="sfy_humanizer_") as tmp:
         check_humanizer(Path(tmp))
+    with tempfile.TemporaryDirectory(prefix="sfy_linkedin_") as tmp:
+        check_linkedin(Path(tmp))
     with tempfile.TemporaryDirectory(prefix="sfy_chaos_regressions_") as tmp:
         check_chaos_regressions(Path(tmp))
     if not fast:

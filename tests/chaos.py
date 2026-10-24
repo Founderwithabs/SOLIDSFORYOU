@@ -265,6 +265,12 @@ def text_tools():
     run("humanize voice tiny samples", [P, str(HZ), "voice", str(W / "hk_emoji.txt"), "--draft", str(W / "hk_long.txt")])
     run("humanize voice huge", [P, str(HZ), "voice", str(W / "hk_long.txt"), "--draft", str(W / "binary.bin")])
     run("humanize no command", [P, str(HZ)])
+    LC = R / "linkedin/skills/linkedin/scripts/linkedin_check.py"
+    for name in ("empty.txt", "binary.bin", "hk_long.txt", "hk_emoji.txt", "hk_hindi.txt", "does-not-exist.csv"):
+        for kind in ([], ["--headline"], ["--about"], ["--note"], ["--comment"]):
+            run(f"linkedin_check {name} {' '.join(kind)}", [P, str(LC), str(W / name), *kind])
+    run("linkedin_check no args", [P, str(LC)])
+    run("linkedin_check two kinds", [P, str(LC), "--text", "hi", "--headline", "--note"])
     run("humanize bad channel", [P, str(HZ), "check", "--text", "hi", "--channel", "nope"])
 
     # ai-visuals
