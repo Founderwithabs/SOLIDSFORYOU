@@ -1,0 +1,75 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<!--
+  Comparison chart: our product against "typical" alternatives. Copy next to
+  the product photo, edit CONFIG, then render:
+    node render_image.cjs comparison-chart.html out.png --width 2000 --height 2000
+  Rules: compare against a generic "Typical" column unless the marketplace
+  allows naming competitors (most don't); every row must be true and
+  provable; 4 to 6 rows; check the result at 160 px wide.
+-->
+<style>
+  :root { --bg: #FFFFFF; --ink: #15171C; --muted: #6A7080; --accent: #1F4FD8; --row: #F3F5FA; --bad: #C8CCD6; }
+  * { box-sizing: border-box; margin: 0; }
+  html, body { width: 2000px; height: 2000px; overflow: hidden; background: var(--bg); }
+  body { font-family: "Inter", "Helvetica Neue", Arial, sans-serif; color: var(--ink); }
+  #wrap { position: absolute; inset: 0; padding: 120px; display: flex; flex-direction: column; gap: 60px; }
+  #headline { font-size: 110px; font-weight: 800; line-height: 1.02; letter-spacing: -0.02em; }
+  table { width: 100%; border-collapse: separate; border-spacing: 0 22px; flex: 1; }
+  th { font-size: 54px; font-weight: 800; padding: 0 30px 10px; text-align: center; vertical-align: bottom; }
+  th:first-child { text-align: left; }
+  th.us { color: var(--accent); }
+  th img { display: block; margin: 0 auto 20px; height: 300px; object-fit: contain; }
+  td { background: var(--row); font-size: 50px; padding: 44px 36px; text-align: center; font-weight: 600; }
+  td:first-child { text-align: left; border-radius: 30px 0 0 30px; font-weight: 700; }
+  td:last-child { border-radius: 0 30px 30px 0; color: var(--muted); }
+  td.us { background: #E7EEFF; color: var(--ink); font-weight: 800; }
+  .yes { color: var(--accent); font-weight: 900; font-size: 64px; }
+  .no { color: var(--bad); font-weight: 900; font-size: 64px; }
+</style>
+</head>
+<body>
+<div id="wrap"><div id="headline"></div><table id="t"></table></div>
+<script>
+// ---- Edit this -------------------------------------------------------------
+const CONFIG = {
+  headline: "Why ours fits better",
+  photo: "product.png",                    // our product, local file
+  usLabel: "Ours",
+  themLabel: "Typical joggers",
+  rows: [                                  // value: true, false or short text; every row must be true
+    { label: "Tapered, no-sag fit", us: true, them: false },
+    { label: "Inside drawstring", us: true, them: false },
+    { label: "Deep zip pocket", us: true, them: false },
+    { label: "Sizes", us: "S–3XL", them: "S–XL" },
+    { label: "Colours", us: "8", them: "3–4" },
+  ],
+  colors: { accent: "#1F4FD8" },
+};
+// ----------------------------------------------------------------------------
+window.READY = false;
+document.documentElement.style.setProperty("--accent", CONFIG.colors.accent);
+document.getElementById("headline").textContent = CONFIG.headline;
+const cell = (v) => v === true ? '<span class="yes">✓</span>' : v === false ? '<span class="no">✕</span>' : null;
+const t = document.getElementById("t");
+const head = t.insertRow();
+head.innerHTML = `<th></th><th class="us"><img id="p" alt=""><span></span></th><th><span></span></th>`;
+head.cells[1].querySelector("span").textContent = CONFIG.usLabel;
+head.cells[2].querySelector("span").textContent = CONFIG.themLabel;
+for (const r of CONFIG.rows) {
+  const tr = t.insertRow();
+  tr.innerHTML = `<td></td><td class="us"></td><td></td>`;
+  tr.cells[0].textContent = r.label;
+  [[1, r.us], [2, r.them]].forEach(([i, v]) => {
+    const html = cell(v);
+    if (html) tr.cells[i].innerHTML = html; else tr.cells[i].textContent = v;
+  });
+}
+const img = document.getElementById("p");
+img.onload = img.onerror = () => { window.READY = true; };
+img.src = CONFIG.photo;
+</script>
+</body>
+</html>

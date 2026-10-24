@@ -108,6 +108,14 @@ or its wording without the owner's explicit decision.
 - **Motion design taste:** `scripts/inspect_video.py` inspects; the prompt
   holds the rubric. Use it before delivering any video Claude made.
 - **Harsh buyer review:** needs web search for its competitor research.
+- **Ecom:** `ecom.md` is the core (rules, module choice, store memory in the
+  founder's `ecom/` folder or `${CLAUDE_PLUGIN_DATA}/ecom/`); `modules/`
+  holds listing, images, economics and operations, loaded only when needed;
+  `marketplaces.md` says what to check per marketplace (never hard-coded
+  fees). Scripts: `economics.py` (fee profiles, per-order profit with
+  returns and ads, break-even and target prices, tier-cliff warnings),
+  `ops.py` (ads, returns, reorder), `listing_check.py`, `image_check.py`
+  (ffmpeg only) and `render_image.cjs` with `templates/`.
 - **Competitor research:** analysis only. `competitor-research.md` is the
   method, written so Haiku can follow it step by step. Four Haiku helpers in
   `plugins/competitor-research/agents/` (scout, collector, verifier, analyst)

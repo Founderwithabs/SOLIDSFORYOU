@@ -11,6 +11,7 @@ its row says so.
 | Review a video | motion-design-taste (+ harsh-buyer-review if for customers, + audio-review if sound matters) |
 | Audio | audio-review |
 | Social media | social-media (+ harsh-buyer-review for posts that sell, + video workflow to make a reel) |
+| Selling online: listings, product images, margins, fees, pricing, ads, returns, stock | ecom |
 | Feedback on a product, listing, ad, copy or price | harsh-buyer-review (competitor-research first if it needs fresh competitor data) |
 | Competitors, market or pricing | competitor-research |
 | Other research | economy-mode helpers gather; you verify and cite; careful-mode |
