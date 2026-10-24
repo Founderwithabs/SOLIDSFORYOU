@@ -42,6 +42,7 @@ skill, use it the first time that stage starts:
 | social-media | 2 (videos for social: script, hook, platform specs) | `plugins/social-media/skills/social-media/social-media.md` |
 | ecom | 2 (product and listing videos: the marketplace's video rules, product facts and prices) | `plugins/ecom/skills/ecom/ecom.md` |
 | ai-visuals | 4, 6 (when the video uses AI-generated images or clips) | `plugins/ai-visuals/skills/ai-visuals/ai-visuals.md` |
+| transcriber | 4 (footage with speech: transcript for the rough cut and captions) | `plugins/transcriber/skills/transcriber/transcriber.md` |
 
 Tools. The video build tools sit in the `master` skill's folder, next to its
 SKILL.md (in Claude Code, `${CLAUDE_SKILL_DIR}`); below, `SKILL_DIR` means
@@ -176,8 +177,9 @@ node "SKILL_DIR/scripts/render_html_video.cjs" \
 
 **Path B: editing footage.** Use ffmpeg. Re-encode with `-c:v libx264 -crf 17
 -pix_fmt yuv420p -c:a aac -b:a 192k -movflags +faststart` unless only
-copying streams. For talking-head footage with a transcript (.srt, .vtt or
-Whisper .json), start from the rough cut: `python3
+copying streams. For talking-head footage, make the transcript with the
+transcriber skill if there isn't one (.srt, .vtt or Whisper .json), then
+start from the rough cut: `python3
 "SKILL_DIR/scripts/transcript_edit.py" transcript.srt` lists dead air,
 filler and retakes, and `--apply in.mp4 rough.mp4` cuts them. Check the list
 against the footage first: a silent demo is not dead air.

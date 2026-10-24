@@ -1062,6 +1062,89 @@ def check_video_and_visual_tools(tmp: Path) -> None:
             server.shutdown()
 
 
+def check_transcriber(tmp: Path) -> None:
+    script = PLUGINS / "transcriber/skills/transcriber/scripts/transcribe.py"
+    # A stand-in for faster-whisper, so the test needs no model download: it "hears" two
+    # sentences with a 2-second pause and a stretched first word.
+    fake = tmp / "fake"
+    (fake / "faster_whisper").mkdir(parents=True)
+    (fake / "faster_whisper/__init__.py").write_text("""
+import types
+import numpy as np
+
+def decode_audio(path, sampling_rate=16000):
+    return np.zeros(sampling_rate * 6, dtype=np.float32)
+
+class WhisperModel:
+    def __init__(self, where, device="cpu", compute_type="int8"):
+        self.where = where
+
+    def transcribe(self, audio, **kw):
+        W = lambda s, e, w: types.SimpleNamespace(start=s, end=e, word=w, probability=0.9)
+        segs = [types.SimpleNamespace(start=0.0, end=5.0, text="Hello founders. Price your joggers.",
+                                      words=[W(0.0, 0.6, "Hello"), W(0.6, 1.2, "founders."),
+                                             W(3.2, 3.8, "Price"), W(3.8, 4.2, "your"), W(4.2, 5.0, "joggers.")])]
+        return iter(segs), types.SimpleNamespace(language="en", language_probability=0.99, duration=6.0)
+""")
+
+    def transcribe(*args, env=None):
+        full = {**os.environ, "PYTHONPATH": str(fake), "SOLIDSFORYOU_WHISPER_CACHE": str(tmp / "cache"), **(env or {})}
+        return subprocess.run([sys.executable, str(script), *map(str, args)], capture_output=True, text=True, env=full)
+
+    @test
+    def test_transcriber_writes_captions_the_other_tools_read():
+        if not script.exists():
+            raise Skip("no transcriber")
+        try:
+            import numpy  # noqa: F401
+        except ImportError:
+            raise Skip("numpy not installed")
+        need("ffmpeg")
+        note = tmp / "note.wav"
+        ffmpeg("-f", "lavfi", "-i", "sine=f=300:d=6", str(note))
+        r = transcribe(note, "--out-dir", tmp / "out", "--model-dir", tmp, "--no-install")
+        assert r.returncode == 0, r.stdout + r.stderr
+        srt = (tmp / "out/note.srt").read_text()
+        assert "00:00:00,000 --> " in srt and srt.count(" --> ") == 2, srt  # the 2 s pause starts a new cue
+        assert (tmp / "out/note.vtt").read_text().startswith("WEBVTT")
+        data = json.loads((tmp / "out/note.json").read_text())
+        assert data["language"] == "en" and data["segments"][1]["text"] == "Price your joggers.", data
+        assert (tmp / "out/note.txt").read_text().splitlines()[0] == "Hello founders."
+        # The captions feed the editing tool: the pause between the cues is dead air.
+        edit = PLUGINS / "master/skills/master/scripts/transcript_edit.py"
+        if edit.exists():
+            out = run([sys.executable, str(edit), str(tmp / "out/note.srt")]).stdout
+            assert "DEAD" in out, out
+
+    @test
+    def test_transcriber_refuses_a_model_that_fails_its_hash():
+        if not script.exists():
+            raise Skip("no transcriber")
+        import hashlib
+        pkg = tmp / "fake/sfy_test_model"
+        (pkg / "data").mkdir(parents=True)
+        (pkg / "__init__.py").write_text("")
+        (pkg / "data/model.bin.part0").write_bytes(b"first half ")
+        (pkg / "data/model.bin.part1").write_bytes(b"second half")
+        good = hashlib.sha256(b"first half second half").hexdigest()
+
+        def registry(digest):
+            f = tmp / f"models-{digest[:6]}.json"
+            f.write_text(json.dumps({"default": "base", "models": {"base": {
+                "published": True, "packages": [{"name": "sfy-test-model", "version": "1", "module": "sfy_test_model"}],
+                "files": {"model.bin": digest}}}}))
+            return {"SOLIDSFORYOU_WHISPER_REGISTRY": str(f), "SOLIDSFORYOU_WHISPER_CACHE": str(tmp / f"cache-{digest[:6]}")}
+        note = tmp / "silence.wav"
+        need("ffmpeg")
+        ffmpeg("-f", "lavfi", "-i", "anullsrc=r=16000:cl=mono", "-t", "1", str(note))
+        r = transcribe(note, "--out-dir", tmp / "h1", "--no-install", env=registry(good))
+        assert "SOLIDS FOR YOU package (verified)" in r.stderr, r.stderr  # parts joined in order, hash matches
+        assert (tmp / f"cache-{good[:6]}/base/model.bin").read_bytes() == b"first half second half"
+        r = transcribe(note, "--out-dir", tmp / "h2", "--no-install", env=registry("0" * 64))
+        assert "failed its SHA-256 check" in r.stderr, r.stderr
+        assert not any((tmp / "cache-000000/base").iterdir()), "a model that fails its hash must be deleted"
+
+
 def main() -> None:
     fast = "--fast" in sys.argv
     check_structure()
@@ -1075,6 +1158,8 @@ def main() -> None:
         check_ecom(Path(tmp))
     with tempfile.TemporaryDirectory(prefix="sfy_video_visual_") as tmp:
         check_video_and_visual_tools(Path(tmp))
+    with tempfile.TemporaryDirectory(prefix="sfy_transcriber_") as tmp:
+        check_transcriber(Path(tmp))
     if not fast:
         with tempfile.TemporaryDirectory(prefix="sfy_tests_") as tmp:
             check_media(Path(tmp))

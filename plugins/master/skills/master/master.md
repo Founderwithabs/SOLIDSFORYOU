@@ -34,6 +34,7 @@ tools below. When a head needs one:
 | competitor-research | Competitor, market and pricing research on marketplaces, websites, social media and ad libraries; competitor data for feedback | `plugins/competitor-research/skills/competitor-research/competitor-research.md` |
 | ecom | Selling online: listings, product images, unit economics, fees, pricing, ads, returns, stock, launches and sale events | `plugins/ecom/skills/ecom/ecom.md` |
 | ai-visuals | Reviewing, scoring and fixing AI-generated images and video; the fixed prompt; optional generation | `plugins/ai-visuals/skills/ai-visuals/ai-visuals.md` |
+| transcriber | Speech to text: voice notes, podcasts, calls and videos into text and timestamped captions | `plugins/transcriber/skills/transcriber/transcriber.md` |
 | social-media | Social media strategy, calendars, posts, scripts, analytics and replies; the script and posting plan for social videos | `plugins/social-media/skills/social-media/social-media.md` |
 | Video workflow | Making or editing a video (the Design head's video path) | `plugins/master/skills/master/workflows/video.md` |
 | Product head | Competitors, market, pricing decisions, positioning, launch readiness | `plugins/master/skills/master/heads/product.md` |
@@ -103,7 +104,8 @@ Marketing.
 
 **Marketing** (`heads/marketing.md`): grows the audience. social-media does
 strategy, posts, scripts, YouTube and analytics, with product facts from
-ecom's store memory; ai-visuals for AI-made visuals; harsh-buyer-review for
+ecom's store memory; transcriber turns a video or podcast into the
+transcript for chapters, captions and repurposing; ai-visuals for AI-made visuals; harsh-buyer-review for
 posts that sell. Reels and videos go to Design.
 
 **Design** (`heads/design.md`): makes the assets. Videos follow
@@ -112,7 +114,8 @@ taste pre-production, build and draft render, harsh buyer review, taste and
 audio review into one fix list, careful review of the plan, and up to three
 rounds of regeneration until the quality bar is met). AI images and clips go
 through ai-visuals, product graphics through ecom's templates, sound through
-audio-review.
+audio-review. Footage with speech is transcribed first with transcriber, for
+the rough cut and captions.
 
 **Review** (`heads/review.md`): judges finished work from the seat of
 whoever sees it: harsh-buyer-review for listings, ads, copy and prices;

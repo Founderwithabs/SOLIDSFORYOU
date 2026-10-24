@@ -18,6 +18,7 @@ and clips, product graphics, and soundtracks.
 | motion-design-taste | Taste before and after building any video; the founder's taste notes |
 | audio-review | The sound of every video; voice-overs and music |
 | ecom | Product graphics (infographics, comparison charts) and marketplace image rules |
+| transcriber | Footage with speech: the transcript and captions the rough cut and subtitles start from |
 
 Foundation: careful-mode on the brief and every delivery; economy-mode for
 bulk steps; the memory sheet for brand rules.
@@ -26,7 +27,9 @@ bulk steps; the memory sheet for brand rules.
 
 1. **What is the asset?** Video, AI image or clip, product graphic, or
    sound. A job can have several.
-2. **Video:** follow `workflows/video.md` from start to finish. It runs
+2. **Video:** footage with speech is transcribed first with transcriber
+   (its `.srt` feeds the rough cut and the captions). Then follow
+   `workflows/video.md` from start to finish. It runs
    economy-mode, careful-mode, motion-design-taste, audio-review and
    harsh-buyer-review itself, and takes marketplace rules from ecom and
    scripts from social-media.

@@ -22,7 +22,7 @@ loaded from. Below, `SKILL_DIR` means that folder.
    Skill works or how to change its mode, read `SKILL_DIR/master.md`.
 5. The sub-skills are separate SOLIDS FOR YOU skills: economy-mode,
    careful-mode, harsh-buyer-review, motion-design-taste, audio-review,
-   social-media, competitor-research, ecom and ai-visuals.
+   social-media, competitor-research, ecom, ai-visuals and transcriber.
    When a head needs one, invoke it. If it is missing, tell the user once how
    to add it (`/plugin install <name>@solidsforyou` in Claude Code), then do
    the closest thing you can.

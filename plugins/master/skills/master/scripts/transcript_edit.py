@@ -14,8 +14,9 @@ Finds:
   DEAD    gaps between spoken cues longer than the floor, trimmed from the MIDDLE so both
           sides keep a breath (cutting flush against speech sounds gasping)
   FILLER  cues that are nothing but filler ("um", "so yeah", "basically")
-  REPEAT  a sentence restarted: the earlier take is cut, compared against the last real speech
-          cue so retakes with an "um" between them are caught
+  REPEAT  a sentence restarted: the earlier take is cut when the new cue opens with the same
+          three or more words and they cover most of the earlier take (60%+), compared against
+          the last real speech cue so retakes with an "um" between them are caught
 
 Check the list against the footage before applying: a long silent demo or B-roll section is not
 dead air. The removed percentage is a share of the timeline, not of the speech.
@@ -78,10 +79,13 @@ def find_cuts(cues, floor, filler=True, repeats=True):
             while j >= 0 and (FILLER_ONLY.match(cues[j][2]) or not cues[j][2].strip()):
                 j -= 1
             if j >= 0:
-                a1, b1 = norm(cues[j][2])[:5], norm(t)[:5]
-                if len(a1) >= 3 and a1 == b1:
+                prev, cur = norm(cues[j][2]), norm(t)
+                same = 0
+                while same < min(len(prev), len(cur)) and prev[same] == cur[same]:
+                    same += 1
+                if same >= 3 and (same >= 5 or same / len(prev) >= 0.6):
                     cuts.append({"kind": "REPEAT", "start": cues[j][0], "end": cues[j][1],
-                                 "why": f'restart of "{" ".join(a1)}"'})
+                                 "why": f'restart of "{" ".join(prev[:same])}"'})
     cuts = sorted((c for c in cuts if c["end"] > c["start"]), key=lambda c: c["start"])
     return cuts
 

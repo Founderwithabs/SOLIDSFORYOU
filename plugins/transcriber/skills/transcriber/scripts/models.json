@@ -1,0 +1,18 @@
+{
+  "note": "Whisper models (OpenAI, MIT) converted for faster-whisper and published on PyPI by SOLIDS FOR YOU. Built by scripts/build_whisper_packages.py at the repo root, which fills in this file. transcribe.py only trusts files whose SHA-256 matches the values here.",
+  "default": "base",
+  "models": {
+    "base": {
+      "published": false,
+      "source": "openai/whisper base.pt, sha256 ed3a0b6b1c0edf879ad9b11b1af5a0e6ab5db9205f891f668f8b0e6c6326e34e",
+      "packages": [],
+      "files": {}
+    },
+    "small": {
+      "published": false,
+      "source": "openai/whisper small.pt, sha256 9ecf779972d90ba49c06d968637d720dd632c55bbf19d441fb42bf17a411e794",
+      "packages": [],
+      "files": {}
+    }
+  }
+}

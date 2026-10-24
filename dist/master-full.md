@@ -38,6 +38,7 @@ tools below. When a head needs one:
 | competitor-research | Competitor, market and pricing research on marketplaces, websites, social media and ad libraries; competitor data for feedback | `plugins/competitor-research/skills/competitor-research/competitor-research.md` |
 | ecom | Selling online: listings, product images, unit economics, fees, pricing, ads, returns, stock, launches and sale events | `plugins/ecom/skills/ecom/ecom.md` |
 | ai-visuals | Reviewing, scoring and fixing AI-generated images and video; the fixed prompt; optional generation | `plugins/ai-visuals/skills/ai-visuals/ai-visuals.md` |
+| transcriber | Speech to text: voice notes, podcasts, calls and videos into text and timestamped captions | `plugins/transcriber/skills/transcriber/transcriber.md` |
 | social-media | Social media strategy, calendars, posts, scripts, analytics and replies; the script and posting plan for social videos | `plugins/social-media/skills/social-media/social-media.md` |
 | Video workflow | Making or editing a video (the Design head's video path) | `plugins/master/skills/master/workflows/video.md` |
 | Product head | Competitors, market, pricing decisions, positioning, launch readiness | `plugins/master/skills/master/heads/product.md` |
@@ -107,7 +108,8 @@ Marketing.
 
 **Marketing** (`heads/marketing.md`): grows the audience. social-media does
 strategy, posts, scripts, YouTube and analytics, with product facts from
-ecom's store memory; ai-visuals for AI-made visuals; harsh-buyer-review for
+ecom's store memory; transcriber turns a video or podcast into the
+transcript for chapters, captions and repurposing; ai-visuals for AI-made visuals; harsh-buyer-review for
 posts that sell. Reels and videos go to Design.
 
 **Design** (`heads/design.md`): makes the assets. Videos follow
@@ -116,7 +118,8 @@ taste pre-production, build and draft render, harsh buyer review, taste and
 audio review into one fix list, careful review of the plan, and up to three
 rounds of regeneration until the quality bar is met). AI images and clips go
 through ai-visuals, product graphics through ecom's templates, sound through
-audio-review.
+audio-review. Footage with speech is transcribed first with transcriber, for
+the rough cut and captions.
 
 **Review** (`heads/review.md`): judges finished work from the seat of
 whoever sees it: harsh-buyer-review for listings, ads, copy and prices;
@@ -181,8 +184,8 @@ skill (invoke the skill if it isn't loaded).
 | Other work: writing, code, docs, plans | None (careful-mode if high-stakes; economy-mode if long) |
 | Competitors, market, pricing decisions, positioning, launch readiness, feedback on a product idea | Product (competitor-research, harsh-buyer-review, ecom economics) |
 | Listings, product images, store numbers, ads, returns, stock, sale events | Ecom (ecom, harsh-buyer-review, ai-visuals) |
-| Social media, content, YouTube, campaigns | Marketing (social-media, ai-visuals, harsh-buyer-review) |
-| Make or edit a video, AI image or clip, product graphic, sound | Design (video workflow, ai-visuals, motion-design-taste, audio-review) |
+| Social media, content, YouTube, campaigns | Marketing (social-media, ai-visuals, harsh-buyer-review, transcriber) |
+| Make or edit a video, AI image or clip, product graphic, sound | Design (video workflow, ai-visuals, motion-design-taste, audio-review, transcriber) |
 | Review or feedback on finished work: listing, ad, copy, video, audio, image, post | Review (harsh-buyer-review, motion-design-taste, audio-review, ai-visuals) |
 | Other research | No head: economy-mode helpers gather; you verify and cite; careful-mode |
 
@@ -1614,6 +1617,81 @@ Keep it short; the founder is switching between Claude and another tool.
 
 ---
 
+## Skill: `plugins/transcriber/skills/transcriber/transcriber.md`
+
+# SOLIDS FOR YOU Transcriber
+
+Turns a voice note, podcast, call recording or video into text, with
+timestamps, inside the chat's own sandbox, using OpenAI's Whisper. The
+founder only uploads the file; nothing to install or set up.
+
+## 1. Rules
+
+- **The audio stays in the sandbox.** Never send it to another service
+  unless the founder asks for that service by name.
+- **Recordings of other people need their consent.** If a file sounds like
+  a call or meeting, check the founder has it before sharing the transcript
+  further.
+- **Say what you're unsure of.** Whisper mishears names, brands, numbers and
+  mixed languages. Mark doubtful words instead of guessing, and never
+  "correct" the transcript into something the speaker didn't say.
+- **Quotes are exact.** When a transcript is used for posts, listings or
+  reviews, quote it word for word or say it's paraphrased.
+
+## 2. Transcribe
+
+Run the bundled script (next to this skill's SKILL.md) on the uploaded file:
+
+```
+python3 "SKILL_DIR/scripts/transcribe.py" "<file>" --out-dir <scratch folder>
+```
+
+Useful options:
+- `--language hi` (or `en`, `ta`, ...) when you know the language; default
+  is automatic detection.
+- `--prompt "names and words to expect"`: brand and product names, people's
+  names, jargon. For Hinglish in Roman script, a short Roman Hinglish example
+  in the prompt usually keeps the output in Roman letters.
+- `--translate`: English translation of the speech.
+- `--size small`: slower but more accurate (default `base`).
+
+The first run installs the engine and model by itself (a minute or two);
+later runs reuse them. It accepts audio and video files (m4a, mp3, wav,
+ogg, opus, mp4, mov and more).
+
+## 3. Reply in chat
+
+1. The full transcript (or, for long recordings, a summary first and the
+   full text after), with doubtful words marked.
+2. The language detected and the duration.
+3. The files written: `.txt`, `.srt` and `.vtt` captions, and `.json` with
+   word timings. Offer them as downloads where the chat allows.
+4. What the founder can do next with it (section 4).
+
+## 4. What the transcript feeds
+
+- **Rough-cut a video:** the `master` skill's `transcript_edit.py` (dead
+  air, filler, retakes; `--apply` cuts the video).
+- **YouTube:** chapters, Shorts selection and retention analysis in the
+  `social-media` skill (`youtube.md`).
+- **Captions:** burn the `.srt` into a video with the `master` skill's video
+  workflow, or upload it to the platform.
+- **Content:** posts, threads, quotes and blog drafts from what the founder
+  said, in their own voice (`social-media`).
+
+## 5. When it can't run
+
+If the sandbox can't install packages or load the model, the script says
+so and lists phone options: Voice Memos transcripts on iPhone, the Recorder
+app on Android, YouTube's automatic captions (upload unlisted), and
+Instagram or TikTok auto-captions. Ask the founder to paste the text or
+`.srt`, then continue from section 3.
+
+Without any code tool at all, say you can't listen to audio in this chat and
+offer the same options.
+
+---
+
 ## Skill: `plugins/social-media/skills/social-media/social-media.md`
 
 # SOLIDS FOR YOU Social Media
@@ -2229,6 +2307,7 @@ skill, use it the first time that stage starts:
 | social-media | 2 (videos for social: script, hook, platform specs) | `plugins/social-media/skills/social-media/social-media.md` |
 | ecom | 2 (product and listing videos: the marketplace's video rules, product facts and prices) | `plugins/ecom/skills/ecom/ecom.md` |
 | ai-visuals | 4, 6 (when the video uses AI-generated images or clips) | `plugins/ai-visuals/skills/ai-visuals/ai-visuals.md` |
+| transcriber | 4 (footage with speech: transcript for the rough cut and captions) | `plugins/transcriber/skills/transcriber/transcriber.md` |
 
 Tools. The video build tools sit in the `master` skill's folder, next to its
 SKILL.md (in Claude Code, `${CLAUDE_SKILL_DIR}`); below, `SKILL_DIR` means
@@ -2363,8 +2442,9 @@ node "SKILL_DIR/scripts/render_html_video.cjs" \
 
 **Path B: editing footage.** Use ffmpeg. Re-encode with `-c:v libx264 -crf 17
 -pix_fmt yuv420p -c:a aac -b:a 192k -movflags +faststart` unless only
-copying streams. For talking-head footage with a transcript (.srt, .vtt or
-Whisper .json), start from the rough cut: `python3
+copying streams. For talking-head footage, make the transcript with the
+transcriber skill if there isn't one (.srt, .vtt or Whisper .json), then
+start from the rough cut: `python3
 "SKILL_DIR/scripts/transcript_edit.py" transcript.srt` lists dead air,
 filler and retakes, and `--apply in.mp4 rough.mp4` cuts them. Check the list
 against the footage first: a silent demo is not dead air.
@@ -2664,6 +2744,7 @@ and launch campaigns.
 | social-media | The core: brand memory, strategy, creation, the 100-point scorecard, analytics, YouTube tools |
 | ai-visuals | AI-made images and clips for posts: fixed prompt and scorecard |
 | harsh-buyer-review | Posts and ads that sell a product |
+| transcriber | A video, podcast or voice note into text: chapters, captions, quotes and repurposed posts |
 
 Foundation: careful-mode on claims, numbers and anything customers see;
 economy-mode for bulk work (a month's calendar, many replies); the memory
@@ -2677,7 +2758,9 @@ sheet.
 2. **Product facts.** For a post about a product, take prices, offers and
    product facts from ecom's store memory (or the memory sheet), never from
    memory, so every channel says the same thing.
-3. **Make it** with social-media's method. AI-made visuals go through
+3. **Make it** with social-media's method. Working from a video, podcast
+   or voice note, transcribe it first with transcriber; its `.srt` feeds
+   chapters, retention and captions. AI-made visuals go through
    ai-visuals. A reel, Short or video goes to the Design head with the
    script, hook and platform specs.
 4. **Check.** Every post passes social-media's scorecard. Posts and ads
@@ -2722,6 +2805,7 @@ and clips, product graphics, and soundtracks.
 | motion-design-taste | Taste before and after building any video; the founder's taste notes |
 | audio-review | The sound of every video; voice-overs and music |
 | ecom | Product graphics (infographics, comparison charts) and marketplace image rules |
+| transcriber | Footage with speech: the transcript and captions the rough cut and subtitles start from |
 
 Foundation: careful-mode on the brief and every delivery; economy-mode for
 bulk steps; the memory sheet for brand rules.
@@ -2730,7 +2814,9 @@ bulk steps; the memory sheet for brand rules.
 
 1. **What is the asset?** Video, AI image or clip, product graphic, or
    sound. A job can have several.
-2. **Video:** follow `workflows/video.md` from start to finish. It runs
+2. **Video:** footage with speech is transcribed first with transcriber
+   (its `.srt` feeds the rough cut and the captions). Then follow
+   `workflows/video.md` from start to finish. It runs
    economy-mode, careful-mode, motion-design-taste, audio-review and
    harsh-buyer-review itself, and takes marketplace rules from ecom and
    scripts from social-media.
