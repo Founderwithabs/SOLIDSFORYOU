@@ -12,9 +12,13 @@ wheels that the transcriber skill installs and verifies automatically.
 Steps:
   1. Download the official checkpoint from OpenAI's server (openaipublic.azureedge.net)
      and check it against the SHA-256 OpenAI publishes in the download URL.
-  2. Convert it to Hugging Face format with transformers' convert_openai_to_hf.py, then
-     to CTranslate2 (float16) for faster-whisper. Needs: pip install torch transformers
-     tiktoken ctranslate2 (and network access to raw.githubusercontent.com).
+  2. Convert it to Hugging Face format with transformers' convert_openai_to_hf.py (a copy
+     is kept in scripts/vendor/, Apache-2.0), then to CTranslate2 (float16) for
+     faster-whisper. OpenAI's tokenizer files and license come from the official
+     openai-whisper package on PyPI, and the generation settings (alignment heads, suppressed
+     tokens, language ids) are computed with OpenAI's own whisper code, so nothing is
+     fetched from the Hugging Face Hub. Needs: pip install torch transformers tiktoken
+     ctranslate2 openai-whisper (all from PyPI).
   3. Split files above 90 MiB, pack them into wheels of at most 90 MiB each
      (solidsforyou-whisper-<size>-<n>), each carrying OpenAI's MIT license.
   4. Record every final file's SHA-256 and the package list in
@@ -44,9 +48,12 @@ OFFICIAL = {  # from openai-whisper's whisper/__init__.py; the folder name is th
     "small": "https://openaipublic.azureedge.net/main/whisper/models/"
              "9ecf779972d90ba49c06d968637d720dd632c55bbf19d441fb42bf17a411e794/small.pt",
 }
-CONVERTER = ("https://raw.githubusercontent.com/huggingface/transformers/main/"
-             "src/transformers/models/whisper/convert_openai_to_hf.py")
-OPENAI_LICENSE = "https://raw.githubusercontent.com/openai/whisper/main/LICENSE"
+CONVERTER = ROOT / "scripts" / "vendor" / "convert_openai_to_hf.py"
+TIKTOKEN_URLS = {  # what the converter asks tiktoken for; served from the PyPI package instead
+    "https://raw.githubusercontent.com/openai/whisper/main/whisper/assets/multilingual.tiktoken":
+        "multilingual.tiktoken",
+    "https://raw.githubusercontent.com/openai/whisper/main/whisper/assets/gpt2.tiktoken": "gpt2.tiktoken",
+}
 LIMIT = 90 * 1024 * 1024  # PyPI's default limit is 100 MB per file; stay well under it
 HOMEPAGE = "https://github.com/Founderwithabs/SOLIDSFORYOU"
 
@@ -77,18 +84,76 @@ def checkpoint(size, work, pt):
     return path
 
 
-def convert(pt, work):
-    for mod in ("torch", "transformers", "tiktoken", "ctranslate2"):
+def openai_package(work):
+    """OpenAI's official openai-whisper source package from PyPI: LICENSE and tokenizer assets."""
+    import tarfile
+    src = work / "openai-whisper"
+    if not (src / "LICENSE").exists():
+        dl = work / "sdist"
+        subprocess.run([sys.executable, "-m", "pip", "download", "--no-deps", "--no-binary", ":all:",
+                        "-q", "-d", str(dl), "openai-whisper"], check=True)
+        archive = next(dl.glob("openai_whisper-*.tar.gz"))
+        src.mkdir(parents=True, exist_ok=True)
+        with tarfile.open(archive) as t:
+            for m in t.getmembers():
+                name = m.name.split("/", 1)[-1]
+                if name in ("LICENSE", "whisper/assets/multilingual.tiktoken", "whisper/assets/gpt2.tiktoken"):
+                    m.name = Path(name).name
+                    t.extract(m, src)
+    return src
+
+
+def generation_config(pt, size, work):
+    """Whisper's decoding settings, from OpenAI's whisper package (the same values the original
+    model uses): alignment heads for word timings, suppressed tokens and language/task ids."""
+    import gzip
+    import numpy as np
+    import torch
+    import whisper
+    from whisper.tokenizer import get_tokenizer
+    dims = torch.load(pt, map_location="cpu", weights_only=True)["dims"]
+    multilingual = dims["n_vocab"] >= 51865
+    tok = get_tokenizer(multilingual, num_languages=dims["n_vocab"] - 51765 - int(multilingual))
+    heads = np.frombuffer(gzip.decompress(base64.b85decode(whisper._ALIGNMENT_HEADS[size])), dtype=bool)
+    heads = heads.reshape(dims["n_text_layer"], dims["n_text_head"])
+    special = [tok.transcribe, tok.translate, tok.sot, tok.sot_prev, tok.sot_lm]
+    if tok.no_speech is not None:
+        special.append(tok.no_speech)
+    cfg = {
+        "alignment_heads": [[int(a), int(b)] for a, b in np.argwhere(heads)],
+        "suppress_tokens": sorted(set(tok.non_speech_tokens) | set(special)),
+        "begin_suppress_tokens": [tok.encode(" ")[0], tok.eot],
+        "lang_to_id": {f"<|{c}|>": tok.to_language_token(c) for c in tok.all_language_codes},
+        "task_to_id": {"transcribe": tok.transcribe, "translate": tok.translate},
+        "is_multilingual": multilingual,
+        "decoder_start_token_id": tok.sot,
+        "bos_token_id": tok.eot, "eos_token_id": tok.eot, "pad_token_id": tok.eot,
+        "no_timestamps_token_id": tok.no_timestamps,
+        "prev_sot_token_id": tok.sot_prev,
+        "max_initial_timestamp_index": 50,
+        "max_length": dims["n_text_ctx"],
+    }
+    path = work / "generation_config.json"
+    path.write_text(json.dumps(cfg, indent=1), encoding="utf-8")
+    return path
+
+
+def convert(pt, work, size):
+    for mod in ("torch", "transformers", "tiktoken", "ctranslate2", "whisper"):
         try:
             __import__(mod)
         except ImportError:
-            sys.exit(f"missing {mod}: pip install torch transformers tiktoken ctranslate2")
-    conv = work / "convert_openai_to_hf.py"
-    if not conv.exists():
-        fetch(CONVERTER, conv)
+            sys.exit(f"missing {mod}: pip install torch transformers tiktoken ctranslate2 openai-whisper")
+    assets = openai_package(work)
+    cache = work / "tiktoken_cache"  # tiktoken looks here (by SHA-1 of the URL) before downloading
+    cache.mkdir(exist_ok=True)
+    for url, name in TIKTOKEN_URLS.items():
+        shutil.copy(assets / name, cache / hashlib.sha1(url.encode()).hexdigest())
     hf = work / "hf"
-    subprocess.run([sys.executable, str(conv), "--checkpoint_path", str(pt),
-                    "--pytorch_dump_folder_path", str(hf), "--convert_preprocessor", "True"], check=True)
+    subprocess.run([sys.executable, str(CONVERTER), "--checkpoint_path", str(pt),
+                    "--pytorch_dump_folder_path", str(hf), "--convert_preprocessor", "True"],
+                   check=True, env={**os.environ, "TIKTOKEN_CACHE_DIR": str(cache),
+                                    "SOLIDSFORYOU_GENERATION_CONFIG": str(generation_config(pt, size, work))})
     import ctranslate2
     out = work / "ct2"
     copy = [f for f in ("tokenizer.json", "preprocessor_config.json") if (hf / f).exists()]
@@ -144,11 +209,7 @@ def wheel(dist, name, version, module, files, license_text, size):
 
 def package(size, ct2, version, dist):
     dist.mkdir(parents=True, exist_ok=True)
-    try:
-        with urllib.request.urlopen(OPENAI_LICENSE, timeout=60) as r:
-            openai_license = r.read().decode()
-    except OSError:
-        openai_license = "MIT License\n\nCopyright (c) 2022 OpenAI\n(see https://github.com/openai/whisper/blob/main/LICENSE)\n"
+    openai_license = (openai_package(dist.parent) / "LICENSE").read_text(encoding="utf-8")
     license_text = ("This package contains OpenAI's Whisper model, converted for faster-whisper by "
                     "SOLIDS FOR YOU. The model is licensed by OpenAI under the MIT License:\n\n" + openai_license)
     groups = []  # first-fit decreasing: big pieces first, small files fill the gaps
@@ -181,7 +242,7 @@ def main():
     args = ap.parse_args()
     work = Path(args.work) / args.size
     work.mkdir(parents=True, exist_ok=True)
-    ct2 = Path(args.ct2_dir) if args.ct2_dir else convert(checkpoint(args.size, work, args.pt), work)
+    ct2 = Path(args.ct2_dir) if args.ct2_dir else convert(checkpoint(args.size, work, args.pt), work, args.size)
     packages, files, wheels = package(args.size, ct2, args.version, work / "dist")
     reg_path = Path(args.registry)
     reg = json.loads(reg_path.read_text(encoding="utf-8"))

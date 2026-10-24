@@ -32,7 +32,12 @@ Useful options:
   names, jargon. For Hinglish in Roman script, a short Roman Hinglish example
   in the prompt usually keeps the output in Roman letters.
 - `--translate`: English translation of the speech.
-- `--size small`: slower but more accurate (default `base`).
+- `--size small`: slower and a bigger first download (about 480 MB against
+  150 MB), but clearly more accurate. Use it for Hindi and other non-English
+  speech, numbers and prices, names, noisy audio, or anything that will be
+  quoted. The default `base` is fine for clear English drafts. In testing,
+  base heard "nine hundred and ninety nine rupees" as "$900 and $9 Rupees";
+  small got "999 rupees" right.
 
 The first run installs the engine and model by itself (a minute or two);
 later runs reuse them. It accepts audio and video files (m4a, mp3, wav,
