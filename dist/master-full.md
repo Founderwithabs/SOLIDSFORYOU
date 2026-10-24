@@ -228,6 +228,35 @@ is never worth a wrong result on something that matters.
   task up one tier (quick-task -> standard-task -> yourself). Do not retry the
   same tier with the same prompt.
 
+## Memory sheet: remember without carrying
+
+Economy mode keeps a memory sheet outside the conversation, so nothing the
+founder told you is lost after `/clear`, `/compact` or a new session, and the
+conversation never has to carry the whole history. It is
+`memory/memory.csv` in the project; Excel and Google Sheets open it
+directly. The script is next to this SKILL.md (in Claude Code:
+`${CLAUDE_SKILL_DIR}/scripts/memory.py`; below, `SKILL_DIR/scripts/memory.py`).
+
+- **Look up, don't reload.** Before asking the founder something they may
+  have told you (prices, decisions, suppliers, preferences, deadlines), run
+  `python3 "SKILL_DIR/scripts/memory.py" search "a few key words"`. It
+  returns the best 5 rows. Never print or read the whole sheet.
+- **Write as you go.** When the founder states a fact, makes a decision,
+  sets a preference or gives you a task to remember, add one row:
+  `python3 "SKILL_DIR/scripts/memory.py" add --type decision --topic pricing --text "..." --source "founder, <date>"`.
+  Types: fact, decision, preference, task, contact, number, note. One memory
+  per row, in plain words, with the real numbers. Pin (`--pin`) only rules
+  that apply to almost every task, such as brand voice; pinned rows are
+  shown at the start of every session.
+- **Keep it true.** When something changes, `update <id> --text "..."`;
+  when it no longer applies, `forget <id>` (the row stays in the sheet,
+  hidden from searches). Never store passwords, card numbers or other
+  secrets.
+- **Before `/compact` or a long break,** add any decision from this session
+  that isn't in the sheet yet.
+- Saving and searching are quick tool calls; do them yourself rather than
+  through a helper.
+
 ## Reporting
 
 At the end of your reply, add one short line listing what was delegated, for

@@ -1,6 +1,6 @@
 ---
 name: economy-mode
-description: Economy mode: send low-importance work to cheaper models (Haiku, Sonnet) through helpers and keep the main model for judgment. Use for "economy mode", "save tokens", "use cheaper models", or when the user wants to cut cost.
+description: Economy mode: send low-importance work to cheaper models (Haiku, Sonnet) through helpers, keep the main model for judgment, and keep a memory sheet so Claude remembers decisions across sessions without carrying them. Use for "economy mode", "save tokens", "use cheaper models", "remember this", or cutting cost.
 ---
 
 This lets the tool work in sessions opened inside this repository. The real

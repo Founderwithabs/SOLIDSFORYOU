@@ -615,6 +615,43 @@ def check_research(tmp: Path) -> None:
         assert results["forbidden"]["blocked"] is True and results["forbidden"]["status"] == 403
 
 
+def check_memory(tmp: Path) -> None:
+    memory = PLUGINS / "economy-mode/skills/economy-mode/scripts/memory.py"
+
+    @test
+    def test_memory_sheet_adds_searches_and_survives_sessions():
+        if not memory.exists():
+            raise Skip("no memory.py")
+        sheet = tmp / "memory" / "memory.csv"
+        env = {**os.environ, "SFY_MEMORY_FILE": str(sheet)}
+
+        def mem(*args, ok=True):
+            r = subprocess.run([sys.executable, str(memory), *args], capture_output=True, text=True, env=env)
+            assert (r.returncode == 0) == ok, f"memory {args}: {r.stdout}{r.stderr}"
+            return r.stdout
+
+        assert mem("session-start") == "", "a project without a sheet must get nothing at session start"
+        mem("add", "--type", "decision", "--topic", "pricing", "--text", "Joggers stay at ₹999 until Diwali")
+        mem("add", "--type", "preference", "--topic", "voice", "--text", "No emojis on LinkedIn", "--pin")
+        mem("add", "--type", "fact", "--topic", "supplier", "--text", "Fabric is 220 GSM cotton from Tiruppur")
+        assert "already remembered" in mem("add", "--topic", "voice", "--text", "No emojis on LinkedIn")
+        assert mem("search", "jogger price").splitlines()[0].startswith("#1 "), "price search must find #1"
+        assert "#3" in mem("search", "fabric gsm")
+        assert "nothing in memory matches" in mem("search", "quantum")
+        mem("update", "1", "--text", "Joggers stay at ₹999 until 15 Nov")
+        assert "15 Nov" in mem("search", "jogger price")
+        mem("forget", "3")
+        assert "nothing in memory matches" in mem("search", "fabric gsm"), "forgotten rows must not be found"
+        start = mem("session-start")
+        assert "No emojis" in start and "Joggers" not in start, start  # only pinned rows at session start
+        mem("add", "--topic", "x", "--text", "a" * 600, ok=False)  # one memory per row
+        raw = sheet.read_bytes()
+        assert raw.startswith(b"\xef\xbb\xbf"), "the sheet needs a BOM so Excel shows ₹ correctly"
+        import csv as _csv
+        rows = list(_csv.DictReader(sheet.open(encoding="utf-8-sig")))
+        assert len(rows) == 3 and rows[2]["status"] == "forgotten", rows  # forgotten rows stay in the sheet
+
+
 def main() -> None:
     fast = "--fast" in sys.argv
     check_structure()
@@ -622,6 +659,8 @@ def main() -> None:
         check_scripts(Path(tmp))
     with tempfile.TemporaryDirectory(prefix="sfy_research_") as tmp:
         check_research(Path(tmp))
+    with tempfile.TemporaryDirectory(prefix="sfy_memory_") as tmp:
+        check_memory(Path(tmp))
     if not fast:
         with tempfile.TemporaryDirectory(prefix="sfy_tests_") as tmp:
             check_media(Path(tmp))

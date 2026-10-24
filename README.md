@@ -21,7 +21,7 @@ desktop, mobile), or **any Claude chat** as a paste-in prompt.
 | 🔎 **Competitor Research** | Deep competitor analysis on Amazon, Flipkart, Meesho, Myntra and any other marketplace, plus competitor websites, social media and ads. Every fact is sourced and dated, a separate pass double-checks it, and you get price, review and listing comparisons with ranked actions. Runs on Claude's cheapest model (Haiku) to save credits | Before you price, launch, change a listing, or ask for harsh buyer feedback |
 | 🛒 **Harsh Buyer Review** | A real buyer tears into your listing: researches 3 to 5 competitors, compares one-on-one, and tells you exactly why they would or wouldn't buy | Before you launch or change a product listing, images, video, copy or price |
 | ✅ **Careful Mode** | Claude checks every piece of work three times (is it right, is it complete, how could it go wrong) before handing it over | Anything high-stakes: prices, contracts, customer emails, launches |
-| 💰 **Economy Mode** | Claude sends simple tasks to cheaper models and keeps the strongest one for decisions, to cut cost | Long Claude Code sessions where cost adds up (Claude Code only) |
+| 💰 **Economy Mode** | Claude sends simple tasks to cheaper models and keeps the strongest one for decisions, to cut cost. It also keeps a **memory sheet** (`memory/memory.csv`, opens in Excel or Google Sheets) so Claude remembers your prices, decisions and preferences across sessions without re-reading everything | Long Claude Code sessions where cost adds up (Claude Code only) |
 
 ## Set it up
 
@@ -113,6 +113,11 @@ Haiku). Your habits matter as much:
 - **Use a smaller model for simple work.** `/model` lets you pick Haiku or
   Sonnet for routine sessions; turn on Economy Mode in long ones so simple
   steps go to cheaper models automatically.
+- **Let Claude remember for you.** With Economy Mode installed, say
+  "remember this" and Claude writes it to `memory/memory.csv` in your
+  project. It looks up only the rows a task needs, so nothing is forgotten
+  after `/clear` or a new session and nothing is re-read for no reason. Open
+  the sheet in Excel or Google Sheets to see or edit what it knows.
 - **Ask once, completely.** Give the files, links, goal and constraints in
   your first message instead of over several back-and-forths.
 
