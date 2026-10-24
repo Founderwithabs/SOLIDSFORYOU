@@ -149,7 +149,8 @@ def check_structure() -> None:
         assert all(r.read_bytes() == first for r in readers), "the read_sections.py copies differ"
         reader = readers[0]
         for prompt in [PLUGINS / "social-media/skills/social-media/social-media.md",
-                       PLUGINS / "competitor-research/skills/competitor-research/competitor-research.md"]:
+                       PLUGINS / "competitor-research/skills/competitor-research/competitor-research.md",
+                       PLUGINS / "ecom/skills/ecom/marketplaces.md"]:
             if not prompt.exists():
                 continue
             listing = run([sys.executable, str(reader), str(prompt), "--list"]).stdout
@@ -685,6 +686,127 @@ def check_memory(tmp: Path) -> None:
         assert "helpers" in mem("session-start"), "session start must tell Claude to brief helpers"
 
 
+def check_ecom(tmp: Path) -> None:
+    ecom = PLUGINS / "ecom/skills/ecom"
+
+    def py(script, *args, ok=True):
+        r = subprocess.run([sys.executable, str(ecom / "scripts" / script), *map(str, args)],
+                           capture_output=True, text=True)
+        assert (r.returncode == 0) == ok, f"{script} {args}: {r.stdout}{r.stderr}"
+        return r.stdout
+
+    @test
+    def test_ecom_marketplace_index_matches_the_guide():
+        skill = ecom / "SKILL.md"
+        if not skill.exists():
+            raise Skip("no ecom")
+        # SKILL.md lists the guide's sections by number so Claude reads only one marketplace.
+        index = " ".join(skill.read_text(encoding="utf-8").split("Sections:", 1)[1].split("Always include")[0].split())
+        listed = {int(n): name for n, name in re.findall(r"(\d+) ([^,.]+?)(?=,| \d+ |\.|$)", index)}
+        headings = {int(n): t for n, t in re.findall(r"(?m)^## (\d+)\. (.+)$",
+                                                     (ecom / "marketplaces.md").read_text(encoding="utf-8"))}
+        assert sorted(listed) == sorted(headings), f"SKILL.md lists {sorted(listed)}, the guide has {sorted(headings)}"
+        for n, name in listed.items():
+            assert headings[n].lower().startswith(name.split()[0].lower()), f"section {n}: '{name}' vs '{headings[n]}'"
+
+    @test
+    def test_ecom_unit_economics_match_hand_maths():
+        if not (ecom / "scripts/economics.py").exists():
+            raise Skip("no ecom")
+        assert json.loads(py("economics.py", "template"))["fees"], "the template must be a usable fee profile"
+        fees = tmp / "fees.json"
+        fees.write_text(json.dumps({
+            "channel": "test", "currency": "INR", "source": "test", "checked_at": "2026-10-24",
+            "tax": {"mode": "inclusive", "rate_pct": 12, "on_fees_pct": 18, "fees_tax_recoverable": True},
+            "fees": [{"name": "referral", "type": "percent", "value": 10, "of": "price"},
+                     {"name": "closing", "type": "fixed", "value": 20}],
+            "returns": {"rate_pct": 10, "cost_per_return": 50, "unsellable_pct": 50},
+            "ads": {"tacos_pct": 10, "cost_per_order": None}}))
+        out = py("economics.py", "unit", "--fees", fees, "--price", 1120, "--cost", 300, "--target-margin", 20)
+        # By hand, per order placed, 90% kept: revenue 0.9 x 1120/1.12 = 900; fees 0.9 x 132 = 118.80;
+        # returns 0.1 x 50 = 5; product 300 x (0.9 + 0.1 x 0.5) = 285; ads 10% of 0.9 x 1120 = 100.80.
+        for want in ["900.00 INR", "-118.80 INR", "-5.00 INR", "-285.00 INR", "-100.80 INR",
+                     "**390.40 INR**", "Margin on revenue: 43.4%", "(TACoS): 48.7%",
+                     "Break-even price: 493.93 INR", "20% margin: 665.4"]:
+            assert want in out, f"missing {want!r} in:\n{out}"
+
+    @test
+    def test_ecom_ads_returns_and_reorder_reports():
+        if not (ecom / "scripts/ops.py").exists():
+            raise Skip("no ecom")
+        ads = tmp / "ads.csv"
+        ads.write_text("Campaign Name,Impressions,Clicks,Spend,7 Day Total Sales (₹),7 Day Total Orders (#)\n"
+                       'Joggers Auto,"10,000",200,"₹2,000.00","₹10,000.00",10\n'
+                       "Brand Exact,5000,100,1000,1000,1\n", encoding="utf-8")
+        out = py("ops.py", "ads", ads, "--breakeven-acos", 36.7, "--total-sales", 50000)
+        assert "| Joggers Auto | 2,000.00 | 10,000.00 | 20.0% | 5.00 |" in out, out  # ₹ and commas parsed
+        assert "100.0% | 1.00 | 1 | 10.00 | 2.00% | 1.00% | above break-even" in out, out
+        assert "27.3%" in out and "TACoS" in out and "6.0%" in out, out
+        returns = tmp / "returns.csv"
+        returns.write_text("order id,reason\n1,Size too small\n2,Size too small\n3,Defective\n")
+        out = py("ops.py", "returns", returns, "--orders", 30)
+        assert "10.0%" in out and "| Size too small | 2 | 66.7% |" in out, out
+        out = py("ops.py", "reorder", "--daily-sales", 10, "--lead-days", 30, "--on-hand", 300,
+                 "--safety-days", 14, "--cover-days", 60)
+        # reorder point 10 x (30 + 14) = 440; order up to 10 x (30 + 14 + 60) = 1,040, minus 300 on hand
+        assert "Reorder point: 440" in out and "Order now: yes" in out and "740 units" in out, out
+
+    @test
+    def test_ecom_listing_check_catches_limits_keywords_and_risky_words():
+        if not (ecom / "scripts/listing_check.py").exists():
+            raise Skip("no ecom")
+        listing = tmp / "listing.json"
+        listing.write_text(json.dumps({"title": "Solid Threads Cotton Joggers for Men – Best Quality Joggers",
+                                       "bullets": ["Soft 220 GSM cotton", "100% guaranteed best"],
+                                       "search_terms": "jogger track pant ₹"}, ensure_ascii=False),
+                           encoding="utf-8")
+        keywords = tmp / "keywords.txt"
+        keywords.write_text("cotton joggers\ntrack pants\nslim fit\n")
+        out = py("listing_check.py", listing, "--keywords", keywords,
+                 "--limits", "title=50,bullet=500,search_terms=20", ok=False)  # over a limit: exit 1
+        assert "| title | 59 | 61 | 50 | OVER by 9 |" in out, out
+        assert "| search terms | 19 | 21 | 20 bytes | OVER by 1 |" in out, out  # ₹ is 3 bytes
+        assert "Keywords covered: 1 of 3" in out and "slim fit" in out, out
+        assert "'guaranteed' in bullet 2" in out and "'100%' in bullet 2" in out, out
+        listing.write_text(json.dumps({"title": "Cotton joggers"}))
+        py("listing_check.py", listing)  # within limits: exit 0
+
+    @test
+    def test_ecom_image_check_measures_background_and_fill():
+        need("ffmpeg", "ffprobe")
+        if not (ecom / "scripts/image_check.py").exists():
+            raise Skip("no ecom")
+        main, side = tmp / "main.png", tmp / "side.jpg"
+        ffmpeg("-f", "lavfi", "-i", "color=white:s=1500x1500,drawbox=x=300:y=300:w=900:h=900:color=red:t=fill",
+               "-frames:v", "1", str(main))
+        ffmpeg("-f", "lavfi", "-i", "color=0xEEEEEE:s=800x600", "-frames:v", "1", str(side))
+        out_dir = tmp / "images"
+        out = py("image_check.py", main, side, "--out", out_dir, "--main", main)
+        row = next(l for l in out.splitlines() if l.startswith("| main.png"))
+        assert "1500×1500" in row and "#FFFFFF" in row and "60.0%" in row and row.rstrip().endswith("yes |"), row
+        row = next(l for l in out.splitlines() if l.startswith("| side.jpg"))
+        assert "800×600" in row and row.rstrip().endswith("NO |"), row  # long side under 1000
+        for size in (100, 160, 300):
+            assert (out_dir / f"thumbs_{size}.png").exists(), f"no phone preview at {size}px"
+
+    @test
+    def test_ecom_renders_the_image_templates():
+        need("node")
+        if not (ecom / "scripts/render_image.cjs").exists():
+            raise Skip("no ecom")
+        probe = subprocess.run(["node", "-e", "require('playwright')"], capture_output=True)
+        root = subprocess.run(["npm", "root", "-g"], capture_output=True, text=True).stdout.strip()
+        if probe.returncode != 0 and not (Path(root) / "playwright").exists():
+            raise Skip("playwright not installed")
+        for template in sorted((ecom / "templates").glob("*.html")):
+            out = tmp / (template.stem + ".png")
+            run(["node", str(ecom / "scripts/render_image.cjs"), str(template), str(out),
+                 "--width", "1200", "--height", "1200"], timeout=180)
+            head = out.read_bytes()[:24]
+            assert head[:8] == b"\x89PNG\r\n\x1a\n", f"{template.name}: not a PNG"
+            assert (int.from_bytes(head[16:20], "big"), int.from_bytes(head[20:24], "big")) == (1200, 1200)
+
+
 def main() -> None:
     fast = "--fast" in sys.argv
     check_structure()
@@ -694,6 +816,8 @@ def main() -> None:
         check_research(Path(tmp))
     with tempfile.TemporaryDirectory(prefix="sfy_memory_") as tmp:
         check_memory(Path(tmp))
+    with tempfile.TemporaryDirectory(prefix="sfy_ecom_") as tmp:
+        check_ecom(Path(tmp))
     if not fast:
         with tempfile.TemporaryDirectory(prefix="sfy_tests_") as tmp:
             check_media(Path(tmp))

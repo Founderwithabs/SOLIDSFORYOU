@@ -7,7 +7,7 @@ confirm them on the marketplace's own seller help pages or rate card (or
 the founder's settlement report) and record the date. Where a well-known
 figure is given, it is marked "check" and must be confirmed before use.
 
-## How to use this guide
+## 1. How to use this guide
 
 For the marketplace in the task:
 1. Read its section below.
@@ -20,7 +20,7 @@ For a marketplace not listed here, find the same things: listing fields and
 limits, image rules, fee components, fulfilment options, programmes that
 affect visibility, review rules, and tax and legal requirements.
 
-## Amazon (all regions: US, CA, MX, BR, UK, DE, FR, IT, ES, NL, SE, PL, IN, JP, AU, AE, SA, SG and others)
+## 2. Amazon (all regions: US, CA, MX, BR, UK, DE, FR, IT, ES, NL, SE, PL, IN, JP, AU, AE, SA, SG and others)
 
 - **Listing fields:** title, bullet points (usually five), description,
   backend search terms (limited in bytes; check), item attributes, variation
@@ -49,7 +49,7 @@ affect visibility, review rules, and tax and legal requirements.
   product safety and labelling rules (for example GPSR in the EU, legal
   metrology declarations in India).
 
-## Walmart Marketplace (US, CA, MX, CL)
+## 3. Walmart Marketplace (US, CA, MX, CL)
 
 - **Listing fields:** product name, key features (bullets), description,
   attributes; variant groups. Brand Portal for brand owners; rich media for
@@ -63,7 +63,7 @@ affect visibility, review rules, and tax and legal requirements.
 - **Watch:** seller performance standards, approval to sell, pricing rules
   that unpublish items priced far above other retailers.
 
-## eBay (all regions)
+## 4. eBay (all regions)
 
 - **Listing fields:** title (check the character limit, often 80), item
   specifics (very important for search and filters), condition, description,
@@ -76,7 +76,7 @@ affect visibility, review rules, and tax and legal requirements.
 - **Visibility:** Best Match ranking, item specifics completeness, shipping
   speed and cost, seller level (Top Rated), Promoted Listings.
 
-## Etsy
+## 5. Etsy
 
 - **Listing fields:** title (check the character limit), up to 13 tags (check
   length), attributes, categories, description, personalisation and
@@ -91,7 +91,7 @@ affect visibility, review rules, and tax and legal requirements.
 - **Visibility:** search relevance (title, tags, attributes), listing
   quality, shipping price and speed, reviews, star seller status.
 
-## TikTok Shop (US, UK, SEA and other regions)
+## 6. TikTok Shop (US, UK, SEA and other regions)
 
 - **Listing fields:** product title, description, attributes, variants,
   size charts for apparel.
@@ -103,7 +103,7 @@ affect visibility, review rules, and tax and legal requirements.
   affiliate creators. Plan creator samples and commissions in the economics.
   Product review and shipping-performance rules are strict.
 
-## Own store (Shopify, WooCommerce and others)
+## 7. Own store (Shopify, WooCommerce and others)
 
 - **Product page:** title, description, variants, structured data for search,
   SEO title and meta description, reviews (from real buyers), shipping and
@@ -117,7 +117,7 @@ affect visibility, review rules, and tax and legal requirements.
 - **Watch:** conversion rate, checkout drop-off, page speed, return-to-origin
   rate for COD.
 
-## Flipkart (India)
+## 8. Flipkart (India)
 
 - **Listing fields:** title built from attributes, key features, description,
   many category attributes; catalogue quality affects visibility.
@@ -133,7 +133,7 @@ affect visibility, review rules, and tax and legal requirements.
   declarations on listings (MRP, net quantity, manufacturer and importer
   details, country of origin).
 
-## Meesho (India)
+## 9. Meesho (India)
 
 - **Model:** reseller and value-focused buyers, very price-sensitive,
   mostly smaller towns. The commission model has changed over time (check
@@ -145,7 +145,7 @@ affect visibility, review rules, and tax and legal requirements.
 - **Watch:** return and quality ratings; a low price is necessary but the
   economics must still work after returns.
 
-## Myntra and Ajio (India, fashion)
+## 10. Myntra and Ajio (India, fashion)
 
 - **Model:** fashion and lifestyle only; brands are onboarded; listings are
   catalogued to strict standards, with model shots, size charts and
@@ -156,14 +156,14 @@ affect visibility, review rules, and tax and legal requirements.
 - **Watch:** size-chart accuracy, consistent model photography, return rate,
   and participation terms for end-of-season sales.
 
-## Nykaa (India, beauty and personal care)
+## 11. Nykaa (India, beauty and personal care)
 
 - **Model:** beauty, personal care and fashion; brand onboarding.
 - **Watch:** ingredient lists, regulatory and labelling requirements for
   cosmetics, claims that need evidence ("dermatologically tested",
   "organic"), and expiry dates.
 
-## Shopee and Lazada (Southeast Asia, Taiwan, Latin America for Shopee)
+## 12. Shopee and Lazada (Southeast Asia, Taiwan, Latin America for Shopee)
 
 - **Listing:** title, description, attributes, variations; local language.
 - **Fees:** commission, transaction or payment fee, programme fees (free
@@ -173,7 +173,7 @@ affect visibility, review rules, and tax and legal requirements.
   11.11, 12.12), live selling, preferred or mall seller status, chat
   response rate.
 
-## Mercado Libre (Latin America)
+## 13. Mercado Libre (Latin America)
 
 - **Listing:** title, attributes (very important), description, variations;
   catalogue listings compete for the buy box.
@@ -183,7 +183,7 @@ affect visibility, review rules, and tax and legal requirements.
 - **Visibility:** seller reputation (the colour thermometer), Full
   fulfilment, free shipping, Mercado Ads.
 
-## Noon (UAE, Saudi Arabia, Egypt)
+## 14. Noon (UAE, Saudi Arabia, Egypt)
 
 - **Listing:** English and Arabic content; title, highlights, specifications.
 - **Fees:** referral fee by category, fulfilment fees (Fulfilled by Noon),
@@ -191,14 +191,14 @@ affect visibility, review rules, and tax and legal requirements.
 - **Visibility:** express delivery badges, deals, Ramadan and White Friday
   events.
 
-## Zalando (Europe, fashion)
+## 15. Zalando (Europe, fashion)
 
 - **Model:** fashion only, partner programme with Zalando's content
   standards; returns are frequent in fashion.
 - **Watch:** size and fit data, consistent imagery, return costs in the
   economics, EU product safety (GPSR) and textile labelling.
 
-## Allegro (Poland and Central Europe), Rakuten (Japan) and others
+## 16. Allegro (Poland and Central Europe), Rakuten (Japan) and others
 
 - Allegro: commission by category, Smart! delivery programme, seller rating;
   Polish-language content.
@@ -206,7 +206,7 @@ affect visibility, review rules, and tax and legal requirements.
   fees and points programmes; Japanese-language content and detailed pages.
 - For any other marketplace, use the checklist in "How to use this guide".
 
-## Tax and law reminders by region (inform, then refer to an advisor)
+## 17. Tax and law reminders by region (inform, then refer to an advisor)
 
 - **India:** prices are GST-inclusive; marketplaces collect TCS; GST applies
   to marketplace fees and is usually claimable as input credit; Legal
