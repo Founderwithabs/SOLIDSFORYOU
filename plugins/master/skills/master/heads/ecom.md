@@ -18,6 +18,7 @@ marketplace or the founder's own store.
 | harsh-buyer-review | A buyer's check of each listing before it goes live |
 | ai-visuals | AI-made product images: brief, fixed prompt, scorecard |
 | competitor-research | Fresh competitor data when a listing or price needs it |
+| humanizer | Listing copy and customer replies in the founder's voice, facts unchanged |
 
 Foundation: careful-mode on prices, claims and anything going live;
 economy-mode for bulk work (many listings or SKUs); the memory sheet and
@@ -34,7 +35,7 @@ ecom's store memory.
 3. **Images.** Rendered infographics and charts stay in ecom (its
    templates). AI-made images go through ai-visuals and come back to ecom's
    image rules for the marketplace.
-4. **Check before it goes live.** Listings and offers: harsh-buyer-review,
+4. **Check before it goes live.** Listing copy goes through the humanizer skill. Listings and offers: harsh-buyer-review,
    reusing any research folder 14 days old or less. Prices and claims:
    careful-mode.
 5. **Remember.** Prices, fees and decisions go to ecom's store memory and

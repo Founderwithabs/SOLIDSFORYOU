@@ -60,6 +60,11 @@
       "name": "transcriber",
       "source": "./plugins/transcriber",
       "description": "SOLIDS FOR YOU Transcriber: upload a voice note, podcast, call or video and Claude transcribes it with OpenAI's Whisper inside the chat, with timestamped captions, nothing to install, and English, Hindi, Hinglish and 90+ languages."
+    },
+    {
+      "name": "humanizer",
+      "source": "./plugins/humanizer",
+      "description": "SOLIDS FOR YOU Humanizer: makes posts, listings, emails, scripts and replies sound like the founder wrote them, not a model, keeping every fact exactly as it was."
     }
   ]
 }

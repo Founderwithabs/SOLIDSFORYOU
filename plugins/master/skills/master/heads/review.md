@@ -19,6 +19,7 @@ high-stakes work.
 | Audio | audio-review |
 | AI image or clip | ai-visuals' scorecard |
 | Social post | social-media's 100-point scorecard; + harsh-buyer-review if it sells |
+| Any writing customers read | humanizer (check, then compare: facts unchanged) |
 | Anything high-stakes | careful-mode |
 
 Foundation: careful-mode on every verdict; economy-mode only for gathering,

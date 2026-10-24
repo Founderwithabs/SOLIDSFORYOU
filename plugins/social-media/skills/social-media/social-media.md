@@ -235,6 +235,8 @@ machine-written:
 Then add what models usually leave out: real details, the founder's own
 opinions and stories (from the founder, never invented), and a little
 texture: an aside, a joke, a strong opinion, a contraction.
+If the SOLIDS FOR YOU humanizer skill is installed, run its check on the
+draft (and its compare after rewriting) before the scorecard.
 
 ### 6.6 Short video (reels, shorts, TikToks)
 

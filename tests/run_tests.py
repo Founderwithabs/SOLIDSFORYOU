@@ -1294,6 +1294,97 @@ def check_chaos_regressions(tmp: Path) -> None:
         assert r.returncode == 0, r.stdout[-3000:] + r.stderr[-1000:]
 
 
+def check_humanizer(tmp: Path) -> None:
+    skill = PLUGINS / "humanizer/skills/humanizer"
+    hz = skill / "scripts/humanize.py"
+    fx = ROOT / "tests/fixtures/humanizer"
+
+    def run_hz(*args, ok=True):
+        r = subprocess.run([sys.executable, str(hz), *map(str, args)], capture_output=True, text=True,
+                           encoding="utf-8")
+        assert (r.returncode == 0) == ok, f"humanize.py {args}: {r.stdout}{r.stderr}"
+        return r.stdout + r.stderr
+
+    def score(name, channel):
+        return json.loads(run_hz("check", fx / name, "--channel", channel, "--json"))
+
+    @test
+    def test_humanizer_patterns_are_valid():
+        if not hz.exists():
+            raise Skip("no humanizer")
+        pats = json.loads((skill / "patterns.json").read_text(encoding="utf-8"))
+        for name, g in pats["groups"].items():
+            assert 1 <= g["weight"] <= 5 and g["advice"] and g["phrases"], name
+        for c in pats["constructions"]:
+            re.compile(c["regex"])
+        for rx in pats["openers"] + pats["closers"]:
+            re.compile(rx)
+        assert {"general", "linkedin", "instagram", "x", "email", "listing", "script", "landing", "reply"} <= \
+            set(pats["channels"]), pats["channels"].keys()
+
+    @test
+    def test_humanizer_passes_human_writing_on_every_channel():
+        if not hz.exists():
+            raise Skip("no humanizer")
+        # Real-sounding founder writing must not be flagged: false alarms make founders rewrite good copy.
+        for name, channel in [("linkedin.txt", "linkedin"), ("reply.txt", "reply"), ("listing.txt", "listing"),
+                              ("email.txt", "email"), ("script.txt", "script"), ("insta.txt", "instagram")]:
+            r = score(name, channel)
+            assert r["score"] >= 85, f"{name} ({channel}) scored {r['score']}: {r['issues']}"
+
+    @test
+    def test_humanizer_catches_machine_writing_on_every_channel():
+        if not hz.exists():
+            raise Skip("no humanizer")
+        for name, channel, must in [("ai_general.txt", "general", {"opener", "closer", "construction", "hype"}),
+                                    ("ai_linkedin.txt", "linkedin", {"assistant_speak", "heading", "unsupported"}),
+                                    ("ai_email.txt", "email", {"stock_email", "filler"}),
+                                    ("ai_listing.txt", "listing", {"ai_vocabulary", "hype", "construction"}),
+                                    ("ai_caption.txt", "instagram", {"hindi_hinglish", "hashtags"}),
+                                    ("ai_script.txt", "script", {"opener", "assistant_speak"})]:
+            r = score(name, channel)
+            kinds = {i["kind"] for i in r["issues"]}
+            assert r["score"] < 50, f"{name} ({channel}) scored {r['score']}"
+            assert must <= kinds, f"{name}: expected {must - kinds} among {kinds}"
+
+    @test
+    def test_humanizer_compare_guards_every_fact():
+        if not hz.exists():
+            raise Skip("no humanizer")
+        out = json.loads(run_hz("compare", fx / "before.txt", fx / "good_after.txt", "--json"))
+        assert out["facts_kept"] and out["score_after"] > out["score_before"], out
+        out = json.loads(run_hz("compare", fx / "before.txt", fx / "bad_after.txt", "--json", ok=False))
+        assert {"220", "₹999", "30"} <= set(out["lost"]["numbers"]), out["lost"]
+        assert {"240", "₹899"} <= set(out["added"]["numbers"]), out["added"]
+        assert "organic" in out["lost"]["claims"] and "clinically" in out["added"]["claims"], out
+        assert "@solidthreads" in out["lost"]["links"], out
+
+    @test
+    def test_humanizer_voice_finds_what_differs_from_the_founder():
+        if not hz.exists():
+            raise Skip("no humanizer")
+        samples = tmp / "founder.txt"
+        samples.write_text("\n\n".join((fx / n).read_text(encoding="utf-8")
+                                       for n in ("linkedin.txt", "email.txt", "script.txt", "insta.txt")),
+                           encoding="utf-8")
+        own = json.loads(run_hz("voice", samples, "--draft", fx / "linkedin.txt", "--json"))
+        ai = json.loads(run_hz("voice", samples, "--draft", fx / "ai_caption.txt", "--json"))
+        assert own["voice_match"] > ai["voice_match"], (own["voice_match"], ai["voice_match"])
+        assert any("emoji" in n for n in ai["off"]) and "toh der kis baat ki" in ai["phrases_the_founder_never_uses"]
+        assert "at least 80 words" in run_hz("voice", fx / "reply.txt", "--draft", fx / "insta.txt", ok=False)
+
+    @test
+    def test_humanizer_is_wired_into_master_and_handles_bad_input():
+        if not hz.exists():
+            raise Skip("no humanizer")
+        for head in ("marketing", "ecom", "review", "design"):
+            text = (PLUGINS / f"master/skills/master/heads/{head}.md").read_text(encoding="utf-8")
+            assert "humanizer" in text, f"the {head} head must run the humanizer on writing customers read"
+        assert "nothing to check" in run_hz("check", "--text", "  ", ok=False)
+        assert "unknown --channel" in run_hz("check", "--text", "Hello there friend", "--channel", "tiktok", ok=False)
+        assert '"words"' in run_hz("profile", fx / "email.txt")
+
+
 def main() -> None:
     fast = "--fast" in sys.argv
     check_structure()
@@ -1309,6 +1400,8 @@ def main() -> None:
         check_video_and_visual_tools(Path(tmp))
     with tempfile.TemporaryDirectory(prefix="sfy_transcriber_") as tmp:
         check_transcriber(Path(tmp))
+    with tempfile.TemporaryDirectory(prefix="sfy_humanizer_") as tmp:
+        check_humanizer(Path(tmp))
     with tempfile.TemporaryDirectory(prefix="sfy_chaos_regressions_") as tmp:
         check_chaos_regressions(Path(tmp))
     if not fast:

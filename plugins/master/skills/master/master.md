@@ -34,6 +34,7 @@ tools below. When a head needs one:
 | competitor-research | Competitor, market and pricing research on marketplaces, websites, social media and ad libraries; competitor data for feedback | `plugins/competitor-research/skills/competitor-research/competitor-research.md` |
 | ecom | Selling online: listings, product images, unit economics, fees, pricing, ads, returns, stock, launches and sale events | `plugins/ecom/skills/ecom/ecom.md` |
 | ai-visuals | Reviewing, scoring and fixing AI-generated images and video; the fixed prompt; optional generation | `plugins/ai-visuals/skills/ai-visuals/ai-visuals.md` |
+| humanizer | Making writing customers read sound like the founder, not a model; keeps every fact | `plugins/humanizer/skills/humanizer/humanizer.md` |
 | transcriber | Speech to text: voice notes, podcasts, calls and videos into text and timestamped captions | `plugins/transcriber/skills/transcriber/transcriber.md` |
 | social-media | Social media strategy, calendars, posts, scripts, analytics and replies; the script and posting plan for social videos | `plugins/social-media/skills/social-media/social-media.md` |
 | Video workflow | Making or editing a video (the Design head's video path) | `plugins/master/skills/master/workflows/video.md` |
@@ -142,6 +143,8 @@ ranked fix list, each fix sent back to the head that made the asset.
 - Maths is always done in code and checked, never in your head and never on a
   cheaper model.
 - Never invent facts, prices, claims or sources.
+- Writing a customer, investor or follower will read goes through the
+  humanizer skill before it's handed over.
 - Every review and final sign-off is done by you, never by a cheaper model.
 - Do not change the user's decisions (script, brand, style, prices) without
   asking.

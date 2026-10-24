@@ -256,6 +256,17 @@ def text_tools():
     rows = list(csv.DictReader(open(W / "conc/memory.csv", encoding="utf-8-sig")))
     results.append(("LOST" if len(rows) != 30 else "ok", 0, f"memory 30 parallel adds -> {len(rows)} rows, ids {sorted(set(r['id'] for r in rows))[:5]}...", ""))
 
+    HZ = R / "humanizer/skills/humanizer/scripts/humanize.py"
+    for name in ("empty.txt", "binary.bin", "hk_long.txt", "hk_emoji.txt", "hk_hindi.txt", "does-not-exist.csv"):
+        run(f"humanize check {name}", [P, str(HZ), "check", str(W / name)])
+        run(f"humanize profile {name}", [P, str(HZ), "profile", str(W / name)])
+    run("humanize compare binary", [P, str(HZ), "compare", str(W / "binary.bin"), str(W / "hk_hindi.txt")])
+    run("humanize compare empty", [P, str(HZ), "compare", str(W / "empty.txt"), str(W / "empty.txt")])
+    run("humanize voice tiny samples", [P, str(HZ), "voice", str(W / "hk_emoji.txt"), "--draft", str(W / "hk_long.txt")])
+    run("humanize voice huge", [P, str(HZ), "voice", str(W / "hk_long.txt"), "--draft", str(W / "binary.bin")])
+    run("humanize no command", [P, str(HZ)])
+    run("humanize bad channel", [P, str(HZ), "check", "--text", "hi", "--channel", "nope"])
+
     # ai-visuals
     run("score none", [P, str(A / "score.py")]); run("score text", [P, str(A / "score.py")] + ["x"] * 8)
     run("score nan", [P, str(A / "score.py")] + ["nan"] * 8); run("score decimals", [P, str(A / "score.py")] + ["8.5"] * 8)

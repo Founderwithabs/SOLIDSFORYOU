@@ -122,6 +122,19 @@ or its wording without the owner's explicit decision.
   split under PyPI's size limit, uploaded with `PYPI_TOKEN`). Until they're
   published, `models.json` has `published: false` and the script falls back to
   faster-whisper's own download, then to phone instructions.
+- **Humanizer:** `humanizer.md` is the method (ground rules, process,
+  pattern catalogue, rewriting moves, a guide per channel, Hindi and
+  Hinglish, voice matching, examples, hand-back), read by section.
+  `patterns.json` holds every phrase group, construction, opener and closer
+  with weights, the per-channel limits and the claim words; edit it rather
+  than the script. `scripts/humanize.py`: `check` (score and flags by line),
+  `compare` (fails if a number, price, link or claim changed), `voice`
+  (draft against the founder's samples), `profile`. The Marketing, Ecom,
+  Design and Review heads call it on writing customers read. Its tests use
+  the human and machine samples in `tests/fixtures/humanizer/`: human writing
+  must score 85+ on every channel and machine writing under 50, so re-run
+  them after editing the patterns. It changes how things are said, never the
+  facts, and never promises to beat AI detectors.
 - **AI visuals:** `ai-visuals.md` is the method (rules, brief, reading an
   image or video, prompt anatomy, fix ladder, scorecard, hand-back);
   `purposes.md` and `generators.md` are references read by section, and

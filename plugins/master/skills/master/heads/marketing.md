@@ -16,6 +16,7 @@ and launch campaigns.
 | social-media | The core: brand memory, strategy, creation, the 100-point scorecard, analytics, YouTube tools |
 | ai-visuals | AI-made images and clips for posts: fixed prompt and scorecard |
 | harsh-buyer-review | Posts and ads that sell a product |
+| humanizer | Every post, caption and script sounds like the founder; facts unchanged |
 | transcriber | A video, podcast or voice note into text: chapters, captions, quotes and repurposed posts |
 
 Foundation: careful-mode on claims, numbers and anything customers see;
@@ -35,7 +36,8 @@ sheet.
    chapters, retention and captions. AI-made visuals go through
    ai-visuals. A reel, Short or video goes to the Design head with the
    script, hook and platform specs.
-4. **Check.** Every post passes social-media's scorecard. Posts and ads
+4. **Check.** Every post goes through the humanizer skill, then
+   passes social-media's scorecard. Posts and ads
    that sell also pass harsh-buyer-review. Claims and numbers pass
    careful-mode.
 5. **Learn.** Results go to social-media's `posts.csv`; lasting decisions

@@ -19,6 +19,7 @@ and clips, product graphics, and soundtracks.
 | audio-review | The sound of every video; voice-overs and music |
 | ecom | Product graphics (infographics, comparison charts) and marketplace image rules |
 | transcriber | Footage with speech: the transcript and captions the rough cut and subtitles start from |
+| humanizer | Scripts and voice-overs that sound spoken, not generated |
 
 Foundation: careful-mode on the brief and every delivery; economy-mode for
 bulk steps; the memory sheet for brand rules.
@@ -42,7 +43,9 @@ bulk steps; the memory sheet for brand rules.
    under a voice-over, and its licence-checked sound library
    (`scripts/get_sounds.py`) for richer effects and background music, with
    the credit lines it gives.
-6. **Before delivery:** the Review head's check for the asset type (the
+6. **Scripts and voice-overs** go through the humanizer skill
+   before recording: spoken words show machine phrasing even faster.
+7. **Before delivery:** the Review head's check for the asset type (the
    video workflow already includes it).
 
 ## 4. Hand-offs
