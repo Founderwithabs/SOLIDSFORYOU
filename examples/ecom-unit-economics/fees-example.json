@@ -1,0 +1,94 @@
+{
+  "channel": "amazon.in",
+  "currency": "INR",
+  "source": "Where these numbers came from: settlement report month, or the rate card URL",
+  "checked_at": "YYYY-MM-DD",
+  "tax": {
+    "mode": "inclusive",
+    "rate_pct": 12,
+    "on_fees_pct": 18,
+    "fees_tax_recoverable": true,
+    "note": "inclusive: the listed price includes GST/VAT. exclusive: tax is added on top (US-style sales tax). rate_pct is the product's tax rate; on_fees_pct is tax charged on marketplace fees; recoverable means you claim it back as input credit."
+  },
+  "fees": [
+    {
+      "name": "referral",
+      "type": "percent_tiers",
+      "of": "price",
+      "tiers": [
+        {
+          "up_to": 300,
+          "value": 5
+        },
+        {
+          "up_to": 1000,
+          "value": 12
+        },
+        {
+          "up_to": null,
+          "value": 17
+        }
+      ],
+      "note": "EXAMPLE VALUES ONLY: replace every number with your own."
+    },
+    {
+      "name": "closing",
+      "type": "fixed_tiers",
+      "of": "price",
+      "tiers": [
+        {
+          "up_to": 300,
+          "value": 10
+        },
+        {
+          "up_to": 1000,
+          "value": 25
+        },
+        {
+          "up_to": null,
+          "value": 50
+        }
+      ]
+    },
+    {
+      "name": "shipping",
+      "type": "weight_tiers",
+      "tiers": [
+        {
+          "up_to_g": 500,
+          "value": 50
+        },
+        {
+          "up_to_g": 1000,
+          "value": 70
+        },
+        {
+          "up_to_g": null,
+          "value": 100
+        }
+      ]
+    },
+    {
+      "name": "payment",
+      "type": "percent",
+      "value": 0,
+      "of": "price"
+    },
+    {
+      "name": "other_fixed",
+      "type": "fixed",
+      "value": 0
+    }
+  ],
+  "returns": {
+    "rate_pct": 8,
+    "cost_per_return": 100,
+    "unsellable_pct": 20,
+    "note": "cost_per_return: reverse shipping plus fees not refunded on a return"
+  },
+  "ads": {
+    "tacos_pct": 10,
+    "cost_per_order": null,
+    "note": "Use tacos_pct (ad spend as % of sales) or cost_per_order, not both"
+  }
+}

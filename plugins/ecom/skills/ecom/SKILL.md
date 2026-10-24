@@ -1,6 +1,6 @@
 ---
 name: ecom
-description: E-commerce operator for any marketplace or own store: listings, product image review and rendering, unit economics, fees, margins, pricing, discounts, ads reports (ACoS, TACoS), returns, stock and launches, on Amazon, Walmart, eBay, Etsy, TikTok Shop, Shopify, Flipkart, Meesho and more. Use for anything about selling online or business economics.
+description: SOLIDS FOR YOU Ecom: your e-commerce operator for any marketplace or own store (Amazon, Flipkart, Meesho, Shopify and more). Use for listings, product images, unit economics, margins, fees, pricing, ads reports (ACoS, TACoS), returns, reviews, stock, launches and sale events, or anything about selling online.
 ---
 
 The files this skill uses sit next to this SKILL.md. In Claude Code that
