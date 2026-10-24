@@ -32,6 +32,11 @@ import subprocess
 import sys
 from pathlib import Path
 
+# Windows pipes default to a legacy code page: print ₹, Hindi and emoji as UTF-8 instead of crashing.
+for _stream in (sys.stdout, sys.stderr):
+    if hasattr(_stream, "reconfigure"):
+        _stream.reconfigure(encoding="utf-8", errors="replace")
+
 HERE = Path(__file__).resolve().parent
 REGISTRY = json.loads(Path(os.environ.get("SOLIDSFORYOU_WHISPER_REGISTRY", HERE / "models.json"))
                       .read_text(encoding="utf-8"))

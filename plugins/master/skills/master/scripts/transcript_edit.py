@@ -24,8 +24,14 @@ dead air. The removed percentage is a share of the timeline, not of the speech.
 import json
 import os
 import re
+import shutil
 import subprocess
 import sys
+
+# Windows pipes default to a legacy code page: print ₹, Hindi and emoji as UTF-8 instead of crashing.
+for _stream in (sys.stdout, sys.stderr):
+    if hasattr(_stream, "reconfigure"):
+        _stream.reconfigure(encoding="utf-8", errors="replace")
 
 FILLER_ONLY = re.compile(r"^[\s,.-]*((um+|uh+|er+|ah+|hmm+|so|okay|ok|right|yeah|like|anyway|basically|"
                          r"actually|you know|i mean|let me see|hold on)[\s,.-]*)+$", re.I)
@@ -42,16 +48,32 @@ def parse_ts(s):
 
 
 def load(path):
-    raw = open(path, encoding="utf-8", errors="replace").read()
+    try:
+        raw = open(path, encoding="utf-8-sig", errors="replace").read()
+    except OSError as e:
+        sys.exit(f"can't read {path}: {e.strerror}")
     if path.lower().endswith(".json"):
-        d = json.loads(raw)
+        try:
+            d = json.loads(raw)
+        except json.JSONDecodeError:
+            sys.exit(f"{path} isn't valid JSON; give Whisper's .json, an .srt or a .vtt")
         segs = d.get("segments", []) if isinstance(d, dict) else d
-        return [(float(s["start"]), float(s["end"]), (s.get("text") or "").strip()) for s in segs]
+        cues = []
+        for s in segs if isinstance(segs, list) else []:
+            try:
+                cues.append((float(s["start"]), float(s["end"]), (s.get("text") or "").strip()))
+            except (TypeError, KeyError, ValueError):
+                continue  # a segment without times can't be placed
+        return cues
     cues, cur = [], None
     for line in raw.splitlines():
         m = re.match(r"\s*(\d[\d:.,]*)\s*-->\s*(\d[\d:.,]*)", line)
         if m:
-            cur = [parse_ts(m.group(1)), parse_ts(m.group(2)), []]
+            try:
+                cur = [parse_ts(m.group(1)), parse_ts(m.group(2)), []]
+            except ValueError:
+                cur = None  # an unreadable timestamp: skip that cue
+                continue
             cues.append(cur)
         elif cur is not None and line.strip() and not line.strip().isdigit() \
                 and not line.startswith(("WEBVTT", "NOTE")):
@@ -117,12 +139,23 @@ def media_duration(path):
                         "default=nw=1:nk=1", path], capture_output=True, text=True)
     if r.returncode != 0:
         sys.exit(f"ffprobe failed on {path}: {r.stderr.strip()}")
-    return float(r.stdout.strip())
+    try:
+        return float(r.stdout.strip())
+    except ValueError:
+        sys.exit(f"{path} has no playable length: is it a video or audio file?")
 
 
 def apply(spans, src, dst):
+    if not (shutil.which("ffmpeg") and shutil.which("ffprobe")):
+        sys.exit("--apply needs ffmpeg: install it (Mac: brew install ffmpeg; Windows: winget install "
+                 "ffmpeg; Linux: sudo apt install ffmpeg), or apply the edit list by hand")
+    if not os.path.isfile(src):
+        sys.exit(f"not a file: {src}")
     dur = media_duration(src)
     keep = keep_spans(spans, dur)
+    if not keep:
+        sys.exit("every second would be cut: check the edit list against the footage")
+    os.makedirs(os.path.dirname(os.path.abspath(dst)), exist_ok=True)
     expr = "+".join(f"between(t,{a:.3f},{b:.3f})" for a, b in keep)
     cmd = ["ffmpeg", "-v", "error", "-y", "-i", src,
            "-vf", f"select='{expr}',setpts=N/FRAME_RATE/TB",
@@ -144,10 +177,17 @@ def main():
     floor, applying = 0.45, None
     if "--floor" in a:
         i = a.index("--floor")
-        floor = float(a[i + 1])
+        try:
+            floor = float(a[i + 1])
+            if floor <= 0:
+                raise ValueError
+        except (IndexError, ValueError):
+            sys.exit("--floor is the shortest pause to cut, in seconds, e.g. --floor 0.45")
         a = a[:i] + a[i + 2:]
     if "--apply" in a:
         i = a.index("--apply")
+        if len(a) < i + 3:
+            sys.exit("--apply needs the video and where to write the cut: --apply in.mp4 out.mp4")
         applying = (a[i + 1], a[i + 2])
         a = a[:i] + a[i + 3:]
     if not a or not os.path.exists(a[0]):
@@ -159,7 +199,7 @@ def main():
         sys.exit(1)
     cuts = find_cuts(cues, floor, filler=not keep_filler, repeats=not no_repeats)
     spans = merge(cuts)
-    dur = cues[-1][1]
+    dur = max(e for _, e, _ in cues)
     removed = sum(e - s for s, e in spans)
     result = {"source": a[0], "transcript_end": dur, "cuts": cuts,
               "merged_spans": [[round(s, 3), round(e, 3)] for s, e in spans],
@@ -175,7 +215,7 @@ def main():
     for c in cuts:
         print(f"    {c['kind']:<7} {c['start']:8.2f} -> {c['end']:8.2f}   {c['end'] - c['start']:5.2f}s   {c['why']}")
     print(f"\n  {len(cuts)} cuts ({len(spans)} after merging overlaps), {removed:.2f}s removed, "
-          f"{dur - removed:.2f}s left ({removed / dur * 100:.1f}% shorter)")
+          f"{dur - removed:.2f}s left ({removed / dur * 100 if dur else 0:.1f}% shorter)")
     if applying:
         print(f"  Applied: {applying[0]} {result['media_before']:.2f}s -> {applying[1]} "
               f"{result['media_after']:.2f}s. Watch the cut points before publishing.")

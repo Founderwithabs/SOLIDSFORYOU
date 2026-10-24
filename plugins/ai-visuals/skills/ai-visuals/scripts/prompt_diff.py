@@ -15,6 +15,11 @@ import re
 import sys
 from pathlib import Path
 
+# Windows pipes default to a legacy code page: print ₹, Hindi and emoji as UTF-8 instead of crashing.
+for _stream in (sys.stdout, sys.stderr):
+    if hasattr(_stream, "reconfigure"):
+        _stream.reconfigure(encoding="utf-8", errors="replace")
+
 
 PARAM = re.compile(r"(?:^|\s)--([a-zA-Z][\w-]*)((?:\s+(?!--)[^\s]+)*)")
 
@@ -43,8 +48,14 @@ def main():
     if len(args) != 2:
         print(__doc__)
         sys.exit(2)
-    old_t, old_p = split_params(Path(args[0]).read_text(encoding="utf-8").strip())
-    new_t, new_p = split_params(Path(args[1]).read_text(encoding="utf-8").strip())
+    texts = []
+    for f in args:
+        try:
+            texts.append(Path(f).read_text(encoding="utf-8-sig", errors="replace").strip())
+        except OSError as e:
+            sys.exit(f"can't read {f}: {e.strerror}")
+    old_t, old_p = split_params(texts[0])
+    new_t, new_p = split_params(texts[1])
     old, new = tokens(old_t), tokens(new_t)
     param_changes = []
     for k in sorted(set(old_p) | set(new_p)):

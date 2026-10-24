@@ -28,6 +28,11 @@ import urllib.request
 import uuid
 from pathlib import Path
 
+# Windows pipes default to a legacy code page: print ₹, Hindi and emoji as UTF-8 instead of crashing.
+for _stream in (sys.stdout, sys.stderr):
+    if hasattr(_stream, "reconfigure"):
+        _stream.reconfigure(encoding="utf-8", errors="replace")
+
 
 def multipart(fields, files):
     boundary = uuid.uuid4().hex
@@ -61,7 +66,12 @@ def main():
     if not key:
         sys.exit("OPENAI_API_KEY is not set. Ask the founder to set it in their environment "
                  "(never paste it into the chat), or paste the prompt into the tool by hand.")
-    prompt = Path(args.prompt_file).read_text(encoding="utf-8").strip()
+    if args.n < 1:
+        sys.exit("--n is how many images to make: 1 or more")
+    try:
+        prompt = Path(args.prompt_file).read_text(encoding="utf-8-sig").strip()
+    except (OSError, UnicodeDecodeError) as e:
+        sys.exit(f"can't read the prompt file {args.prompt_file}: {e}")
     if not prompt:
         sys.exit("the prompt file is empty")
     for p in args.image + ([args.mask] if args.mask else []):

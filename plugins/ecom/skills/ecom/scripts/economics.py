@@ -25,6 +25,11 @@ import sys
 from datetime import date, datetime
 from pathlib import Path
 
+# Windows pipes default to a legacy code page: print ₹, Hindi and emoji as UTF-8 instead of crashing.
+for _stream in (sys.stdout, sys.stderr):
+    if hasattr(_stream, "reconfigure"):
+        _stream.reconfigure(encoding="utf-8", errors="replace")
+
 STALE_DAYS = 30
 
 TEMPLATE = {
@@ -77,10 +82,69 @@ def load_profile(path):
         warnings.append(f"{p['channel']}: checked_at is not a date, so the fees are unverified")
     if "EXAMPLE" in json.dumps(p) or "YYYY" in p["checked_at"]:
         warnings.append(f"{p['channel']}: still contains template example values")
-    for fee in p["fees"]:
-        if fee.get("type") not in {"percent", "fixed", "percent_tiers", "fixed_tiers", "weight_tiers"}:
-            sys.exit(f"{path}: fee '{fee.get('name')}' has unknown type '{fee.get('type')}'")
+    problems = profile_problems(p)
+    if problems:
+        sys.exit(f"{path}: " + "; ".join(problems))
+    ads = p.get("ads") or {}
+    if ads.get("cost_per_order") is not None and ads.get("tacos_pct"):
+        warnings.append(f"{p['channel']}: ads has both tacos_pct and cost_per_order; using cost_per_order")
     return p, warnings
+
+
+def profile_problems(p):
+    """Everything in a fee profile that would make the numbers wrong, said plainly."""
+    out = []
+
+    def number(where, v, lo=None, hi=None, hi_open=False):
+        try:
+            x = float(v)
+        except (TypeError, ValueError):
+            out.append(f"{where} must be a number, not {v!r}")
+            return
+        if x != x or (lo is not None and x < lo) or (hi is not None and (x >= hi if hi_open else x > hi)):
+            rng = f"from {lo:g} to {'under ' if hi_open else ''}{hi:g}" if hi is not None else f"{lo:g} or more"
+            out.append(f"{where} must be {rng}, not {v!r}")
+
+    if not isinstance(p.get("fees"), list) or not all(isinstance(f, dict) for f in p["fees"]):
+        return ['"fees" must be a list of fees, each like {"name": ..., "type": ..., "value": ...}']
+    tax = p.get("tax") or {}
+    if not isinstance(tax, dict):
+        return ['"tax" must be an object']
+    if tax.get("mode", "inclusive") not in ("inclusive", "exclusive"):
+        out.append(f"tax mode must be \"inclusive\" or \"exclusive\", not {tax.get('mode')!r}")
+    for key in ("rate_pct", "on_fees_pct"):
+        if key in tax:
+            number(f"tax {key}", tax[key], 0, 100)
+    for fee in p["fees"]:
+        name, kind = fee.get("name") or "(no name)", fee.get("type")
+        if kind not in {"percent", "fixed", "percent_tiers", "fixed_tiers", "weight_tiers"}:
+            out.append(f"fee '{name}' has unknown type '{kind}'")
+        elif kind in ("percent", "fixed"):
+            number(f"fee '{name}' value", fee.get("value"), 0, 100 if kind == "percent" else None)
+        else:
+            tiers = fee.get("tiers")
+            if not isinstance(tiers, list) or not tiers or not all(isinstance(t, dict) for t in tiers):
+                out.append(f"fee '{name}' needs a non-empty list of tiers")
+                continue
+            for t in tiers:
+                number(f"fee '{name}' tier value", t.get("value"), 0, 100 if kind == "percent_tiers" else None)
+    ret = p.get("returns") or {}
+    if not isinstance(ret, dict):
+        return out + ['"returns" must be an object']
+    if "rate_pct" in ret and ret["rate_pct"] is not None:
+        number("returns rate_pct", ret["rate_pct"], 0, 100, hi_open=True)
+    if "unsellable_pct" in ret and ret["unsellable_pct"] is not None:
+        number("returns unsellable_pct", ret["unsellable_pct"], 0, 100)
+    if "cost_per_return" in ret and ret["cost_per_return"] is not None:
+        number("returns cost_per_return", ret["cost_per_return"], 0)
+    ads = p.get("ads") or {}
+    if not isinstance(ads, dict):
+        return out + ['"ads" must be an object']
+    if ads.get("tacos_pct") is not None:
+        number("ads tacos_pct", ads["tacos_pct"], 0, 100)
+    if ads.get("cost_per_order") is not None:
+        number("ads cost_per_order", ads["cost_per_order"], 0)
+    return out
 
 
 def tier_value(tiers, x, key="up_to"):
@@ -188,10 +252,17 @@ def money(x, cur):
 
 
 def product_from_csv(path, sku):
-    with open(path, newline="", encoding="utf-8-sig") as f:
-        for row in csv.DictReader(f):
-            if (row.get("sku") or "").strip() == sku:
-                return row
+    try:
+        raw = Path(path).read_bytes()
+    except OSError as e:
+        sys.exit(f"can't read {path}: {e.strerror}")
+    try:
+        text = raw.decode("utf-8-sig")
+    except UnicodeDecodeError:
+        text = raw.decode("cp1252", errors="replace")  # Excel on Windows
+    for row in csv.DictReader(text.splitlines()):
+        if (row.get("sku") or "").strip() == sku:
+            return row
     sys.exit(f"{path}: no row with sku '{sku}'")
 
 
@@ -200,12 +271,30 @@ def cmd_unit(args):
         row = product_from_csv(args.products, args.sku)
         def pick(attr, col):
             if getattr(args, attr) is None and (row.get(col) or "").strip():
-                setattr(args, attr, float(row[col]))
+                try:
+                    setattr(args, attr, float(row[col]))
+                except ValueError:
+                    sys.exit(f"{args.products}: {col} for '{args.sku}' must be a number, not {row[col]!r}")
         for attr, col in (("price", "price"), ("cost", "cost"), ("packaging", "packaging_cost"),
                           ("inbound", "inbound_cost"), ("weight", "weight_g"), ("tax_rate", "tax_rate_pct")):
             pick(attr, col)
     if args.price is None or args.cost is None:
         sys.exit("give --price and --cost (or --products and --sku)")
+    if not args.price > 0:
+        sys.exit("--price must be above 0")
+    for name in ("cost", "packaging", "inbound", "weight", "tax_rate"):
+        v = getattr(args, name)
+        if v is not None and not v >= 0:
+            sys.exit(f"--{name.replace('_', '-')} can't be negative")
+    if args.target_margin is not None and not 0 <= args.target_margin < 100:
+        sys.exit("--target-margin is a percentage of revenue, from 0 to under 100")
+    if args.sweep:
+        try:
+            sweep = [float(x) for x in args.sweep.split(",") if x.strip()]
+        except ValueError:
+            sys.exit("--sweep takes prices separated by commas, e.g. --sweep 799,899,999")
+        if not sweep or min(sweep) <= 0:
+            sys.exit("--sweep prices must all be above 0")
     args.packaging = args.packaging or 0.0
     args.inbound = args.inbound or 0.0
 

@@ -21,16 +21,32 @@ def parse_ts(s):
 
 
 def load(path):
-    raw = open(path, encoding="utf-8", errors="replace").read()
+    try:
+        raw = open(path, encoding="utf-8-sig", errors="replace").read()
+    except OSError as e:
+        raise SystemExit(f"can't read {path}: {e.strerror}")
     if path.lower().endswith(".json"):
-        data = json.loads(raw)
+        try:
+            data = json.loads(raw)
+        except json.JSONDecodeError:
+            raise SystemExit(f"{path} isn't valid JSON; give Whisper's .json, an .srt or a .vtt")
         segs = data.get("segments", []) if isinstance(data, dict) else data
-        return [(float(s["start"]), float(s["end"]), (s.get("text") or "").strip()) for s in segs]
+        cues = []
+        for s in segs if isinstance(segs, list) else []:
+            try:
+                cues.append((float(s["start"]), float(s["end"]), (s.get("text") or "").strip()))
+            except (TypeError, KeyError, ValueError):
+                continue  # a segment without times can't be placed
+        return cues
     cues, cur = [], None
     for line in raw.splitlines():
         m = re.match(r"\s*(\d[\d:.,]*)\s*-->\s*(\d[\d:.,]*)", line)
         if m:
-            cur = [parse_ts(m.group(1)), parse_ts(m.group(2)), []]
+            try:
+                cur = [parse_ts(m.group(1)), parse_ts(m.group(2)), []]
+            except ValueError:
+                cur = None  # an unreadable timestamp: skip that cue
+                continue
             cues.append(cur)
         elif cur is not None and line.strip() and not line.strip().isdigit() \
                 and not line.startswith(("WEBVTT", "NOTE")):

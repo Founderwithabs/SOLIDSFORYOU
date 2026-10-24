@@ -7,6 +7,11 @@ Usage:
 """
 import sys
 
+# Windows pipes default to a legacy code page: print ₹, Hindi and emoji as UTF-8 instead of crashing.
+for _stream in (sys.stdout, sys.stderr):
+    if hasattr(_stream, "reconfigure"):
+        _stream.reconfigure(encoding="utf-8", errors="replace")
+
 CRITERIA = [("Fit for the purpose", 20), ("Truthfulness", 15), ("Composition and hierarchy", 15),
             ("Free of AI artefacts", 15), ("Text", 10), ("Brand consistency", 10),
             ("Technical fit", 10), ("Platform rules and disclosure", 5)]

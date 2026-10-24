@@ -21,6 +21,7 @@ Three different problems, three different fixes:
   SLIDE       the steady bleed across the middle: pacing
 """
 import csv
+import math
 import json
 import os
 import sys
@@ -28,24 +29,37 @@ import sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from transcript import load as load_cues  # noqa: E402
 
+# Windows pipes default to a legacy code page: print ₹, Hindi and emoji as UTF-8 instead of crashing.
+for _stream in (sys.stdout, sys.stderr):
+    if hasattr(_stream, "reconfigure"):
+        _stream.reconfigure(encoding="utf-8", errors="replace")
+
 
 def load_csv(path):
     """(rows, header): rows are (position, retention); header is the position column's title."""
     rows, header = [], ""
-    with open(path, newline="", encoding="utf-8-sig", errors="replace") as fh:
-        for r in csv.reader(fh):
-            if not rows and not header and r and not any(c.strip().replace(".", "").isdigit() for c in r):
-                header = r[0].strip().lower()
-                continue
-            nums = []
-            for c in r:
-                c = c.strip().replace("%", "").replace(",", "")
-                try:
-                    nums.append(float(c))
-                except ValueError:
-                    pass
-            if len(nums) >= 2:
-                rows.append((nums[0], nums[1]))
+    try:
+        text = open(path, newline="", encoding="utf-8-sig", errors="replace").read()
+    except OSError as e:
+        sys.exit(f"can't read {path}: {e.strerror}")
+    # Exports from European settings separate columns with ";" and write decimals with ",".
+    sample = [l for l in text.splitlines() if l.strip()][:5]
+    semicolons = bool(sample) and all(";" in l for l in sample)
+    for r in csv.reader(text.splitlines(), delimiter=";" if semicolons else ","):
+        if semicolons:
+            r = [c.replace(",", ".") for c in r]
+        if not rows and not header and r and not any(c.strip().replace(".", "").isdigit() for c in r):
+            header = r[0].strip().lower()
+            continue
+        nums = []
+        for c in r:
+            c = c.strip().replace("%", "").replace(",", "")
+            try:
+                nums.append(float(c))
+            except ValueError:
+                pass
+        if len(nums) >= 2 and all(math.isfinite(n) for n in nums[:2]):
+            rows.append((nums[0], nums[1]))
     rows.sort()
     return rows, header
 
@@ -58,8 +72,16 @@ def main():
     for flag in ("--duration", "--transcript"):
         if flag in a:
             i = a.index(flag)
+            if i + 1 >= len(a):
+                sys.exit(f"{flag} needs a value")
             opts[flag] = a[i + 1]
             a = a[:i] + a[i + 2:]
+    if "--duration" in opts:
+        try:
+            if float(opts["--duration"]) <= 0:
+                raise ValueError
+        except ValueError:
+            sys.exit("--duration is the video's length in seconds, e.g. --duration 612")
     if not a or not os.path.exists(a[0]):
         print(__doc__)
         sys.exit(1)

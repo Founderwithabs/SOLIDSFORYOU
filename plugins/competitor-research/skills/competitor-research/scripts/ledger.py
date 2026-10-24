@@ -22,6 +22,11 @@ import sys
 from datetime import datetime
 from pathlib import Path
 
+# Windows pipes default to a legacy code page: print ₹, Hindi and emoji as UTF-8 instead of crashing.
+for _stream in (sys.stdout, sys.stderr):
+    if hasattr(_stream, "reconfigure"):
+        _stream.reconfigure(encoding="utf-8", errors="replace")
+
 COMPETITOR_COLS = ["id", "name", "brand", "channel", "url", "why_chosen"]
 LEDGER_COLS = ["id", "competitor_id", "field", "value", "unit", "source_url",
                "captured_at", "method", "quote", "confidence", "verified"]
@@ -55,9 +60,13 @@ MAX_EXCERPT_WORDS = 25
 def read_csv(path):
     if not path.exists():
         return []
-    with open(path, newline="", encoding="utf-8-sig") as f:
-        return [{(k or "").strip(): (v or "").strip() for k, v in row.items()}
-                for row in csv.DictReader(f)]
+    try:
+        with open(path, newline="", encoding="utf-8-sig") as f:
+            return [{(k or "").strip(): (v or "").strip() for k, v in row.items()}
+                    for row in csv.DictReader(f)]
+    except UnicodeDecodeError:
+        sys.exit(f"{path} isn't UTF-8 text: write it with Python's csv module (encoding utf-8), "
+                 "or save it from Excel as 'CSV UTF-8'")
 
 
 def load(folder):

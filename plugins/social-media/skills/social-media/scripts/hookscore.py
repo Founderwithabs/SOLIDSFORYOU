@@ -25,8 +25,13 @@ all. Treat a low score as a reason to look again, never a high score as a promis
 """
 import json, os, re, sys
 
+# Windows pipes default to a legacy code page: print ₹, Hindi and emoji as UTF-8 instead of crashing.
+for _stream in (sys.stdout, sys.stderr):
+    if hasattr(_stream, "reconfigure"):
+        _stream.reconfigure(encoding="utf-8", errors="replace")
+
 HERE = os.path.dirname(os.path.abspath(__file__))
-FORMULAS = json.load(open(os.path.join(HERE, "hooks.json")))["hooks"]
+FORMULAS = json.load(open(os.path.join(HERE, "hooks.json"), encoding="utf-8"))["hooks"]
 
 FILLER = {"basically","actually","literally","just","really","very","so","kind","sort","like",
           "guys","hey","welcome","today","video","subscribe","channel"}
@@ -120,15 +125,20 @@ def main():
     as_json = "--json" in a
     a = [x for x in a if x != "--json"]
     if "--format" in a:
-        fmt = a[a.index("--format") + 1]
+        fmt = a[a.index("--format") + 1] if a.index("--format") + 1 < len(a) else ""
         if fmt not in ("long", "short"):
             print("--format must be long or short"); sys.exit(2)
         BAND = (5, 14) if fmt == "short" else (9, 24)
         i = a.index("--format"); a = a[:i] + a[i + 2:]
     if "--hook" in a:
-        lines = [a[a.index("--hook") + 1]]
+        lines = [a[a.index("--hook") + 1]] if a.index("--hook") + 1 < len(a) else []
+        lines = [l for l in lines if l.strip()]
+        if not lines:
+            print("--hook needs the hook's words"); sys.exit(2)
     elif a and os.path.exists(a[0]):
-        lines = [l for l in open(a[0]).read().splitlines() if l.strip()]
+        lines = [l for l in open(a[0], encoding="utf-8-sig", errors="replace").read().splitlines() if l.strip()]
+        if not lines:
+            print(f"{a[0]} has no hooks: put one per line"); sys.exit(1)
     else:
         print(__doc__); sys.exit(1 if not a else 0)
     out = []

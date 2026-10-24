@@ -9,6 +9,7 @@
 // Images and fonts the page uses must be local files or data URLs. The page
 // can set window.READY = false while it loads and true when done; the
 // renderer waits for it (up to 15 s), and for fonts and images to load.
+const fs = require("fs");
 const path = require("path");
 const { execSync } = require("child_process");
 
@@ -33,6 +34,13 @@ async function main() {
   }
   const [page, out] = pos.map((p) => path.resolve(p));
   const width = opt("width", 2000), height = opt("height", 2000);
+  const fail = (msg) => { console.error(msg); process.exit(2); };
+  if (!fs.existsSync(page)) fail(`page not found: ${page}`);
+  for (const [name, v] of [["width", width], ["height", height]]) {
+    if (!Number.isInteger(v) || v <= 0) fail(`--${name} must be a whole number of pixels above 0`);
+  }
+  if (!/\.(png|jpe?g)$/i.test(out)) fail(`${out}: save as .png or .jpg`);
+  fs.mkdirSync(path.dirname(out), { recursive: true });
   const { chromium } = loadPlaywright();
   const browser = await chromium.launch(
     process.env.CHROMIUM_PATH ? { executablePath: process.env.CHROMIUM_PATH } : {});

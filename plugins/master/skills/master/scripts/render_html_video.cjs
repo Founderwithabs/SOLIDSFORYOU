@@ -18,6 +18,7 @@
 // html/body background to transparent) and writes a ProRes 4444 .mov with
 // alpha, for laying graphics over footage with ffmpeg's overlay filter.
 const { spawn, execSync } = require("child_process");
+const fs = require("fs");
 const path = require("path");
 const { pathToFileURL } = require("url");
 
@@ -48,6 +49,16 @@ function parseArgs(argv) {
 async function main() {
   const o = parseArgs(process.argv.slice(2));
   const fps = Number(o.fps), width = Number(o.width), height = Number(o.height);
+  if (!fs.existsSync(o.page)) fail(`page not found: ${o.page}`);
+  for (const [name, v] of [["fps", fps], ["width", width], ["height", height]]) {
+    if (!Number.isInteger(v) || v <= 0) fail(`--${name} must be a whole number above 0, not ${o[name]}`);
+  }
+  // H.264 in yuv420p only takes even sizes; say so instead of failing inside ffmpeg.
+  if (!o.transparent && (width % 2 || height % 2)) {
+    fail(`--width and --height must be even for MP4 (got ${width}x${height}); try ${width + (width % 2)}x${height + (height % 2)}`);
+  }
+  if (o.audio && !fs.existsSync(path.resolve(o.audio))) fail(`audio not found: ${o.audio}`);
+  fs.mkdirSync(path.dirname(o.out), { recursive: true });
   const { chromium } = loadPlaywright();
   const launch = {};
   if (process.env.CHROMIUM_PATH) launch.executablePath = process.env.CHROMIUM_PATH;
@@ -63,6 +74,7 @@ async function main() {
 
   const from = Number(o.from || 0);
   const to = Math.min(Number(o.to || duration), duration);
+  if (!(from >= 0) || !(to > from)) fail(`--from must be at least 0 and before --to (got ${o.from || 0} to ${to})`);
   const first = Math.round(from * fps);
   const last = Math.round(to * fps);
 
@@ -81,15 +93,25 @@ async function main() {
     args.push("-movflags", "+faststart", o.out);
   }
   const ff = spawn("ffmpeg", args, { stdio: ["pipe", "inherit", "inherit"] });
-  const ffDone = new Promise((res, rej) =>
-    ff.on("close", (code) => (code === 0 ? res() : rej(new Error("ffmpeg exit " + code)))));
+  const ffDone = new Promise((res, rej) => {
+    ff.on("error", (e) => rej(e.code === "ENOENT"
+      ? new Error("ffmpeg isn't installed: install it (Mac: brew install ffmpeg; Windows: winget install ffmpeg; Linux: sudo apt install ffmpeg)")
+      : e));
+    ff.on("close", (code) => (code === 0 ? res() : rej(new Error("ffmpeg exit " + code))));
+  });
+  let ffExited = false;
+  ffDone.catch(() => {}).finally(() => { ffExited = true; });  // reported where it is awaited
+  ff.stdin.on("error", () => {});  // ffmpeg quitting early surfaces through ffDone
 
   for (let f = first; f < last; f++) {
     await page.evaluate((t) => window.renderFrame(t), f / fps);
     const img = await page.screenshot(
       o.transparent ? { type: "png", omitBackground: true }
         : o.png ? { type: "png" } : { type: "jpeg", quality: 95 });
-    if (!ff.stdin.write(img)) await new Promise((r) => ff.stdin.once("drain", r));
+    if (ffExited) break;  // ffmpeg stopped early: its error is reported below
+    if (!ff.stdin.write(img)) {
+      await Promise.race([new Promise((r) => ff.stdin.once("drain", r)), ffDone.catch(() => {})]);
+    }
     if ((f - first) % (fps * 5) === 0) {
       process.stderr.write(`frame ${f - first}/${last - first}\n`);
     }
@@ -98,6 +120,11 @@ async function main() {
   await ffDone;
   await browser.close();
   console.log(`wrote ${o.out} (${((last - first) / fps).toFixed(2)} s at ${fps} fps)`);
+}
+
+function fail(msg) {
+  console.error(msg);
+  process.exit(2);
 }
 
 main().catch((e) => {

@@ -22,6 +22,11 @@ tail, a mobile one can lose the subject.
 """
 import json, re, sys, os
 
+# Windows pipes default to a legacy code page: print ₹, Hindi and emoji as UTF-8 instead of crashing.
+for _stream in (sys.stdout, sys.stderr):
+    if hasattr(_stream, "reconfigure"):
+        _stream.reconfigure(encoding="utf-8", errors="replace")
+
 DESKTOP, MOBILE, HARD = 60, 40, 100  # overridable with --desktop, --mobile, --hard
 VAGUE = {"amazing","incredible","insane","crazy","huge","massive","ultimate","best","powerful",
          "secret","revolutionary","mindblowing","epic","perfect","complete","everything"}
@@ -80,13 +85,22 @@ def main():
     for flag in ("--desktop", "--mobile", "--hard"):
         if flag in a:
             i = a.index(flag)
-            globals()[flag[2:].upper()] = int(a[i + 1])
+            try:
+                globals()[flag[2:].upper()] = int(a[i + 1])
+            except (IndexError, ValueError):
+                print(f"{flag} needs a whole number of characters, e.g. {flag} 60"); sys.exit(2)
             a = a[:i] + a[i + 2:]
     thumb = a[a.index("--thumb") + 1] if "--thumb" in a else None
     if "--title" in a:
-        rows = [check(a[a.index("--title") + 1], thumb)]
+        title = a[a.index("--title") + 1] if a.index("--title") + 1 < len(a) else ""
+        if not title.strip():
+            print("--title needs the title's words"); sys.exit(2)
+        rows = [check(title, thumb)]
     elif a and os.path.exists(a[0]):
-        rows = [check(l, thumb) for l in open(a[0]).read().splitlines() if l.strip()]
+        rows = [check(l, thumb) for l in open(a[0], encoding="utf-8-sig", errors="replace").read().splitlines()
+                if l.strip()]
+        if not rows:
+            print(f"{a[0]} has no titles: put one per line"); sys.exit(1)
     else:
         print(__doc__); sys.exit(1)
     rows.sort(key=lambda r: -r["score"])
