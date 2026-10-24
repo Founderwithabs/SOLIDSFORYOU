@@ -119,9 +119,10 @@ or its wording without the owner's explicit decision.
   timings to the audio and cuts captions at real pauses. Maintainers build
   and publish the packages with `scripts/build_whisper_packages.py` (official
   OpenAI checkpoint, checked against OpenAI's published SHA-256, converted,
-  split under PyPI's size limit, uploaded with `PYPI_TOKEN`). Until they're
-  published, `models.json` has `published: false` and the script falls back to
-  faster-whisper's own download, then to phone instructions.
+  split under PyPI's size limit, uploaded with `PYPI_TOKEN`). A size is used
+  only when `models.json` has `published: true` for it; otherwise, or if the
+  install fails, the script falls back to faster-whisper's own download, then
+  to phone instructions.
 - **Humanizer:** `humanizer.md` is the method (ground rules, process,
   pattern catalogue, rewriting moves, a guide per channel, Hindi and
   Hinglish, voice matching, examples, hand-back), read by section.
