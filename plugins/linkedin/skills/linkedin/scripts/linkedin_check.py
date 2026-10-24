@@ -242,6 +242,8 @@ def main():
         sys.exit(2)
     if not text.strip():
         sys.exit("nothing to check: the text is empty")
+    if "\x00" in text:
+        sys.exit("that isn't text: give the post as a .txt file or with --text")
     k = next((x for x in ("headline", "about", "note", "comment") if getattr(a, x)), "post")
     errors, warnings, stats = check_post(text) if k == "post" else check_short(text, k)
     human, problem = humanizer_pass(text, k)
