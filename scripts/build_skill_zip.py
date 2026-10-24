@@ -19,6 +19,7 @@ SKILLS = [
     "social-media",
     "competitor-research",
     "ecom",
+    "ai-visuals",
 ]
 
 (ROOT / "dist").mkdir(exist_ok=True)

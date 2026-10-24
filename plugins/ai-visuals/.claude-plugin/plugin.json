@@ -1,0 +1,19 @@
+{
+  "name": "ai-visuals",
+  "displayName": "AI Visuals by SOLIDS FOR YOU",
+  "description": "SOLIDS FOR YOU AI Visuals: Claude reviews images and videos made with ChatGPT, Midjourney, Gemini, Flux, Ideogram, Firefly, Canva, Sora, Veo, Kling or Runway for where they'll be used, and hands back the exact fixed prompt or edit, with every change explained.",
+  "author": {
+    "name": "SOLIDS FOR YOU"
+  },
+  "homepage": "https://github.com/Founderwithabs/SOLIDSFORYOU",
+  "license": "MIT",
+  "keywords": [
+    "ai images",
+    "image generation",
+    "prompts",
+    "chatgpt",
+    "midjourney",
+    "ai video",
+    "creative review"
+  ]
+}

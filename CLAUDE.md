@@ -91,6 +91,11 @@ owner's explicit decision.
 - **Motion design taste:** `scripts/inspect_video.py` inspects; the prompt
   holds the rubric. Use it before delivering any video Claude made.
 - **Harsh buyer review:** needs web search for its competitor research.
+- **AI visuals:** `ai-visuals.md` is the method (rules, brief, reading an
+  image or video, prompt anatomy, fix ladder, scorecard, hand-back);
+  `purposes.md` and `generators.md` are references read by section, and
+  must be re-checked as tools change. Scripts: `prompt_diff.py`, `score.py`
+  and the optional `generate_openai.py` (key from `OPENAI_API_KEY` only).
 - **Ecom:** `ecom.md` is the core (rules, module choice, store memory in the
   founder's `ecom/` folder or `${CLAUDE_PLUGIN_DATA}/ecom/`); `modules/`
   holds listing, images, economics and operations, loaded only when needed;
