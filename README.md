@@ -52,6 +52,9 @@ Then install the tools you want:
 /plugin install transcriber@solidsforyou
 ```
 
+If installing Master says an option is "not yet set", you can ignore it:
+Master starts always-on, which is the recommended setting.
+
 Or just run `/plugin` and pick them from the list. After that, ask naturally
 ("how does this audio sound?", "review this listing like a harsh buyer",
 "careful mode on"). You can also run a tool by name, for example
