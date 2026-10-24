@@ -302,13 +302,35 @@ def check_structure() -> None:
         registry = (master / "master.md").read_text(encoding="utf-8").split("<!-- REGISTRY")[1].split("\n\n")[0]
         router = (master / "toolbox.md").read_text(encoding="utf-8")
         routing = (master / "master.md").read_text(encoding="utf-8").split("## 4.")[1].split("## 5.")[0]
+        heads = {f.stem: f.read_text(encoding="utf-8") for f in sorted((master / "heads").glob("*.md"))}
         problems = []
+        if not heads:
+            problems.append("no head files in plugins/master/skills/master/heads/")
+        # Master -> heads: every head is routed to, registered and described.
+        for head, text in heads.items():
+            title = head.capitalize()
+            if not re.search(rf"\| {title} \(", router):
+                problems.append(f"the {title} head has no row in toolbox.md")
+            if f"heads/{head}.md" not in registry or f"heads/{head}.md" not in routing:
+                problems.append(f"the {title} head is missing from master.md's registry or section 4")
+            for section in ["## 1. When it runs", "## 2. Sub-skills", "## 3. Workflow", "## 4. Hand-offs", "## 5. Done when"]:
+                if section not in text:
+                    problems.append(f"heads/{head}.md has no '{section}'")
+            # Heads load on every task they own, so keep them short.
+            if len(text.split()) > 450:
+                problems.append(f"heads/{head}.md is {len(text.split())} words; keep heads under 450")
+            for other in text.split("## 4. Hand-offs")[-1].split("## 5.")[0].split("- ")[1:]:
+                named = re.match(r"(\w+) head", other)
+                if named and named.group(1).lower() not in heads:
+                    problems.append(f"heads/{head}.md hands off to a head that doesn't exist: {named.group(1)}")
+        # Heads -> sub-skills: every tool is registered and called by at least one head.
         for name in plugin_names():
             if name == "master":
                 continue
-            for where, text in [("master.md registry", registry), ("toolbox.md", router), ("master.md section 4", routing)]:
-                if not re.search(rf"\b{re.escape(name)}\b", text):
-                    problems.append(f"{name} is missing from {where}")
+            if not re.search(rf"\b{re.escape(name)}\b", registry):
+                problems.append(f"{name} is missing from master.md's registry")
+            if not any(re.search(rf"\b{re.escape(name)}\b", t) for t in heads.values()):
+                problems.append(f"no head calls {name}")
         # Links between tools that save the founder paying or answering twice.
         links = [("harsh-buyer-review/skills/harsh-buyer-review/harsh-buyer-reviewer.md", "research/<name>-<date>/",
                   "the buyer reuses saved competitor research"),

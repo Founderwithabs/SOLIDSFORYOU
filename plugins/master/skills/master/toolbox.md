@@ -1,31 +1,33 @@
 # SOLIDS FOR YOU Master (on)
 
-Use the fewest SOLIDS FOR YOU tools each task needs. Invoke a tool only when
-its row says so.
+Route each task to the head that owns it; the head calls only the
+sub-skills it needs. To run a head, follow `heads/<head>.md` in the `master`
+skill (invoke the skill if it isn't loaded).
 
-| Task | Use |
+| Task | Head (its main sub-skills) |
 |---|---|
-| Question, quick answer | Answer directly, no tools (careful-mode if money, legal, health or hard to undo) |
-| Other work: writing, code, docs, plans | No tools (careful-mode if high-stakes; economy-mode if long) |
-| Make or edit a video | `master` skill's video workflow |
-| Review a video | motion-design-taste (+ harsh-buyer-review if for customers, + audio-review if sound matters) |
-| Audio | audio-review |
-| Social media | social-media (+ harsh-buyer-review for posts that sell, + video workflow to make a reel) |
-| Selling online: listings, product images, margins, fees, pricing, ads, returns, stock | ecom |
-| AI-made image or video: review, fix the prompt, generate | ai-visuals (+ ecom for product images) |
-| Feedback on a product, listing, ad, copy or price | harsh-buyer-review (competitor-research first if it needs fresh competitor data) |
-| Competitors, market or pricing | competitor-research |
-| Other research | economy-mode helpers gather; you verify and cite; careful-mode |
+| Question, quick answer | None: answer directly (careful-mode if money, legal, health or hard to undo) |
+| Other work: writing, code, docs, plans | None (careful-mode if high-stakes; economy-mode if long) |
+| Competitors, market, pricing decisions, positioning, launch readiness, feedback on a product idea | Product (competitor-research, harsh-buyer-review, ecom economics) |
+| Listings, product images, store numbers, ads, returns, stock, sale events | Ecom (ecom, harsh-buyer-review, ai-visuals) |
+| Social media, content, YouTube, campaigns | Marketing (social-media, ai-visuals, harsh-buyer-review) |
+| Make or edit a video, AI image or clip, product graphic, sound | Design (video workflow, ai-visuals, motion-design-taste, audio-review) |
+| Review or feedback on finished work: listing, ad, copy, video, audio, image, post | Review (harsh-buyer-review, motion-design-taste, audio-review, ai-visuals) |
+| Other research | No head: economy-mode helpers gather; you verify and cite; careful-mode |
 
-Mixed task: each part's tools. Unsure: the row with more checks.
+Mixed task: each part to its head; heads hand work to each other as their
+files say. Unsure: the head with more checks.
 
-Save credits: no tools for simple tasks; bulk reading, searching and
-reformatting go to cheaper helpers; read only the sections of a tool's prompt
-the task needs; never re-read a file or prompt already in context; short
-answers to simple questions.
-Keep quality: careful-mode on anything customers see or hard to undo; maths
-in code; never invent facts or sources; reviews and sign-off stay with you.
+Foundation for every head: careful-mode on anything customers see or hard
+to undo; economy-mode for bulk work; search the memory sheet
+(`memory/memory.csv`) before asking the founder.
 
-Say a one-line route ("Master: video, using ...") only when a tool is used.
-Full rules: the `master` skill. Founders can switch Master to task-specific
-with `/plugin configure master@solidsforyou`.
+Save credits: no head for simple tasks; bulk reading, searching and
+reformatting go to cheaper helpers; read only the sections a job needs;
+never re-read a file already in context; short answers to simple questions.
+Keep quality: maths in code; never invent facts or sources; reviews and
+sign-off stay with you.
+
+Say a one-line route ("Master: Design head, using ...") only when a head is
+used. Founders can switch Master to task-specific with
+`/plugin configure master@solidsforyou`.

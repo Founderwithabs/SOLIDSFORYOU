@@ -62,8 +62,9 @@ ask for it.
 5. Add the tool to `SKILLS` in `scripts/build_skill_zip.py` if it works on
    claude.ai, then run the script.
 6. Add the tool to the Master Skill: its registry in
-   `plugins/master/skills/master/master.md`, the task-type table in
-   `toolbox.md`, and, if videos should use it,
+   `plugins/master/skills/master/master.md`, the head or heads that should
+   call it (`heads/<head>.md`: sub-skills table, workflow step, hand-offs),
+   the head's row in `toolbox.md`, and, if videos should use it,
    `plugins/master/skills/master/workflows/video.md` (section 6 of
    `master.md` has the steps). After changing any of these or any tool in the
    registry, run `python3 scripts/build_bundle.py` (`--check` tells you if
@@ -135,8 +136,13 @@ or its wording without the owner's explicit decision.
   (`brand-voice.md`, `strategy.md`, `learnings.md`, `posts.csv`) lives in the
   founder's `social/` folder or `${CLAUDE_PLUGIN_DATA}`. Platform limits in
   its playbook must be re-checked when platforms change them.
-- **Master skill:** keeps every tool ready and routes each task to only the
-  tools it needs, to save founders credits and raise quality. It is always-on
+- **Master skill:** keeps every tool ready and routes each task to one of five
+  heads in `plugins/master/skills/master/heads/` (product, ecom, marketing,
+  design, review), each a short workflow with five sections (when it runs,
+  sub-skills, workflow, hand-offs, done when) that calls only the tools the
+  task needs. Careful mode, economy mode and the memory sheet are the
+  foundation every head uses. Every tool must be called by at least one head
+  (the tests check it), to save founders credits and raise quality. It is always-on
   by default: the SessionStart hook in `plugins/master/hooks/hooks.json` loads
   `toolbox.md`, a compact router, into every session. The same hook gives
   the one-time welcome in `hooks/welcome.json` (Claude opens its first reply
