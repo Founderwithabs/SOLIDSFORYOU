@@ -1,14 +1,50 @@
 # SOLIDS FOR YOU: Everything a Founder Needs
 
-**Make your Claude solid.**
+**Make your Claude solid.** 11 free Claude specialists for founders: a harsh
+buyer, an e-commerce operator, a competitor researcher, a head of social
+media, a video team and more. Two commands to install, and they work from
+your phone.
 
-Free, open-source Claude tools for starting and running a business (MIT
-licensed, see [License](#license)). Each one turns Claude
-into a specialist you'd otherwise have to hire: an audio designer, a motion
-design director, a harsh customer, a meticulous reviewer.
+[![MIT License](https://img.shields.io/badge/license-MIT-4d7cff)](LICENSE.md)
+[![Claude Code plugins](https://img.shields.io/badge/Claude%20Code-plugins-4d7cff)](#set-it-up)
+[![Works on claude.ai](https://img.shields.io/badge/claude.ai-skills-4d7cff)](#option-2-claudeai-claude-desktop-or-claude-mobile)
+[![Tests](https://github.com/Founderwithabs/SOLIDSFORYOU/actions/workflows/tests.yml/badge.svg)](https://github.com/Founderwithabs/SOLIDSFORYOU/actions/workflows/tests.yml)
+
+![SOLIDS FOR YOU in 30 seconds](assets/demo.gif)
+
+*This video was made by Claude with SOLIDS FOR YOU's own video workflow:
+built, reviewed by a harsh buyer and a motion designer, and fixed over three
+rounds. [How it was made](examples/launch-video).*
+
+## Start in 30 seconds
+
+In [Claude Code](https://claude.com/claude-code) (terminal, desktop app or
+claude.ai/code):
+
+```
+/plugin marketplace add Founderwithabs/SOLIDSFORYOU
+/plugin install master@solidsforyou
+```
+
+Then install the specialists you want (list below) and just ask: "review this
+listing like a harsh buyer", "what do I make per order on Flipkart?", "make a
+30-second launch video". On claude.ai or the Claude app, upload the skill
+files instead ([Option 2](#option-2-claudeai-claude-desktop-or-claude-mobile)).
+
+## Why it's different
+
+| You ask | Claude on its own | Claude with SOLIDS FOR YOU |
+|---|---|---|
+| "Should I raise my price from ₹999 to ₹1,099?" | Estimates fees as a percentage and says more price, more profit | **Ecom** works it out in code from your real fee profile, per order, with returns and ads, and spots the fee tier you'd cross: ₹1,099 makes *less* (₹248 vs ₹259). [See the real run](examples/ecom-unit-economics) |
+| "Is my listing good?" | Polite general advice | **Harsh Buyer Review** researches 3 to 5 real competitors, compares one-on-one, and says why a buyer would scroll past |
+| "Who are my competitors and what do they charge?" | A plausible list, often unsourced | **Competitor Research** sources and dates every fact, double-checks a sample, and runs on Claude's cheapest model |
+| "Make a video" | Code you have to run and judge yourself | **Master Skill** builds, renders, reviews and re-renders until it scores 85 out of 100, or tells you what's left. [See this one's report](examples/launch-video) |
+| "Write tomorrow's reel" | A caption | **Social Media** writes in your voice and scores every post out of 100 before you see it |
 
 Every tool works wherever you use Claude: **Claude Code**, **claude.ai** (web,
 desktop, mobile), or **any Claude chat** as a paste-in prompt.
+
+⭐ **If it saves you time, star the repo.** It's how other founders find it.
 
 ## The tools
 
@@ -155,6 +191,9 @@ dist/                             Skill zips for claude.ai, and
                                   master-full.md (the Master Skill with
                                   every tool, in one paste-in file)
 prompts/README.md                 Links to every paste-in prompt
+examples/                         Real outputs: the launch video's report,
+                                  an Ecom profit run
+assets/                           The README video and the social preview
 taste/motion/                     SOLIDS FOR YOU's own motion taste notes
 .claude/skills/                   Lets the tools work inside this repo too
 scripts/build_skill_zip.py        Rebuilds the zips in dist/

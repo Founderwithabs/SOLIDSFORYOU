@@ -1,0 +1,102 @@
+[
+ {
+  "t": 1.008,
+  "sfx": "sfx-kit/sounds/impacts/impact-heavy-soft.wav",
+  "gain": 0.55
+ },
+ {
+  "t": 3.696,
+  "sfx": "sfx-kit/sounds/whooshes/whoosh-fast-medium.wav",
+  "gain": 0.45
+ },
+ {
+  "t": 4.151,
+  "sfx": "sfx-kit/sounds/pops/pop-medium-in.wav",
+  "gain": 0.5
+ },
+ {
+  "t": 7.387,
+  "sfx": "sfx-kit/sounds/whooshes/whoosh-fast-medium.wav",
+  "gain": 0.45
+ },
+ {
+  "t": 7.842,
+  "sfx": "sfx-kit/sounds/pops/pop-medium-in.wav",
+  "gain": 0.5
+ },
+ {
+  "t": 11.079,
+  "sfx": "sfx-kit/sounds/whooshes/whoosh-fast-medium.wav",
+  "gain": 0.45
+ },
+ {
+  "t": 11.534,
+  "sfx": "sfx-kit/sounds/pops/pop-medium-in.wav",
+  "gain": 0.5
+ },
+ {
+  "t": 14.771,
+  "sfx": "sfx-kit/sounds/whooshes/whoosh-fast-medium.wav",
+  "gain": 0.45
+ },
+ {
+  "t": 15.236,
+  "sfx": "sfx-kit/sounds/pops/pop-medium-in.wav",
+  "gain": 0.5
+ },
+ {
+  "t": 18.462,
+  "sfx": "sfx-kit/sounds/whooshes/whoosh-fast-medium.wav",
+  "gain": 0.45
+ },
+ {
+  "t": 18.917,
+  "sfx": "sfx-kit/sounds/pops/pop-medium-in.wav",
+  "gain": 0.5
+ },
+ {
+  "t": 22.154,
+  "sfx": "sfx-kit/sounds/whooshes/whoosh-fast-medium.wav",
+  "gain": 0.45
+ },
+ {
+  "t": 22.619,
+  "sfx": "sfx-kit/sounds/shimmers/shimmer-short-soft.wav",
+  "gain": 0.4
+ },
+ {
+  "t": 24.928,
+  "sfx": "sfx-kit/sounds/whooshes/whoosh-fast-medium.wav",
+  "gain": 0.45
+ },
+ {
+  "t": 25.383,
+  "sfx": "sfx-kit/sounds/keyboard/keyboard-typing-quick-short.wav",
+  "gain": 0.35
+ },
+ {
+  "t": 26.383,
+  "sfx": "sfx-kit/sounds/keyboard/keyboard-return-soft.wav",
+  "gain": 0.4
+ },
+ {
+  "t": 26.769,
+  "sfx": "sfx-kit/sounds/keyboard/keyboard-typing-quick-short.wav",
+  "gain": 0.35
+ },
+ {
+  "t": 27.519,
+  "sfx": "sfx-kit/sounds/keyboard/keyboard-return-soft.wav",
+  "gain": 0.4
+ },
+ {
+  "t": 28.619,
+  "sfx": "sfx-kit/sounds/whooshes/whoosh-fast-medium.wav",
+  "gain": 0.45
+ },
+ {
+  "t": 28.929,
+  "sfx": "sfx-kit/sounds/logo-stings/sting-tech-short.wav",
+  "gain": 0.6
+ }
+]

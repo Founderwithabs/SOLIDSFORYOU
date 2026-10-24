@@ -1,0 +1,306 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<!-- SOLIDS FOR YOU launch demo. Built from the Master Skill's scene template:
+     everything is driven by renderFrame(t); cue times come from the music's
+     beat map (beats.json), 8 beats per card. -->
+<style>
+  :root {
+    --bg: #05070f;
+    --card: rgba(18, 24, 48, 0.86);
+    --line: rgba(120, 150, 255, 0.28);
+    --text: #f2f4ff;
+    --muted: #8d97c4;
+    --accent: #4d7cff;
+    --alert: #ff4d5e;
+  }
+  html, body { margin: 0; width: 1920px; height: 1080px; overflow: hidden; background: var(--bg); }
+  body { font-family: "Inter", "Helvetica Neue", Arial, sans-serif; color: var(--text); }
+  #stage { position: absolute; inset: 0; }
+  #glow {
+    position: absolute; left: 50%; top: 50%; width: 1600px; height: 1600px;
+    margin: -800px 0 0 -800px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(29,59,255,0.34) 0%, rgba(29,59,255,0) 60%);
+  }
+  #grain {
+    position: absolute; inset: 0; opacity: 0.06; pointer-events: none;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/></filter><rect width='200' height='200' filter='url(%23n)'/></svg>");
+  }
+  .scene { position: absolute; inset: 0; opacity: 0; transform-origin: 160px 540px; }
+  .label { font-size: 30px; font-weight: 700; letter-spacing: 0.32em; text-transform: uppercase; color: var(--muted); }
+  .accent { color: var(--accent); }
+  .alert { color: var(--alert); }
+  .big { font-size: 132px; font-weight: 800; letter-spacing: -0.03em; line-height: 1.02; }
+  .sub { font-size: 52px; font-weight: 600; color: var(--muted); }
+  .card {
+    position: absolute; border-radius: 32px; background: var(--card);
+    border: 1px solid var(--line); box-shadow: 0 30px 80px rgba(0,0,0,0.45);
+  }
+  .you { display: inline-block; font-size: 24px; font-weight: 800; letter-spacing: 0.24em;
+    padding: 8px 16px; border-radius: 10px; background: rgba(141,151,196,0.16); color: var(--muted);
+    margin-right: 22px; vertical-align: 10px; }
+  .prompt { font-size: 54px; font-weight: 600; }
+  .result { font-size: 76px; font-weight: 800; letter-spacing: -0.02em; line-height: 1.08; }
+  .note { font-size: 42px; font-weight: 600; color: var(--muted); }
+  .metric { position: absolute; width: 440px; text-align: center; }
+  .metric .num { font-size: 100px; line-height: 1; font-weight: 800; letter-spacing: -0.03em; }
+  .metric .cap { font-size: 22px; font-weight: 700; letter-spacing: 0.18em; color: var(--muted); text-transform: uppercase; margin-top: 22px; }
+  .row { position: absolute; left: 160px; display: flex; flex-wrap: wrap; gap: 26px; width: 1600px; }
+  .chip { position: relative; padding: 22px 34px; border-radius: 999px; font-size: 40px; font-weight: 700;
+    background: rgba(77,124,255,0.14); border: 1px solid var(--line); color: var(--text); white-space: nowrap; font-size: 44px; }
+  .mono { font-family: "DejaVu Sans Mono", Menlo, monospace; font-size: 44px; }
+  .prompt-sign { color: var(--accent); margin-right: 22px; }
+  #dots { position: absolute; left: 160px; top: 960px; opacity: 0; }
+  #dots span { display: inline-block; width: 14px; height: 14px; border-radius: 7px; margin-right: 14px; background: rgba(141,151,196,0.35); vertical-align: middle; }
+  #cards { position: absolute; inset: 0; transform-origin: 160px 540px; }
+  #example { position: absolute; right: 160px; top: 140px; opacity: 0; }
+</style>
+</head>
+<body>
+<div id="stage">
+  <div id="glow"></div>
+
+  <!-- Hook -->
+  <div class="scene" id="hook">
+    <div class="label" id="h-label" style="position:absolute; left:160px; top:380px">Solids for you</div>
+    <div class="big" id="h-title" style="position:absolute; left:160px; top:440px"><span id="hw0" style="display:inline-block">Make</span> <span id="hw1" style="display:inline-block">your</span> <span id="hw2" style="display:inline-block">Claude</span> <span id="h-solid" class="accent" style="display:inline-block">solid.</span></div>
+    <div class="sub" id="h-sub" style="position:absolute; left:160px; top:650px">11 specialists for founders. One install.</div>
+  </div>
+
+  <div class="label" id="example">Example outputs</div>
+  <div id="dots"><span></span><span></span><span></span><span></span><span></span></div>
+
+  <!-- Tool cards: filled in by script from TOOLS -->
+  <div id="cards"></div>
+
+  <!-- More tools -->
+  <div class="scene" id="more">
+    <div class="label" id="m-label" style="position:absolute; left:160px; top:200px">Plus</div>
+    <div class="big" id="m-title" style="position:absolute; left:160px; top:250px; font-size:110px">6 more specialists</div>
+    <div class="row" style="top:520px">
+    <div class="chip" id="c0">🎙️ Transcriber</div>
+    <div class="chip" id="c1">🎨 AI Visuals</div>
+    <div class="chip" id="c2">🎧 Audio Review</div>
+    <div class="chip" id="c3">🎬 Motion Design Taste</div>
+    <div class="chip" id="c4">✅ Careful Mode</div>
+    <div class="chip" id="c5">💰 Economy Mode</div>
+    </div>
+  </div>
+
+  <!-- Install -->
+  <div class="scene" id="install">
+    <div class="label" id="i-label" style="position:absolute; left:160px; top:230px">Two commands. Works from your phone too.</div>
+    <div class="card" id="i-card" style="left:160px; top:310px; width:1600px; height:340px">
+      <div class="mono" id="i-l1" style="position:absolute; left:64px; top:84px"><span class="prompt-sign">❯</span><span id="i-t1"></span></div>
+      <div class="mono" id="i-l2" style="position:absolute; left:64px; top:196px"><span class="prompt-sign">❯</span><span id="i-t2"></span></div>
+    </div>
+    <div class="note" id="i-note" style="position:absolute; left:160px; top:720px">In Claude Code. Or upload the skills to the Claude app.</div>
+  </div>
+
+  <!-- End -->
+  <div class="scene" id="end">
+    <div class="label" id="e-label" style="position:absolute; left:160px; top:300px">Solids for you</div>
+    <div class="big" id="e-title" style="position:absolute; left:160px; top:360px">Make your Claude <span id="e-solid" class="accent" style="display:inline-block">solid.</span></div>
+    <div class="sub" id="e-url" style="position:absolute; left:160px; top:570px; color:var(--text)">github.com/Founderwithabs/SOLIDSFORYOU</div>
+    <div class="row" style="top:720px">
+    <div class="chip" id="e0">Free</div>
+    <div class="chip" id="e1" style="">MIT license</div>
+    <div class="chip" id="e2" style="background:var(--accent); color:#fff">★ Star it on GitHub</div>
+    </div>
+  </div>
+
+  <div id="grain"></div>
+</div>
+<script>
+const FPS = 30;
+// Beat times in seconds (music offset 7.363 s into "Dear Mr Super Computer").
+const B = __BEATS__;
+const beat = (k) => B[k];
+const DURATION = 32.3;
+
+const TOOLS = [
+  { n: "01", name: "Harsh Buyer Review", prompt: "Would you buy this listing?",
+    result: '<span class="alert">Not yet.</span>', note: "Fix the photos. Show the size chart.",
+    num: "4", count: { pre: "", to: 4, post: "" }, cap: "Rivals compared", ring: null },
+  { n: "02", name: "Ecom", prompt: "What do I make per order?",
+    result: "After fees, returns<br>and ads.", note: "Price ₹999 · example fee profile",
+    num: "₹259", count: { pre: "₹", to: 259, post: "" }, cap: "Profit per order", ring: null },
+  { n: "03", name: "Competitor Research", prompt: "Research my top competitors.",
+    result: "Every fact sourced,<br>then double-checked.", note: "Runs on Claude's cheapest model.",
+    num: "5", count: { pre: "", to: 5, post: "" }, cap: "Side by side", ring: null },
+  { n: "04", name: "Social Media", prompt: "Write tomorrow's reel.",
+    result: "Scored before<br>you ever see it.", note: "100-point scorecard on every post.",
+    num: "88", count: { pre: "", to: 88, post: "" }, cap: "Post score", ring: 0.88 },
+  { n: "05", name: "Video", prompt: "Make a 30-second launch video.",
+    result: "Built, reviewed, fixed.<br>Like this one.", note: "Re-rendered until it scores 85+.",
+    num: "85+", count: { pre: "", to: 85, post: "+" }, cap: "Quality bar", ring: 0.85 },
+];
+
+// ---- Cue sheet (beat numbers) --------------------------------------------
+const CUE = {
+  hookSolid: beat(2), hookSub: beat(3),
+  cardStart: (i) => beat(8 + 8 * i), cardResult: (i) => beat(9 + 8 * i),
+  more: beat(48), moreChips: beat(49),
+  install: beat(54), line1: beat(55), line2: beat(58), installNote: beat(60),
+  end: beat(62), endSolid: beat(63), endUrl: beat(64), endChips: beat(65),
+};
+
+const ease = {
+  linear: (x) => x,
+  outCubic: (x) => 1 - Math.pow(1 - x, 3),
+  inCubic: (x) => x * x * x,
+  outBack: (x) => { const c1 = 1.4, c3 = c1 + 1; return 1 + c3 * Math.pow(x - 1, 3) + c1 * Math.pow(x - 1, 2); },
+};
+function tween(t, start, dur, from, to, e = ease.outCubic) {
+  if (t <= start) return from;
+  if (t >= start + dur) return to;
+  return from + (to - from) * e((t - start) / dur);
+}
+const frames = (n) => n / FPS;
+const $ = (id) => document.getElementById(id);
+
+// Entrance (ease out, 12 frames, from dy/dx) times exit (ease in, 9 frames).
+function move(el, t, start, end, { dx = 0, dy = 40, dur = frames(12), exitDx = -90 } = {}) {
+  const inX = tween(t, start, dur, dx, 0), inY = tween(t, start, dur, dy, 0);
+  const op = tween(t, start, dur * 0.6, 0, 1, ease.linear);
+  let outX = 0, outOp = 1;
+  if (end !== null) {
+    outX = tween(t, end - frames(7), frames(8), 0, exitDx, ease.inCubic);
+    outOp = tween(t, end - frames(7), frames(8), 1, 0, ease.inCubic);
+  }
+  el.style.opacity = Math.min(op, outOp);
+  el.style.transform = `translate(${inX + outX}px, ${inY}px)`;
+}
+function sceneVisible(el, t, start, end) {
+  el.style.opacity = t >= start - 0.001 && (end === null || t < end + frames(10)) ? 1 : 0;
+}
+
+// ---- Build the tool cards -------------------------------------------------
+const R = 196, CIRC = 2 * Math.PI * R;
+const cards = $("cards");
+TOOLS.forEach((tool, i) => {
+  const s = document.createElement("div");
+  s.className = "scene"; s.id = `card${i}`;
+  s.innerHTML = `
+    <div class="label" id="k${i}-label" style="position:absolute; left:160px; top:230px">${tool.n} · ${tool.name}</div>
+    <div class="prompt" id="k${i}-prompt" style="position:absolute; left:160px; top:300px"><span class="you">YOU</span>${tool.prompt}</div>
+    <div class="card" id="k${i}-card" style="left:160px; top:420px; width:1000px; height:420px">
+      <div class="result" id="k${i}-result" style="position:absolute; left:64px; top:64px">${tool.result}</div>
+      <div class="note" id="k${i}-note" style="position:absolute; left:64px; top:310px">${tool.note}</div>
+    </div>
+    <svg id="k${i}-svg" width="440" height="440" style="position:absolute; left:1300px; top:410px">
+      <circle cx="220" cy="220" r="${R}" fill="none" stroke="rgba(120,150,255,0.18)" stroke-width="14"/>
+      <circle id="k${i}-ring" cx="220" cy="220" r="${R}" fill="none" stroke="#4d7cff" stroke-width="14"
+        stroke-linecap="round" stroke-dasharray="${CIRC}" stroke-dashoffset="${CIRC}" transform="rotate(-90 220 220)"/>
+    </svg>
+    <div class="metric" id="k${i}-metric" style="left:1300px; top:548px">
+      <div class="num" id="k${i}-num">${tool.num}</div><div class="cap">${tool.cap}</div>
+    </div>`;
+  cards.appendChild(s);
+});
+
+function typed(t, start, text, dur) {
+  const n = Math.round(tween(t, start, dur, 0, text.length, ease.linear));
+  return text.slice(0, n);
+}
+
+function renderFrame(t) {
+  $("glow").style.transform = `scale(${1 + 0.04 * Math.sin(t * 1.2)})`;
+
+  // Hook
+  const hookEnd = CUE.cardStart(0);
+  sceneVisible($("hook"), t, 0, hookEnd);
+  move($("h-label"), t, -frames(8), hookEnd, { dy: 20, dur: frames(10) });
+  move($("h-title"), t, -1, hookEnd, { dy: 0, dur: 0.001 });
+  for (let w = 0; w < 3; w++) move($(`hw${w}`), t, frames(3 * w - 8), null, { dy: 60, dur: frames(12) });
+  const sp = tween(t, CUE.hookSolid, frames(10), 0.55, 1, ease.outBack);
+  $("h-solid").style.opacity = tween(t, CUE.hookSolid, frames(4), 0, 1, ease.linear);
+  $("h-solid").style.transform = `scale(${sp})`;
+  move($("h-sub"), t, CUE.hookSub, hookEnd, { dy: 30, dur: frames(12) });
+
+  // Tool cards (one slow push-in across all five, so nothing ever stands still)
+  const cardsEnd = CUE.more;
+  const drift = tween(t, CUE.cardStart(0), cardsEnd - CUE.cardStart(0), 1, 1.04, ease.linear);
+  $("cards").style.transform = `scale(${drift})`;
+  $("example").style.opacity = Math.min(tween(t, CUE.cardStart(0), frames(10), 0, 1, ease.linear),
+                                        tween(t, cardsEnd - frames(7), frames(8), 1, 0, ease.inCubic));
+  $("dots").style.opacity = $("example").style.opacity;
+  const dots = $("dots").children;
+  TOOLS.forEach((tool, i) => {
+    const s = CUE.cardStart(i), e = i < TOOLS.length - 1 ? CUE.cardStart(i + 1) : cardsEnd;
+    const r = CUE.cardResult(i);
+    sceneVisible($(`card${i}`), t, s, e);
+    move($(`k${i}-label`), t, s, e, { dx: 120, dy: 0, dur: frames(12) });
+    move($(`k${i}-prompt`), t, s + frames(3), e, { dx: 120, dy: 0, dur: frames(12) });
+    // The card frame and ring track enter once and stay; only their contents
+    // change between tools, so the five tools read as one product.
+    const first = i === 0, last = i === TOOLS.length - 1;
+    for (const [el, delay] of [[$(`k${i}-card`), 6], [$(`k${i}-svg`), 9]]) {
+      if (first) move(el, t, s + frames(delay), last ? e : null, { dx: 120, dy: 0, dur: frames(13) });
+      else if (last) move(el, t, s - 1, e, { dx: 0, dy: 0, dur: 0.001 });
+      else el.style.opacity = 1, el.style.transform = "none";
+      if (!last && t >= e) el.style.opacity = 0;
+    }
+    move($(`k${i}-result`), t, r, e, { dy: 26, dur: frames(10), exitDx: -40 });
+    move($(`k${i}-note`), t, r + frames(4), e, { dy: 20, dur: frames(10), exitDx: -40 });
+    move($(`k${i}-metric`), t, r, e, { dy: 0, dur: frames(10), exitDx: 0 });
+    const fill = tool.ring === null ? 1 : tool.ring;
+    const f = Math.min(tween(t, r, frames(20), 0, fill, ease.outCubic),
+                       tween(t, e - frames(7), frames(8), fill, 0, ease.inCubic));
+    const c = tool.count;
+    $(`k${i}-num`).textContent = c.pre + Math.round(tween(t, r, frames(20), 0, c.to, ease.outCubic)) + c.post;
+    // Progress bar: the active tool's dot fills over its time on screen.
+    const prog = Math.min(1, Math.max(0, (t - s) / (e - s)));
+    $(`k${i}-ring`).setAttribute("stroke-dashoffset", CIRC * (1 - f));
+    const active = t >= s && t < e;
+    const done = t >= e;
+    dots[i].style.width = active ? "72px" : "14px";
+    dots[i].style.background = active
+      ? `linear-gradient(90deg, #4d7cff ${prog * 100}%, rgba(141,151,196,0.35) ${prog * 100}%)`
+      : done ? "#4d7cff" : "rgba(141,151,196,0.35)";
+  });
+
+  // More tools
+  const moreEnd = CUE.install;
+  sceneVisible($("more"), t, CUE.more, moreEnd);
+  move($("m-label"), t, CUE.more, moreEnd, { dx: 120, dy: 0 });
+  move($("m-title"), t, CUE.more + frames(3), moreEnd, { dx: 120, dy: 0, dur: frames(13) });
+  for (let i = 0; i < 6; i++) {
+    move($(`c${i}`), t, CUE.moreChips + frames(3 * i), moreEnd, { dy: 36, dur: frames(10) });
+  }
+
+  // Install
+  const installEnd = CUE.end;
+  sceneVisible($("install"), t, CUE.install, installEnd);
+  move($("i-label"), t, CUE.install, installEnd, { dx: 120, dy: 0 });
+  move($("i-card"), t, CUE.install + frames(3), installEnd, { dx: 120, dy: 0, dur: frames(13) });
+  const L1 = "/plugin marketplace add Founderwithabs/SOLIDSFORYOU";
+  const L2 = "/plugin install master@solidsforyou";
+  $("i-t1").textContent = typed(t, CUE.line1, L1, 1.0);
+  $("i-t2").textContent = typed(t, CUE.line2, L2, 0.75);
+  $("i-l2").style.opacity = t >= CUE.line2 ? 1 : 0;
+  move($("i-note"), t, CUE.installNote, installEnd, { dy: 24, dur: frames(10) });
+
+  // End
+  sceneVisible($("end"), t, CUE.end, null);
+  move($("e-label"), t, CUE.end, null, { dx: 120, dy: 0 });
+  move($("e-title"), t, CUE.end + frames(3), null, { dx: 120, dy: 0, dur: frames(13) });
+  const ep = tween(t, CUE.endSolid, frames(10), 0.55, 1, ease.outBack);
+  $("e-solid").style.opacity = tween(t, CUE.endSolid, frames(4), 0, 1, ease.linear);
+  $("e-solid").style.transform = `scale(${ep})`;
+  move($("e-url"), t, CUE.endUrl, null, { dy: 26, dur: frames(10) });
+  for (let i = 0; i < 3; i++) move($(`e${i}`), t, CUE.endChips + frames(3 * i), null, { dy: 30, dur: frames(10) });
+}
+
+window.renderFrame = renderFrame;
+window.DURATION = DURATION;
+if (!navigator.webdriver) {
+  const t0 = performance.now();
+  (function loop() { renderFrame(((performance.now() - t0) / 1000) % DURATION); requestAnimationFrame(loop); })();
+} else {
+  renderFrame(0);
+}
+</script>
+</body>
+</html>
