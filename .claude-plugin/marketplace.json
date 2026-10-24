@@ -45,6 +45,11 @@
       "name": "competitor-research",
       "source": "./plugins/competitor-research",
       "description": "SOLIDS FOR YOU Competitor Research: deep competitor analysis on any marketplace (Amazon, Flipkart, Meesho and more), competitor websites, social media and ad libraries. Every fact is sourced and dated, a separate pass verifies it, scripts do the maths, and the research runs on Haiku to save credits."
+    },
+    {
+      "name": "ecom",
+      "source": "./plugins/ecom",
+      "description": "SOLIDS FOR YOU Ecom: your e-commerce operator for any marketplace or own store. Listings that pass a harsh buyer, product images judged, planned and rendered, unit economics and pricing calculated in code from your real fees, plus ads, returns, stock, launches and sale events."
     }
   ]
 }

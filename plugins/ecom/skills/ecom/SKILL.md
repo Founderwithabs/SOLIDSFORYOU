@@ -1,0 +1,34 @@
+---
+name: ecom
+description: SOLIDS FOR YOU Ecom: your e-commerce operator. Use for anything about selling online or the economics of the business: marketplace listings (titles, bullets, keywords, A+), product image review, planning and rendering (infographics, comparison charts), unit economics, margins, fees, pricing, discounts, bundles, ads reports (ACoS, TACoS), returns, reviews, stock and reorders, launches and sale events, on Amazon, Walmart, eBay, Etsy, TikTok Shop, Shopify, Flipkart, Meesho, Myntra, Shopee, Mercado Libre and any other marketplace.
+---
+
+The files this skill uses sit next to this SKILL.md. In Claude Code that
+folder is `${CLAUDE_SKILL_DIR}`; anywhere else, use the folder this file was
+loaded from. Below, `SKILL_DIR` means that folder.
+
+1. Read `SKILL_DIR/ecom.md` (the core: rules, which module to use, store
+   memory and how the modules connect). Load the founder's store memory as
+   it says.
+2. Load only the module the task needs, when you reach it:
+   - `SKILL_DIR/modules/listing.md`: listings
+   - `SKILL_DIR/modules/images.md`: product images
+   - `SKILL_DIR/modules/economics.md`: unit economics and pricing
+   - `SKILL_DIR/modules/operations.md`: reports, ads, returns, stock,
+     launches, sale events, expansion
+   and the marketplace's section of `SKILL_DIR/marketplaces.md`.
+3. Do every calculation with the bundled scripts (Python 3; the image tools
+   also need ffmpeg, and rendering needs Node.js with Playwright):
+   - `scripts/economics.py`: fee profiles, unit economics, break-even and
+     target prices, price sweeps, channel comparison
+   - `scripts/ops.py`: ads, returns and reorder reports
+   - `scripts/listing_check.py`: listing lengths, keywords, risky words
+   - `scripts/image_check.py`: image measurements and phone-size previews
+   - `scripts/render_image.cjs` with `templates/`: render infographics and
+     charts
+4. Save store memory in the project's `ecom/` folder, or in
+   `${CLAUDE_PLUGIN_DATA}/ecom/` when there is no project. Never save inside
+   the plugin folder.
+5. Use the other SOLIDS FOR YOU tools where `ecom.md` says, if installed:
+   competitor-research, harsh-buyer-review, careful-mode, social-media and the
+   master skill's video workflow.

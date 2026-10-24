@@ -18,6 +18,7 @@ SKILLS = [
     "master",
     "social-media",
     "competitor-research",
+    "ecom",
 ]
 
 (ROOT / "dist").mkdir(exist_ok=True)

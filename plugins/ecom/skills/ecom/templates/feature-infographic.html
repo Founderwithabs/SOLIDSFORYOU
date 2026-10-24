@@ -1,0 +1,79 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<!--
+  Feature infographic for a product listing (secondary image, not the main
+  image). Copy this file next to the product photo, edit CONFIG, then render:
+    NODE_PATH=$(npm root -g) node render_image.cjs feature-infographic.html out.png --width 2000 --height 2000
+  Rules: every claim must be true and provable; 3 to 5 callouts; at most
+  about 6 words per callout title; check the result at 160 px wide.
+-->
+<style>
+  :root {
+    --bg: #F6F4EF;
+    --ink: #15171C;
+    --muted: #5B6170;
+    --accent: #1F4FD8;
+    --card: #FFFFFF;
+  }
+  * { box-sizing: border-box; margin: 0; }
+  html, body { width: 2000px; height: 2000px; overflow: hidden; background: var(--bg); }
+  body { font-family: "Inter", "Helvetica Neue", Arial, sans-serif; color: var(--ink); }
+  #wrap { position: absolute; inset: 0; padding: 120px; display: grid;
+    grid-template-rows: auto 1fr; gap: 70px; }
+  #headline { font-size: 116px; font-weight: 800; line-height: 1.02; letter-spacing: -0.02em; max-width: 1760px; }
+  #sub { margin-top: 26px; font-size: 52px; color: var(--muted); font-weight: 500; }
+  #body { display: grid; grid-template-columns: 1fr 820px; gap: 70px; min-height: 0; }
+  #photo { width: 100%; height: 100%; object-fit: contain; min-height: 0; }
+  #callouts { display: flex; flex-direction: column; justify-content: center; gap: 44px; }
+  .callout { display: grid; grid-template-columns: 110px 1fr; gap: 34px; align-items: center;
+    background: var(--card); border-radius: 36px; padding: 40px 44px;
+    box-shadow: 0 18px 50px rgba(20, 24, 40, 0.08); }
+  .num { width: 110px; height: 110px; border-radius: 50%; background: var(--accent); color: #fff;
+    display: grid; place-items: center; font-size: 56px; font-weight: 800; }
+  .title { font-size: 60px; font-weight: 800; line-height: 1.05; }
+  .text { margin-top: 12px; font-size: 40px; color: var(--muted); line-height: 1.2; }
+</style>
+</head>
+<body>
+<div id="wrap">
+  <div><div id="headline"></div><div id="sub"></div></div>
+  <div id="body"><img id="photo" alt=""><div id="callouts"></div></div>
+</div>
+<script>
+// ---- Edit this -------------------------------------------------------------
+const CONFIG = {
+  photo: "product.png",                   // local file next to this page
+  headline: "Made for all-day comfort",
+  sub: "Solid colours that go with everything",
+  callouts: [                             // 3 to 5; every claim must be true
+    { title: "Soft cotton blend", text: "Breathable for long days" },
+    { title: "Elastic waist", text: "With an inside drawstring" },
+    { title: "Deep side pockets", text: "Your phone stays put" },
+    { title: "Tapered fit", text: "Clean look with sneakers" },
+  ],
+  colors: { accent: "#1F4FD8", bg: "#F6F4EF" },
+};
+// ----------------------------------------------------------------------------
+window.READY = false;
+const root = document.documentElement.style;
+root.setProperty("--accent", CONFIG.colors.accent);
+root.setProperty("--bg", CONFIG.colors.bg);
+document.getElementById("headline").textContent = CONFIG.headline;
+document.getElementById("sub").textContent = CONFIG.sub;
+const box = document.getElementById("callouts");
+CONFIG.callouts.forEach((c, i) => {
+  const el = document.createElement("div");
+  el.className = "callout";
+  el.innerHTML = `<div class="num">${i + 1}</div><div><div class="title"></div><div class="text"></div></div>`;
+  el.querySelector(".title").textContent = c.title;
+  el.querySelector(".text").textContent = c.text;
+  box.appendChild(el);
+});
+const img = document.getElementById("photo");
+img.onload = img.onerror = () => { window.READY = true; };
+img.src = CONFIG.photo;
+</script>
+</body>
+</html>
