@@ -102,14 +102,15 @@ the memory sheet. Hands the result to Ecom, Marketing or Design.
 **Ecom** (`heads/ecom.md`): runs the store. ecom does listings, images,
 numbers and operations; harsh-buyer-review checks listings before they go
 live, reusing saved competitor research; AI-made product images go through
-ai-visuals. Listing and product videos go to Design, launch posts to
-Marketing.
+ai-visuals; listing copy and customer replies go through the humanizer.
+Listing and product videos go to Design, launch posts to Marketing.
 
 **Marketing** (`heads/marketing.md`): grows the audience. social-media does
 strategy, posts, scripts, YouTube and analytics, with product facts from
 ecom's store memory; transcriber turns a video or podcast into the
-transcript for chapters, captions and repurposing; ai-visuals for AI-made visuals; harsh-buyer-review for
-posts that sell. Reels and videos go to Design.
+transcript for chapters, captions and repurposing; ai-visuals for AI-made
+visuals; harsh-buyer-review for posts that sell; the humanizer on every
+post. All LinkedIn work goes to linkedin. Reels and videos go to Design.
 
 **Design** (`heads/design.md`): makes the assets. Videos follow
 `workflows/video.md` from start to finish (economy mode, careful brief,
@@ -117,7 +118,8 @@ taste pre-production, build and draft render, harsh buyer review, taste and
 audio review into one fix list, careful review of the plan, and up to three
 rounds of regeneration until the quality bar is met). AI images and clips go
 through ai-visuals, product graphics through ecom's templates, sound through
-audio-review. Footage with speech is transcribed first with transcriber, for
+audio-review and the sound library, scripts and voice-overs through the
+humanizer. Footage with speech is transcribed first with transcriber, for
 the rough cut and captions.
 
 **Review** (`heads/review.md`): judges finished work from the seat of

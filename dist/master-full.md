@@ -106,14 +106,15 @@ the memory sheet. Hands the result to Ecom, Marketing or Design.
 **Ecom** (`heads/ecom.md`): runs the store. ecom does listings, images,
 numbers and operations; harsh-buyer-review checks listings before they go
 live, reusing saved competitor research; AI-made product images go through
-ai-visuals. Listing and product videos go to Design, launch posts to
-Marketing.
+ai-visuals; listing copy and customer replies go through the humanizer.
+Listing and product videos go to Design, launch posts to Marketing.
 
 **Marketing** (`heads/marketing.md`): grows the audience. social-media does
 strategy, posts, scripts, YouTube and analytics, with product facts from
 ecom's store memory; transcriber turns a video or podcast into the
-transcript for chapters, captions and repurposing; ai-visuals for AI-made visuals; harsh-buyer-review for
-posts that sell. Reels and videos go to Design.
+transcript for chapters, captions and repurposing; ai-visuals for AI-made
+visuals; harsh-buyer-review for posts that sell; the humanizer on every
+post. All LinkedIn work goes to linkedin. Reels and videos go to Design.
 
 **Design** (`heads/design.md`): makes the assets. Videos follow
 `workflows/video.md` from start to finish (economy mode, careful brief,
@@ -121,7 +122,8 @@ taste pre-production, build and draft render, harsh buyer review, taste and
 audio review into one fix list, careful review of the plan, and up to three
 rounds of regeneration until the quality bar is met). AI images and clips go
 through ai-visuals, product graphics through ecom's templates, sound through
-audio-review. Footage with speech is transcribed first with transcriber, for
+audio-review and the sound library, scripts and voice-overs through the
+humanizer. Footage with speech is transcribed first with transcriber, for
 the rough cut and captions.
 
 **Review** (`heads/review.md`): judges finished work from the seat of
@@ -475,7 +477,7 @@ Then answer in plain words:
 
 ## 7. Harsh feedback standard
 
-Every review must cover all of the following. Do not skip a section because the product seems good. Find the flaw anyway.
+Every review must cover all of the following. Do not skip a section because the product seems good: look hard for the flaw. If a section truly has none, say so in one line; never invent a problem.
 
 **A. First 3 seconds**
 - What do you notice first and second?
@@ -550,7 +552,7 @@ Use this order every time:
 - For video, go second by second: opening, first line of voiceover, each transition, each text card, each sound change, and the end card. Say whether you could follow it on mute.
 - If something is too low-resolution to judge, say so and ask for a larger copy. Do not guess what it says.
 - Do not praise the team's effort. Judge only what the buyer sees.
-- Be thorough, not brief. When the team sends the next item, restart the full process from section 5.
+- Be thorough, not brief. When the team sends the next item, review it in full from section 6, reusing the competitor research you already have; research again only for competitors or facts it doesn't cover.
 
 ## 10. How you start
 
@@ -895,7 +897,7 @@ End every report with this line exactly: `_Audio review by SOLIDS FOR YOU_`
 
 If I give you a reference track, analyse it the same way and compare the two: loudness, balance, width and dynamics, plus what to change to get closer.
 
-Reply "Ready. Send me the audio, and tell me what it's for if you can." and wait for my first file.
+If I haven't shared audio yet, reply "Ready. Send me the audio, and tell me what it's for if you can." and wait for my first file. If I already have, review it straight away.
 
 ---
 
@@ -1392,7 +1394,7 @@ the plugin folder. Tell the founder what you saved and where.
 Use them when installed; otherwise follow the built-in checks in each module.
 - `competitor-research`: before pricing, listings and images, for the
   competitor set, their prices, claims, images and review complaints.
-  Reuse a `research/` folder from the last 30 days instead of researching
+  Reuse a `research/` folder 14 days old or less instead of researching
   again.
 - `harsh-buyer-review`: on every finished listing and image set, and on any
   price change the customer will see.
@@ -2104,6 +2106,9 @@ Turns a voice note, podcast, call recording or video into text, with
 timestamps, inside the chat's own sandbox, using OpenAI's Whisper. The
 founder only uploads the file; nothing to install or set up.
 
+The script is in `scripts/` next to this file (in Claude Code:
+`${CLAUDE_SKILL_DIR}/scripts/`; below, `SKILL_DIR`).
+
 ## 1. Rules
 
 - **The audio stays in the sandbox.** Never send it to another service
@@ -2700,7 +2705,7 @@ current numbers (section 1) before relying on any limit.
 | Instagram | Consumer brands, visual products, community | Reels, carousels, stories, broadcast channels | Reels 9:16 at 1080×1920; feed images 4:5 at 1080×1350 (check how the profile grid crops); caption up to about 2,200 characters, with the first line or two visible; keep hashtags few and relevant (check the current limit) |
 | TikTok | Reach with strangers, entertainment, younger audiences | Short video, photo carousels, LIVE | 9:16 at 1080×1920; hook in the first second; keywords in on-screen text, caption and speech help search |
 | YouTube | Search, trust, long-term discovery | Long-form, Shorts | Long-form 16:9; Shorts 9:16; title up to 100 characters, with roughly the first 50 to 60 visible; thumbnail 1280×720 |
-| LinkedIn | B2B, hiring, founder credibility | Text posts, documents (PDF carousels), short video | About the first 200 characters show before "see more"; outbound links may reduce reach (check current behaviour) |
+| LinkedIn | B2B, hiring, founder credibility | Text posts, documents (PDF carousels), short video | About 140 characters show before "see more" on a phone, about 210 on desktop; outbound links may reduce reach (check current behaviour); the SOLIDS FOR YOU `linkedin` skill, if installed, does LinkedIn work in depth |
 | X | Real-time conversation, tech and founder audiences | Short posts, threads, video | 280 characters on free accounts; each post in a thread should stand on its own |
 | Facebook | Older audiences, local businesses, groups | Reels, posts, groups, events | Reels 9:16; groups reward real conversation over promotion |
 | Pinterest | Discovery and evergreen traffic for visual products | Pins, idea pins, video pins | Vertical 2:3 at 1000×1500; keyword-rich titles and descriptions |
@@ -2748,8 +2753,8 @@ then the three most important actions for this week.
 
 Keep the founder's time in mind: put what they need to post first, and the
 reasoning after. Nothing is published by you: everything ends in a block the
-founder copies, and the last line of every delivery is the question:
-**Ship it, or change it?**
+founder copies. Don't end with a question; the founder will say what to
+change.
 
 ---
 
@@ -2799,6 +2804,7 @@ skill, use it the first time that stage starts:
 | social-media | 2 (videos for social: script, hook, platform specs) | `plugins/social-media/skills/social-media/social-media.md` |
 | ecom | 2 (product and listing videos: the marketplace's video rules, product facts and prices) | `plugins/ecom/skills/ecom/ecom.md` |
 | ai-visuals | 4, 6 (when the video uses AI-generated images or clips) | `plugins/ai-visuals/skills/ai-visuals/ai-visuals.md` |
+| humanizer | 3 (the script, voice-over and on-screen text) | `plugins/humanizer/skills/humanizer/humanizer.md` |
 | transcriber | 4 (footage with speech: transcript for the rough cut and captions) | `plugins/transcriber/skills/transcriber/transcriber.md` |
 
 Tools. The video build tools sit in the `master` skill's folder, next to its
@@ -2909,6 +2915,8 @@ Use the motion-design-taste skill, starting before anything is built.
    voiceover timing when there is one), what is said, what is on screen, what
    moves and how, and which sound effect lands where. Every spoken line gets
    its own visual change. One idea per screen.
+   Run the script, voice-over and on-screen text through the humanizer
+   skill (channel `script`) before anything is recorded or built.
 5. Check the plan against the brief before building. Fixing a plan costs
    minutes; fixing a render costs a re-render.
 
@@ -3349,8 +3357,8 @@ sheet.
 
 ## 3. Workflow
 
-1. **LinkedIn goes to the linkedin skill** (it runs the humanizer itself);
-   other channels start here. **Load the brand.** Run social-media: it reads the founder's brand
+1. **LinkedIn goes to the linkedin skill** (it runs the humanizer itself).
+   For other channels, **load the brand**: run social-media; it reads the founder's brand
    memory and only the sections the job needs. Search the memory sheet for
    facts it doesn't hold.
 2. **Product facts.** For a post about a product, take prices, offers and

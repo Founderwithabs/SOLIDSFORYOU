@@ -26,8 +26,8 @@ sheet.
 
 ## 3. Workflow
 
-1. **LinkedIn goes to the linkedin skill** (it runs the humanizer itself);
-   other channels start here. **Load the brand.** Run social-media: it reads the founder's brand
+1. **LinkedIn goes to the linkedin skill** (it runs the humanizer itself).
+   For other channels, **load the brand**: run social-media; it reads the founder's brand
    memory and only the sections the job needs. Search the memory sheet for
    facts it doesn't hold.
 2. **Product facts.** For a post about a product, take prices, offers and

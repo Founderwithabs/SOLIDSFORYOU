@@ -95,7 +95,7 @@ the plugin folder. Tell the founder what you saved and where.
 Use them when installed; otherwise follow the built-in checks in each module.
 - `competitor-research`: before pricing, listings and images, for the
   competitor set, their prices, claims, images and review complaints.
-  Reuse a `research/` folder from the last 30 days instead of researching
+  Reuse a `research/` folder 14 days old or less instead of researching
   again.
 - `harsh-buyer-review`: on every finished listing and image set, and on any
   price change the customer will see.

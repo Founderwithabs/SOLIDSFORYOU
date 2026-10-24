@@ -42,6 +42,7 @@ skill, use it the first time that stage starts:
 | social-media | 2 (videos for social: script, hook, platform specs) | `plugins/social-media/skills/social-media/social-media.md` |
 | ecom | 2 (product and listing videos: the marketplace's video rules, product facts and prices) | `plugins/ecom/skills/ecom/ecom.md` |
 | ai-visuals | 4, 6 (when the video uses AI-generated images or clips) | `plugins/ai-visuals/skills/ai-visuals/ai-visuals.md` |
+| humanizer | 3 (the script, voice-over and on-screen text) | `plugins/humanizer/skills/humanizer/humanizer.md` |
 | transcriber | 4 (footage with speech: transcript for the rough cut and captions) | `plugins/transcriber/skills/transcriber/transcriber.md` |
 
 Tools. The video build tools sit in the `master` skill's folder, next to its
@@ -152,6 +153,8 @@ Use the motion-design-taste skill, starting before anything is built.
    voiceover timing when there is one), what is said, what is on screen, what
    moves and how, and which sound effect lands where. Every spoken line gets
    its own visual change. One idea per screen.
+   Run the script, voice-over and on-screen text through the humanizer
+   skill (channel `script`) before anything is recorded or built.
 5. Check the plan against the brief before building. Fixing a plan costs
    minutes; fixing a render costs a re-render.
 

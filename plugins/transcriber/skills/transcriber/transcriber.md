@@ -4,6 +4,9 @@ Turns a voice note, podcast, call recording or video into text, with
 timestamps, inside the chat's own sandbox, using OpenAI's Whisper. The
 founder only uploads the file; nothing to install or set up.
 
+The script is in `scripts/` next to this file (in Claude Code:
+`${CLAUDE_SKILL_DIR}/scripts/`; below, `SKILL_DIR`).
+
 ## 1. Rules
 
 - **The audio stays in the sandbox.** Never send it to another service
