@@ -1,6 +1,6 @@
 ---
 name: ecom
-description: SOLIDS FOR YOU Ecom: your e-commerce operator. Use for anything about selling online or the economics of the business: marketplace listings (titles, bullets, keywords, A+), product image review, planning and rendering (infographics, comparison charts), unit economics, margins, fees, pricing, discounts, bundles, ads reports (ACoS, TACoS), returns, reviews, stock and reorders, launches and sale events, on Amazon, Walmart, eBay, Etsy, TikTok Shop, Shopify, Flipkart, Meesho, Myntra, Shopee, Mercado Libre and any other marketplace.
+description: E-commerce operator for any marketplace or own store: listings, product image review and rendering, unit economics, fees, margins, pricing, discounts, ads reports (ACoS, TACoS), returns, stock and launches, on Amazon, Walmart, eBay, Etsy, TikTok Shop, Shopify, Flipkart, Meesho and more. Use for anything about selling online or business economics.
 ---
 
 This lets the tool work in sessions opened inside this repository. The real

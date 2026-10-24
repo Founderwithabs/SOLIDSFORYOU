@@ -3,7 +3,7 @@
 // to a PNG or JPEG at an exact pixel size.
 //
 // Usage:
-//   NODE_PATH=$(npm root -g) node render_image.cjs PAGE.html OUT.png [--width 2000] [--height 2000]
+//   node render_image.cjs PAGE.html OUT.png [--width 2000] [--height 2000]
 //     [--quality 92]   (JPEG only; the format follows OUT's extension)
 //
 // Images and fonts the page uses must be local files or data URLs. The page

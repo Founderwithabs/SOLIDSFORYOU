@@ -660,6 +660,16 @@ first when the gain is similar. Every fix must include:
 Never write "make it more dynamic" or "improve the pacing". Say what to change
 and by how much.
 
+**When real viewer data exists, it outranks your taste.** If the video is
+already published and the founder can export its audience retention (YouTube
+Studio, or another platform's watch-through curve), read it with the SOLIDS
+FOR YOU `social-media` skill's `scripts/retention.py`, inspect the frames at
+every cliff it prints (`inspect_video.py --zoom <times>`), and put fixes for
+the hook leak and the biggest cliff at the top of the list, whatever their
+rubric score. A drop where nothing changes on screen for several seconds is
+a pacing fix; a drop at a topic change with no visual signpost needs a
+transition or a text card; a drop in the first 30 seconds is the hook.
+
 ## 7. Fix it, then check again
 
 If you have the source (project files, HTML, code, edit timeline):

@@ -13,7 +13,7 @@ folder, ONE competitor id, the id range for your ledger rows (for example
 1. Read `SKILL_DIR/competitor-research.md`, sections 1, 2, 5, 6, 7, 8 and 9,
    and steps 3 to 6 of section 4. Follow them exactly.
 2. Work only on your competitor. Fetch pages with
-   `NODE_PATH=$(npm root -g) node "SKILL_DIR/scripts/fetch_page.cjs" URL FOLDER/pages/<id>/<name>`.
+   `node "SKILL_DIR/scripts/fetch_page.cjs" URL FOLDER/pages/<id>/<name>`.
    If that fails, use the web fetch tool. Read `meta.json`, then `text.txt`,
    then look at `screenshot.png`.
 3. Write your rows only to `FOLDER/parts/ledger-<id>.csv` and
