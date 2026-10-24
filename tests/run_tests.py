@@ -1230,6 +1230,31 @@ def check_chaos_regressions(tmp: Path) -> None:
         assert "|| python " in cmd, "Windows often has python but not python3"
 
     @test
+    def test_sound_library_lists_fetches_and_credits():
+        get = PLUGINS / "master/skills/master/scripts/get_sounds.py"
+        if not get.exists():
+            raise Skip("no sound library")
+        assert "get_sounds.py" in (PLUGINS / "master/skills/master/workflows/video.md").read_text(encoding="utf-8"), \
+            "the video workflow must tell Claude the sound library exists"
+        lib = json.loads((PLUGINS / "master/skills/master/sounds/library.json").read_text(encoding="utf-8"))
+        for src in lib["sources"]:
+            assert len(src["commit"]) == 40 and src["license_check"], f"{src['id']}: pin a commit and a licence check"
+        assert "sfx-kit" in py(get, "list")
+        assert "Unknown source" in py(get, "fetch", "nope", ok=False)
+        dest = tmp / "sounds"
+        need("git")
+        r = subprocess.run([sys.executable, str(get), "fetch", "sfx-kit", "--category", "money", "--dest", str(dest)],
+                           capture_output=True, text=True, timeout=300)
+        if r.returncode != 0:
+            raise Skip("couldn't reach GitHub to download sounds")
+        wavs = sorted(dest.rglob("*.wav"))
+        assert wavs and all("money" in str(w) for w in wavs), wavs
+        assert "coin" in py(get, "find", "coin", "--dest", dest)
+        assert "No credit required" in py(get, "credits", wavs[0], "--dest", dest)
+        out = py(get, "credits", tmp / "mine.wav", "--dest", dest, ok=False)  # unknown files: check them yourself
+        assert "Not from the library" in out and "No credit required" not in out, out
+
+    @test
     def test_no_script_crashes_or_hangs_on_hostile_input():
         if "--fast" in sys.argv:
             raise Skip("full mode only")

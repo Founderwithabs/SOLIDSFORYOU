@@ -2329,6 +2329,10 @@ that folder.
   by frame, optionally with audio, or to a transparent ProRes 4444 `.mov`.
 - `SKILL_DIR/scripts/sfx_mix.py`: synthesizes sound effects, places them on
   cue times, mixes them under the voiceover and normalizes loudness.
+- `SKILL_DIR/scripts/get_sounds.py` with `SKILL_DIR/sounds/`: a licence-checked
+  library of free sound effects and music (whooshes, risers, logo stings,
+  money, typing, background beds by mood), downloaded only when a video needs
+  them; `credits` gives the credit lines for the description.
 - The motion-design-taste skill's `scripts/inspect_video.py`: turns a video
   into contact sheets, a hook strip, frame-by-frame strips, cut times, static
   stretches and loudness. The audio-review skill's `analyze.py` measures the
@@ -2509,6 +2513,12 @@ python3 "SKILL_DIR/scripts/sfx_mix.py" --cues cues.json \
 
 Built-in sounds: whoosh (transitions), pop and tick (small elements),
 thump (emphasis), ding (answers and success), riser (build into a reveal).
+For richer effects or background music, take them from the sound library:
+`python3 "SKILL_DIR/scripts/get_sounds.py" fetch all --category transition`
+(only the categories the video needs), `find whoosh soft` to pick one, and
+give its path as the cue's `sfx`. Music goes under the voice with the ducking
+command above. Before delivery, run `get_sounds.py credits` on every library
+file used and put its lines in the description (CC0 needs none).
 Effects sit about 10 dB under the voice (gain 0.2 to 0.35), land on the exact
 frame of their motion, and never more than one per second unless the moment
 calls for it. Final loudness: -14 LUFS integrated, true peak -1.5 dBTP.
@@ -2836,8 +2846,10 @@ bulk steps; the memory sheet for brand rules.
    Clips used in a video then go back into the video workflow.
 4. **Product graphic:** use ecom's image module and templates, rendered in
    code at the marketplace's size.
-5. **Sound:** audio-review, and the video workflow's `sfx_mix.py` for
-   effects under a voice-over.
+5. **Sound:** audio-review, the video workflow's `sfx_mix.py` for effects
+   under a voice-over, and its licence-checked sound library
+   (`scripts/get_sounds.py`) for richer effects and background music, with
+   the credit lines it gives.
 6. **Before delivery:** the Review head's check for the asset type (the
    video workflow already includes it).
 

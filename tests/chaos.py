@@ -339,6 +339,11 @@ def media_tools():
     run("render_image bad ext", ["node", str(RI), str(R / "ecom/skills/ecom/templates/comparison-chart.html"), str(W / "ri/x.gif"), "--width", "200", "--height", "200"])
     run("render_image width abc", ["node", str(RI), str(R / "ecom/skills/ecom/templates/comparison-chart.html"), str(W / "ri/y.png"), "--width", "abc"])
     # no ffmpeg on PATH
+    GS = R / "master/skills/master/scripts/get_sounds.py"
+    for args in (["fetch", "nope"], ["fetch", "sfx-kit", "--category", "nope", "--dest", str(W / "s")],
+                 ["fetch", "sfx-kit", "--category", "money", "--dest", str(W / "fake.jpg")], ["find"],
+                 ["credits", str(W / "missing.wav")], ["list", "--category", "nope"]):
+        run("get_sounds " + " ".join(args[:3]), [P, str(GS), *args])
     nobin = W / "nobin"  # python and node, but no ffmpeg
     nobin.mkdir()
     for tool in (P, shutil.which("node")):
@@ -348,6 +353,7 @@ def media_tools():
     run("inspect without ffmpeg", [P, str(IV), str(odd / "clip.mp4"), str(W / "iv/nf")], env=nopath)
     run("image_check without ffmpeg", [P, str(IC), str(W / "dot.png"), "--out", str(W / "ic/nf")], env=nopath)
     (W / "x.srt").write_text("1\n00:00:00,000 --> 00:00:01,000\nhi\n\n2\n00:00:03,000 --> 00:00:04,000\nyo\n")
+    run("get_sounds fetch without git", [P, str(GS), "fetch", "sfx-kit", "--category", "time", "--dest", str(W / "s2")], env=nopath)
     run("transcript_edit apply without ffmpeg", [P, str(R / "master/skills/master/scripts/transcript_edit.py"), str(W / "x.srt"), "--apply", str(odd / "clip.mp4"), str(W / "o.mp4")], env=nopath)
 
 

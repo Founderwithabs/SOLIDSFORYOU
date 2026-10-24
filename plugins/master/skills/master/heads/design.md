@@ -38,8 +38,10 @@ bulk steps; the memory sheet for brand rules.
    Clips used in a video then go back into the video workflow.
 4. **Product graphic:** use ecom's image module and templates, rendered in
    code at the marketplace's size.
-5. **Sound:** audio-review, and the video workflow's `sfx_mix.py` for
-   effects under a voice-over.
+5. **Sound:** audio-review, the video workflow's `sfx_mix.py` for effects
+   under a voice-over, and its licence-checked sound library
+   (`scripts/get_sounds.py`) for richer effects and background music, with
+   the credit lines it gives.
 6. **Before delivery:** the Review head's check for the asset type (the
    video workflow already includes it).
 

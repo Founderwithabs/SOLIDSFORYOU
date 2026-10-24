@@ -1,0 +1,214 @@
+{
+  "about": "Free sound effects and background music for business videos, from GitHub repositories whose licence was checked file by file. Audio is not stored in this repo: scripts/get_sounds.py downloads only the folders listed here, at the pinned commit. 'license_check' is text that must appear in the licence file after download, or the download is refused.",
+  "checked_on": "2026-10-24",
+  "sources": [
+    {
+      "id": "sfx-kit",
+      "repo": "wyzowl/sfx-kit",
+      "commit": "92780e7ab0cdfb557497a988089c47f46e8c7412",
+      "license": "CC0-1.0",
+      "license_file": "LICENSE",
+      "license_check": "CC0 1.0 Universal",
+      "credit": null,
+      "origin": "All 320 sounds synthesised by code for this kit (no recordings). sounds.json describes each one.",
+      "format": "wav",
+      "extras": ["sounds.json", "catalogue.md", "GUIDE.md"],
+      "categories": {
+        "ui": ["sounds/interface"],
+        "notification": ["sounds/notifications", "sounds/phone"],
+        "transition": ["sounds/whooshes", "sounds/reverse-whooshes", "sounds/swishes-and-zips", "sounds/swipes"],
+        "riser": ["sounds/risers-and-fallers"],
+        "impact": ["sounds/impacts", "sounds/cinematic-hits", "sounds/booms-and-bass"],
+        "logo-sting": ["sounds/logo-stings"],
+        "pop": ["sounds/pops", "sounds/appear-and-vanish", "sounds/shape-changes", "sounds/bounce-spin-zoom"],
+        "shimmer": ["sounds/shimmers"],
+        "success": ["sounds/celebration"],
+        "typing": ["sounds/keyboard", "sounds/writing-and-drawing"],
+        "data": ["sounds/data", "sounds/digital", "sounds/tones"],
+        "money": ["sounds/money"],
+        "time": ["sounds/time"],
+        "foley": ["sounds/foley", "sounds/everyday-props", "sounds/mechanical"]
+      }
+    },
+    {
+      "id": "alvana",
+      "repo": "seyedpouramir/alvana-audio",
+      "commit": "2f72421901cab835406ea29e87a9d11702030551",
+      "license": "CC0-1.0 (music/corporate is CC-BY-4.0)",
+      "license_file": "LICENSE.md",
+      "license_check": "CC0 1.0",
+      "credit": {
+        "music/corporate/business-moves-01": "Music: \"Happy Beats Business Moves Vol. 1\" by Sascha Ende (https://ende.app), licensed under CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/).",
+        "music/corporate/business-moves-09": "Music: \"Happy Beats Business Moves Vol. 9\" by Sascha Ende (https://ende.app), licensed under CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/).",
+        "music/corporate/business-moves-10": "Music: \"Happy Beats Business Moves Vol. 10\" by Sascha Ende (https://ende.app), licensed under CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/).",
+        "music/corporate/business-moves-11": "Music: \"Happy Beats Business Moves Vol. 11\" by Sascha Ende (https://ende.app), licensed under CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/).",
+        "music/corporate/business-moves-12": "Music: \"Happy Beats Business Moves Vol. 12\" by Sascha Ende (https://ende.app), licensed under CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/)."
+      },
+      "origin": "Sound effects from Kenney and OpenGameArt CC0 packs plus sounds synthesised for the library; music from CC0 OpenGameArt collections, except music/corporate (Sascha Ende, CC BY 4.0). Loudness-normalised. Sources listed in CREDITS.md.",
+      "format": "mp3",
+      "extras": ["CREDITS.md", "index.json"],
+      "notes": "Each music track has a .json beside it with its beat map (bpm, cue points); index.json has mood, tags, length and loudness for every file.",
+      "categories": {
+        "ui": ["sfx/ui"],
+        "notification": ["sfx/notification"],
+        "transition": ["sfx/whoosh", "sfx/transition"],
+        "riser": ["sfx/riser"],
+        "impact": ["sfx/impact"],
+        "pop": ["sfx/pop"],
+        "glitch": ["sfx/glitch"],
+        "typing": ["sfx/keyboard", "sfx/paper"],
+        "camera": ["sfx/camera"],
+        "data": ["sfx/data"],
+        "money": ["sfx/money"],
+        "success": ["sfx/jingle"],
+        "ambience": ["sfx/ambience"],
+        "foley": ["sfx/foley", "sfx/door", "sfx/mechanical"],
+        "music-corporate": ["music/corporate"],
+        "music-upbeat": ["music/upbeat", "music/funk"],
+        "music-intro": ["music/intro"],
+        "music-calm": ["music/calm", "music/ambient", "music/chill"],
+        "music-lofi": ["music/lofi"],
+        "music-tech": ["music/synthwave", "music/scifi"],
+        "music-emotional": ["music/sad"]
+      }
+    },
+    {
+      "id": "creator-pack",
+      "repo": "RezaParsian/free-sfx-bgm-pack",
+      "commit": "f8d463c05c814804b786f9c8a5683d1abcd954da",
+      "license": "CC0-1.0",
+      "license_file": "LICENSE",
+      "license_check": "CC0 1.0 Universal",
+      "credit": null,
+      "origin": "Synthesised from code (no samples), made for content creators; nine short background beds for explainers and vlogs.",
+      "format": "mp3",
+      "exclude": ["audio-pack/mp3/sfx/air_horn_meme.mp3", "audio-pack/mp3/sfx/laser_pew.mp3"],
+      "categories": {
+        "creator-sfx": ["audio-pack/mp3/sfx"],
+        "music-beds": ["audio-pack/mp3/bgm"]
+      }
+    },
+    {
+      "id": "kenney-interface",
+      "repo": "Calinou/kenney-interface-sounds",
+      "commit": "4596a49eaf5a533948d49a47467f606bcdea70ff",
+      "license": "CC0-1.0",
+      "license_file": "LICENSE.txt",
+      "license_check": "Creative Commons Zero, CC0",
+      "credit": null,
+      "origin": "Kenney's Interface Sounds 1.0 (kenney.nl), unchanged: 100 clicks, switches, confirmations, errors, glass and glitches.",
+      "format": "wav",
+      "categories": {
+        "ui": ["addons/kenney_interface_sounds"]
+      }
+    },
+    {
+      "id": "kenney-packs",
+      "repo": "Daarko/sparkstream-sounds",
+      "commit": "a7a3ee178d2ec48f4354782f244ab777a0e238df",
+      "license": "CC0-1.0",
+      "license_file": "credits/ui-audio-License.txt",
+      "license_check": "CC0",
+      "credit": null,
+      "origin": "Kenney's UI Audio, Interface Sounds, Digital Audio, Sci-Fi Sounds and Impact Sounds packs; each pack's original licence kept in credits/.",
+      "format": "ogg",
+      "extras": ["credits", "manifest.json"],
+      "categories": {
+        "ui": ["sounds/ui-clicks"],
+        "data": ["sounds/digital-beeps"],
+        "impact": ["sounds/impacts"]
+      }
+    },
+    {
+      "id": "kenney-jingles",
+      "repo": "kapishdima/soundcn",
+      "commit": "7cbfbb3f56e8548b81fb26410bdcea657447d087",
+      "license": "CC0-1.0 (only the Kenney folders listed; this repo's assets/wow folder is Blizzard's and is never downloaded)",
+      "license_file": "assets/kenney_interface-sounds/License.txt",
+      "license_check": "CC0",
+      "credit": null,
+      "origin": "Kenney's Music Jingles (short pizzicato and hit stings) and Digital Audio packs, as published in soundcn.",
+      "format": "ogg",
+      "exclude": ["assets/wow"],
+      "categories": {
+        "logo-sting": ["assets/kenney_music-jingles/Pizzicato jingles", "assets/kenney_music-jingles/Hit jingles"],
+        "data": ["assets/kenney_digital-audio"]
+      }
+    },
+    {
+      "id": "motion-basics",
+      "repo": "novincode/atomcut-library",
+      "commit": "391f87ff50bdad7645f9007708fef8ff07c8a00a",
+      "license": "CC0-1.0",
+      "license_file": "packs/motion-essentials/pack.json",
+      "license_check": "CC0",
+      "credit": null,
+      "origin": "AtomCut's seed packs, synthesised from DSP: motion-graphics hits, UI clicks, impacts and risers.",
+      "format": "wav",
+      "categories": {
+        "motion": ["packs/motion-essentials"],
+        "ui": ["packs/ui-clicks"],
+        "riser": ["packs/impacts-risers"]
+      }
+    },
+    {
+      "id": "elements-sfx",
+      "repo": "crafter-station/elements",
+      "commit": "cb4d5283443a3b565893821257c886a0b6b6553b",
+      "license": "CC0-1.0 (stated in the repo's SFX skill; the code is MIT)",
+      "license_file": ".claude/skills/sfx-elements/SKILL.md",
+      "license_check": "CC0",
+      "credit": null,
+      "origin": "17 sound effects for UI and video (whoosh, swoosh, riser, boom, shutter, success, notification). The repo states CC0 but doesn't name where the sounds came from: prefer the sources above when one fits.",
+      "format": "mp3",
+      "exclude": ["public/sfx/cat-meow.mp3"],
+      "categories": {
+        "starter": ["public/sfx"]
+      }
+    },
+    {
+      "id": "oculus-pack",
+      "repo": "facebookincubator/Meta-open-sound",
+      "commit": "251c0be57d5d1b3242b91f53e0cde62ab1cb42d9",
+      "license": "CC-BY-4.0",
+      "license_file": "corpora/oculus-audio-pack/LICENSE",
+      "license_check": "Attribution 4.0 International",
+      "credit": {
+        "corpora/oculus-audio-pack/": "\"Oculus Audio Pack 01\" by Oculus VR, LLC (https://developers.meta.com/vr/downloads/package/oculus-audio-pack-1/), licensed under CC BY 4.0. Files renamed to the UCS naming convention; OGG previews transcoded from the original WAVs."
+      },
+      "origin": "Professional sound effects released by Oculus (Meta), named with the UCS convention. Only the UI, whoosh, design and musical-sting sets are listed here.",
+      "format": "ogg",
+      "extras": ["corpora/oculus-audio-pack/ATTRIBUTION.md"],
+      "categories": {
+        "ui": ["corpora/oculus-audio-pack/ogg/UICl*", "corpora/oculus-audio-pack/ogg/UIAl*"],
+        "transition": ["corpora/oculus-audio-pack/ogg/WHSH*", "corpora/oculus-audio-pack/ogg/SWSH*"],
+        "logo-sting": ["corpora/oculus-audio-pack/ogg/MUSC*"],
+        "designed": ["corpora/oculus-audio-pack/ogg/DSGN*"]
+      }
+    },
+    {
+      "id": "aeris-music",
+      "repo": "farmmer938-lgtm/aeris-cc0-music",
+      "commit": "51ab767ca32558ae5686344fc3b29c7a4498b145",
+      "license": "CC0-1.0",
+      "license_file": "LICENSE",
+      "license_check": "CC0 1.0 Universal",
+      "credit": null,
+      "origin": "13 instrumental tracks (ambient and cinematic) released as CC0 by AERIS MUSIC. A new, small publisher: listen before using it in an ad.",
+      "format": "mp3",
+      "categories": {
+        "music-calm": ["tracks"]
+      }
+    }
+  ],
+  "rejected": [
+    {"repo": "SoundSafari/CC0-1.0-Music", "why": "About 40 GB scraped from several sites, including Pixabay, whose licence is not CC0. Track licences can't be verified one by one."},
+    {"repo": "e3ntity/react-sounds", "why": "The code is MIT, but no licence is stated for the sounds themselves."},
+    {"repo": "kapishdima/soundcn (assets/wow)", "why": "World of Warcraft sounds owned by Blizzard; the rest of soundcn is fine (see kenney-jingles)."},
+    {"repo": "tannerhelland/free-music", "why": "CC BY 4.0, but many tracks are arrangements of copyrighted game music (Final Fantasy, Castlevania), and the originals are fantasy and game moods, not business."},
+    {"repo": "stargatedaw/stargate-sample-pack", "why": "CC0, but instrument samples for making music, not sound effects for videos."},
+    {"repo": "mshark1/audio-mcp-assets", "why": "CC0, but test signals and retro game sounds."},
+    {"repo": "hipdiscovery/Free-Sound-Effects, smartpage/strongerfx-mcp, Boyquotes/kenney-impact-sounds-for-godot", "why": "CC0, but copies of Kenney packs already covered by kenney-interface and kenney-packs."},
+    {"repo": "flreey/sfxmint-mcp, lotsofsounds/lots-of-sounds-mcp", "why": "Hosted services; the audio isn't in the GitHub repo."}
+  ]
+}
