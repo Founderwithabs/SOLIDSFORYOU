@@ -10,6 +10,7 @@ Claude Project's instructions.
 | Motion Design Taste | [motion-design-taste.md](../plugins/motion-design-taste/skills/motion-design-taste/motion-design-taste.md) | Nothing. Claude asks for the video and references |
 | Harsh Buyer Review | [harsh-buyer-reviewer.md](../plugins/harsh-buyer-review/skills/harsh-buyer-review/harsh-buyer-reviewer.md) | Sections 1 to 3: your product, price, market and buyer |
 | Social Media | [social-media.md](../plugins/social-media/skills/social-media/social-media.md) | Nothing. Claude asks about your brand, audience and goal the first time |
+| Ecom | [ecom.md](../plugins/ecom/skills/ecom/ecom.md), plus the module you need from [modules/](../plugins/ecom/skills/ecom/modules/) and the marketplace's section of [marketplaces.md](../plugins/ecom/skills/ecom/marketplaces.md) | Nothing. Claude asks for your products, costs and channels the first time |
 | Competitor Research | [competitor-research.md](../plugins/competitor-research/skills/competitor-research/competitor-research.md) | Nothing. Claude asks for your product and the question. Pick Haiku as the model to save credits |
 | Careful Mode | [careful-mode.md](../plugins/careful-mode/skills/careful-mode/careful-mode.md) | Nothing |
 | Master Skill | [master-full.md](../dist/master-full.md) (the Master Skill with every tool and the video workflow, in one file) | Nothing. Claude picks the tools each task needs |
