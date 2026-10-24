@@ -1,6 +1,6 @@
 ---
 name: social-media
-description: SOLIDS FOR YOU Social Media: a head of social media for founders. Use for any social media task: strategy, which platforms, content pillars, content calendars, writing posts, captions, carousels, threads, hooks, titles, thumbnails and reel, short or TikTok scripts, repurposing one piece across platforms, reviewing a post or account before publishing, finding trends, analysing post performance or analytics exports, and replying to comments. Covers Instagram, TikTok, YouTube, LinkedIn, X, Facebook, Pinterest, WhatsApp, Reddit and Threads. Also use when the user says "make this go viral", "social media post", "grow our account" or "/social-media".
+description: Head of social media for founders: strategy, content calendars, posts, captions, carousels, hooks, reel and short scripts, repurposing, pre-publish review, trends, analytics and comment replies on Instagram, TikTok, YouTube, LinkedIn, X and more. Use for any social media task, "make this go viral" or "grow our account".
 ---
 
 This lets the tool work in sessions opened inside this repository. The real

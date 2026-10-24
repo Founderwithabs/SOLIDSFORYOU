@@ -1,6 +1,6 @@
 ---
 name: competitor-research
-description: SOLIDS FOR YOU Competitor Research: deep, evidence-based competitor analysis on any marketplace (Amazon, Flipkart, Meesho, Myntra, Ajio, Nykaa, Blinkit, Etsy, eBay, Walmart and more), competitor websites, social media and ad libraries. Use whenever a task involves competitors, comparison, market or pricing research, benchmarking, or feedback that needs competitor context (including before a harsh buyer review), and before creating listings, ads or content that must beat competitors. Analysis only: it researches, verifies and compares, and does not write copy. Built to run on Haiku to save credits.
+description: Evidence-based competitor research on marketplaces (Amazon, Flipkart, Meesho and more), competitor websites, social media and ad libraries: every fact sourced, verified and computed by script, run by cheap Haiku helpers. Use for competitors, market or pricing research, benchmarking, or competitor data before feedback. Analysis only, no copy.
 ---
 
 This lets the tool work in sessions opened inside this repository. The real

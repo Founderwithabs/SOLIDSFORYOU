@@ -5,7 +5,7 @@
 // get around blocks: if a page is blocked it says so.
 //
 // Usage:
-//   NODE_PATH=$(npm root -g) node fetch_page.cjs URL OUT_DIR [--full] [--wait 2500]
+//   node fetch_page.cjs URL OUT_DIR [--full] [--wait 2500]
 //
 // Writes OUT_DIR/text.txt, OUT_DIR/meta.json and OUT_DIR/screenshot.png
 // (--full captures the whole page). Hints in meta.json are pointers only:

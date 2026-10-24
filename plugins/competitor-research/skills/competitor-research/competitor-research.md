@@ -330,7 +330,7 @@ With Claude Code, use the bundled fetcher. It opens the page in a real
 browser, saves the visible text, the structured data and a screenshot:
 
 ```
-NODE_PATH=$(npm root -g) node "SKILL_DIR/scripts/fetch_page.cjs" "<url>" "<folder>/pages/<competitor_id>/<name>"
+node "SKILL_DIR/scripts/fetch_page.cjs" "<url>" "<folder>/pages/<competitor_id>/<name>"
 ```
 
 Read `meta.json` first (title, structured price and rating, the blocked

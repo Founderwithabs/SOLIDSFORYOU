@@ -1,12 +1,12 @@
 {
   "name": "master",
   "displayName": "Master Skill by SOLIDS FOR YOU",
-  "description": "SOLIDS FOR YOU Master Skill: keeps every SOLIDS FOR YOU tool ready in every session and uses only the ones each task needs, from the full video workflow (plan, build, review as a buyer and a motion designer, fix and re-render until it scores 85+) to feedback, research and quick answers.",
+  "description": "SOLIDS FOR YOU Master Skill: on in every session, it has Claude use only the SOLIDS FOR YOU tools each task needs, to save credits and raise quality: the full video workflow (plan, build, review, fix and re-render until it scores 85+), social media, feedback and research get their specialists; simple tasks get none. You can switch it to task-specific.",
   "author": {
     "name": "SOLIDS FOR YOU"
   },
   "homepage": "https://github.com/Founderwithabs/SOLIDSFORYOU",
-  "license": "PolyForm-Noncommercial-1.0.0",
+  "license": "MIT",
   "keywords": [
     "workflow",
     "all tools",
@@ -15,5 +15,17 @@
     "motion graphics",
     "feedback",
     "research"
-  ]
+  ],
+  "userConfig": {
+    "mode": {
+      "type": "string",
+      "title": "When to use the Master Skill",
+      "description": "always-on (recommended): a compact router loads in every session so each task uses only the tools it needs. task-specific: nothing loads at session start; Master runs only for video, audio, social media, feedback and research tasks.",
+      "options": [
+        "always-on",
+        "task-specific"
+      ],
+      "default": "always-on"
+    }
+  }
 }

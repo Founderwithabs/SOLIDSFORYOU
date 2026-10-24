@@ -2,8 +2,8 @@
 
 **Make your Claude solid.**
 
-Claude tools for starting and running a business, free for personal and
-noncommercial use (see [License](#license)). Each one turns Claude
+Free, open-source Claude tools for starting and running a business (MIT
+licensed, see [License](#license)). Each one turns Claude
 into a specialist you'd otherwise have to hire: an audio designer, a motion
 design director, a harsh customer, a meticulous reviewer.
 
@@ -15,14 +15,14 @@ desktop, mobile), or **any Claude chat** as a paste-in prompt.
 | Tool | What you get | Use it when |
 |---|---|---|
 | 🎧 **Audio Review** | A senior audio designer's review of any audio: a score out of 10, how it sounds, ranked problems with timestamps, a fix list, and loudness checks for Spotify, YouTube, podcasts, broadcast and ads | Before you publish a podcast, ad, song, voice-over or product sound |
-| 🏆 **Master Skill** | Keeps every tool below ready in every session and uses only what each task needs. Making a video runs the full video workflow: it plans, builds, reviews as your buyer and as a motion designer, checks the sound, then fixes and re-renders until the video scores 85 out of 100 or more. Feedback, research and questions get only the tools they need | Always. Install it with the other tools and Claude picks the right ones for you |
+| 🏆 **Master Skill** | Keeps every tool below ready and uses only what each task needs. Making a video runs the full video workflow: it plans, builds, reviews as your buyer and as a motion designer, checks the sound, then fixes and re-renders until the video scores 85 out of 100 or more. Social media, feedback and research get their specialists, and simple tasks get none, so you save credits and get better work | Always on. Install it with the other tools and Claude picks the right ones for each task |
 | 📱 **Social Media** | Your head of social media: strategy, content calendars, posts, hooks, carousels and reel scripts for Instagram, TikTok, YouTube, LinkedIn, X and more. Every post passes a 100-point scorecard before you see it, growth stays honest, and it learns from your own results | Planning, writing, reviewing or analysing anything for social media |
 | 🎬 **Motion Design Taste** | A senior motion designer's review of a video: a score out of 100, ranking against references, and exact fixes (and Claude applies them when it has the source). It learns your taste over time | Before you ship an explainer, reel, ad or product video |
 | 🛍️ **Ecom** | Your e-commerce operator for Amazon, Walmart, eBay, Etsy, TikTok Shop, Shopify, Flipkart, Meesho and any other marketplace: listings that pass a harsh buyer, product images judged, planned and rendered, profit per order and prices calculated from your real fees, plus ads, returns, stock and launches | Anything about selling online, pricing or margins |
 | 🔎 **Competitor Research** | Deep competitor analysis on Amazon, Flipkart, Meesho, Myntra and any other marketplace, plus competitor websites, social media and ads. Every fact is sourced and dated, a separate pass double-checks it, and you get price, review and listing comparisons with ranked actions. Runs on Claude's cheapest model (Haiku) to save credits | Before you price, launch, change a listing, or ask for harsh buyer feedback |
 | 🛒 **Harsh Buyer Review** | A real buyer tears into your listing: researches 3 to 5 competitors, compares one-on-one, and tells you exactly why they would or wouldn't buy | Before you launch or change a product listing, images, video, copy or price |
 | ✅ **Careful Mode** | Claude checks every piece of work three times (is it right, is it complete, how could it go wrong) before handing it over | Anything high-stakes: prices, contracts, customer emails, launches |
-| 💰 **Economy Mode** | Claude sends simple tasks to cheaper models and keeps the strongest one for decisions, to cut cost | Long Claude Code sessions where cost adds up (Claude Code only) |
+| 💰 **Economy Mode** | Claude sends simple tasks to cheaper models and keeps the strongest one for decisions, to cut cost. It also keeps a **memory sheet** (`memory/memory.csv`, opens in Excel or Google Sheets) so Claude remembers your prices, decisions and preferences across sessions without re-reading everything | Long Claude Code sessions where cost adds up (Claude Code only) |
 
 ## Set it up
 
@@ -56,15 +56,26 @@ Or just run `/plugin` and pick them from the list. After that, ask naturally
 To get updates, run `/plugin marketplace update solidsforyou`, or turn on
 auto-update for the catalog under **Marketplaces** in `/plugin`.
 
+**Master is on in every session (recommended).** It loads a compact router
+of a few hundred tokens, so Claude uses only the tools each task needs: a
+quick question gets a quick answer with no tools, while a video, a listing or
+a social post gets the right specialist. The full instructions for a tool
+load only when a task needs it. If you'd rather Master only stepped in for
+video, audio, social media, feedback and research, switch it to
+**task-specific** with `/plugin configure master@solidsforyou` (or its row in
+`/config`). For a single conversation, say "Master Skill off" or "Master Skill
+always on".
+
 **Requirements:** Audio Review and Motion Design Taste need
 [ffmpeg](https://ffmpeg.org/download.html) and Python 3. Audio Review also
-needs `numpy` (`pip install numpy`). The Master Skill needs Node.js
-with Playwright and Chromium to render videos, and works best with all the
-other tools installed. Ecom needs Python 3, ffmpeg for image checks, and Node.js with Playwright
-to render images. Competitor Research needs web search and
-works best with Node.js and Playwright for reading marketplace pages.
-Harsh Buyer Review needs web search,
-which Claude Code has built in.
+needs `numpy` (`pip install numpy`). The Master Skill needs
+[Node.js](https://nodejs.org) with Playwright and Chromium to render videos
+(`npm install -g playwright` then `npx playwright install chromium`), and
+works best with all the other tools installed. Ecom needs Python 3, ffmpeg
+for image checks, and Node.js with Playwright to render images. Competitor
+Research needs web search and works best with Node.js and Playwright for
+reading marketplace pages. Harsh Buyer Review needs web search, which Claude
+Code has built in.
 
 ### Option 2: claude.ai, Claude Desktop or Claude Mobile
 
@@ -73,11 +84,11 @@ which Claude Code has built in.
    [Motion Design Taste](dist/motion-design-taste-skill.zip) ·
    [Harsh Buyer Review](dist/harsh-buyer-review-skill.zip) ·
    [Careful Mode](dist/careful-mode-skill.zip) ·
-   [Master Skill](dist/master-skill.zip) (upload the other four too: it
-   uses them) ·
    [Social Media](dist/social-media-skill.zip) ·
    [Competitor Research](dist/competitor-research-skill.zip) ·
-   [Ecom](dist/ecom-skill.zip)
+   [Ecom](dist/ecom-skill.zip) ·
+   [Master Skill](dist/master-skill.zip) (upload the others too: it uses
+   them)
 2. In Claude's settings, turn on code execution, then upload the zip as a
    custom skill.
 3. Start a chat and ask for the tool, for example by uploading a video and
@@ -88,6 +99,35 @@ which Claude Code has built in.
 Open the tool's prompt, copy all of it, and paste it as your first message,
 or into a Claude Project's instructions so every chat in that project has it.
 All prompts are listed in [`prompts/`](prompts/README.md).
+
+## Use fewer credits
+
+The tools are built to keep Claude's usage low: the Master Skill gives each
+task only the tools it needs, long prompts are read a section at a time, and
+bulk research runs on cheaper models (Competitor Research's helpers run on
+Haiku). Your habits matter as much:
+
+- **Keep the Master Skill on.** It costs a few hundred tokens a session and
+  stops Claude loading tools a task doesn't need.
+- **Install only the tools you use.** Every installed tool adds its short
+  description to every session. Turn one off with `/plugin` (or
+  `claude plugin disable <tool>@solidsforyou`) and back on when you need it.
+- **Start fresh for a new task.** `/clear` when you switch to something
+  unrelated, so Claude stops re-reading the old conversation with every
+  message. In a long session, `/compact` shrinks what it carries.
+- **Use a smaller model for simple work.** `/model` lets you pick Haiku or
+  Sonnet for routine sessions; turn on Economy Mode in long ones so simple
+  steps go to cheaper models automatically.
+- **Let Claude remember for you.** With Economy Mode installed, say
+  "remember this" and Claude writes it to `memory/memory.csv` in your
+  project. It looks up only the rows a task needs, so nothing is forgotten
+  after `/clear` or a new session and nothing is re-read for no reason. Open
+  the sheet in Excel or Google Sheets to see or edit what it knows. Facts
+  marked for helpers (what you sell, where files live, your voice) form a
+  helper section that every cheaper helper reads first, so you never brief
+  them on the project again.
+- **Ask once, completely.** Give the files, links, goal and constraints in
+  your first message instead of over several back-and-forths.
 
 ## What happens to your files
 
@@ -113,21 +153,21 @@ taste/motion/                     SOLIDS FOR YOU's own motion taste notes
 .claude/skills/                   Lets the tools work inside this repo too
 scripts/build_skill_zip.py        Rebuilds the zips in dist/
 scripts/build_bundle.py           Rebuilds dist/master-full.md
+tests/run_tests.py                Tests every tool (runs on each push)
 ```
 
 ## License
 
-Copyright Solids for You Private Limited. The tools are licensed under the
-[PolyForm Noncommercial License 1.0.0](LICENSE.md).
+Copyright (c) 2026 Solids for You Private Limited. Released under the
+[MIT License](LICENSE.md).
 
-- **Free** for personal use (study, testing, hobby projects) and for
-  charities, schools, research and government organizations.
-- **Using them for a business or any commercial purpose needs a separate
-  commercial license** from Solids for You Private Limited. To get one,
-  email [shashwat@solidsforyou.com](mailto:shashwat@solidsforyou.com).
-- If you share the tools or anything built from them, include the license
-  terms (or their link) and the `Required Notice:` line from
-  [`LICENSE.md`](LICENSE.md).
+- **Free for everyone, including businesses.** Use the tools for your own
+  company or your clients, change them, and build on them.
+- If you share the tools, or copies of substantial parts of them, keep the
+  copyright notice and the license text from [`LICENSE.md`](LICENSE.md)
+  with them. Every plugin folder and skill zip already includes it.
+- The tools come with no warranty: check what Claude produces before you
+  rely on it.
 
 ## Add or change a tool
 

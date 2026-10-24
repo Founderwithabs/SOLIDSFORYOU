@@ -10,8 +10,11 @@ a research task gets only the tools it needs.
 These are the tools the Master Skill manages. When a task needs one:
 - **Installed** (Claude Code plugin or claude.ai skill): invoke the skill by
   its name, for example the `careful-mode` skill.
-- **Not installed:** follow its prompt file from the table. In the bundled
-  single-file version of the Master Skill, every prompt is appended at the end.
+- **Not installed:** follow its prompt file from the table. If the file is
+  not on disk (for example, only this plugin is installed), read it from
+  `https://raw.githubusercontent.com/Founderwithabs/SOLIDSFORYOU/main/`
+  followed by the path in the table. In the bundled single-file version of
+  the Master Skill, every prompt is appended at the end.
 - **Neither available:** say so once, and do the closest thing you can.
 
 <!-- REGISTRY: scripts/build_bundle.py reads the prompt paths from this table. -->
@@ -22,21 +25,49 @@ These are the tools the Master Skill manages. When a task needs one:
 | harsh-buyer-review | Feedback on anything customers see; videos for customers | `plugins/harsh-buyer-review/skills/harsh-buyer-review/harsh-buyer-reviewer.md` |
 | motion-design-taste | Making, reviewing or fixing videos | `plugins/motion-design-taste/skills/motion-design-taste/motion-design-taste.md` |
 | audio-review | Audio tasks; the sound of any video | `plugins/audio-review/skills/audio-review/initiation_prompt.md` |
+| competitor-research | Competitor, market and pricing research on marketplaces, websites, social media and ad libraries; competitor data for feedback | `plugins/competitor-research/skills/competitor-research/competitor-research.md` |
+| ecom | Selling online: listings, product images, unit economics, fees, pricing, ads, returns, stock, launches and sale events | `plugins/ecom/skills/ecom/ecom.md` |
+| social-media | Social media strategy, calendars, posts, scripts, analytics and replies; the script and posting plan for social videos | `plugins/social-media/skills/social-media/social-media.md` |
 | Video workflow | Making or editing a video | `plugins/master/skills/master/workflows/video.md` |
 
-## 2. Be ready before every task
+## 2. When the Master Skill runs (the founder chooses)
+
+The Master Skill is meant to be on: its job is to help founders save credits
+and get better results by having Claude pick only the tools each task needs.
+It has two modes. The founder picks one; never switch it for them.
+
+- **Always-on (default).** A compact router (`toolbox.md`, a few hundred
+  tokens) is loaded at the start of every Claude Code session, and every task
+  is routed through it, including questions and other work (section 3). The
+  full tool instructions load only when a task needs that tool, so simple
+  tasks stay cheap and skilled tasks get the right specialist.
+- **Task-specific.** Nothing is loaded at session start. The Master Skill
+  runs only for tasks that need SOLIDS FOR YOU tools: making, editing or
+  reviewing a video, audio, social media, feedback on something customers
+  see, and research.
+
+How the founder chooses:
+- **Claude Code:** `/plugin configure master@solidsforyou` (or the Master
+  Skill row in `/config`) and set "When to use the Master Skill" to
+  `task-specific` or `always-on`. It takes effect in the next session.
+- **For one conversation, anywhere:** "Master Skill always on" routes every
+  task in this conversation; "Master Skill off" stops using it until a task
+  clearly needs one of its tools, or the founder asks for it again.
+
+When the founder asks how the Master Skill works or how to change it, explain
+the two modes and how to choose, in two or three lines.
 
 The toolbox (`toolbox.md`, next to this file) lists every tool and which task
-type uses which. In Claude Code it is loaded automatically at the start of
-every session. Anywhere else, read it the first time this skill is used, and
-keep it in mind for the rest of the conversation. You do not need to read it
-again before each task.
+type uses which. If it is not in your context yet, read it the first time
+this skill is used and keep it in mind for the rest of the conversation. You
+do not need to read it again before each task.
 
-## 3. Route every task
+## 3. Route each task
 
-At the start of each task:
+At the start of each task the Master Skill handles (every task in always-on
+mode; in task-specific mode, the task types listed in section 2):
 1. Decide the task type from the toolbox table: video, video review, audio,
-   feedback, research, question or other work. A task can contain several.
+   social media, feedback, research, question or other work. A task can contain several.
 2. Use exactly the tools that type lists. Do not load or run the others: no
    video tools for a question, a feedback request or research.
 3. Say in one short line which tools you are using and why, for example:
@@ -57,11 +88,30 @@ you have the source.
 
 **Audio.** Run audio-review. Apply careful-mode to the verdict and every fix.
 
-**Feedback.** Run harsh-buyer-review in full (competitor research, one-on-one
-comparison, A to J feedback). Apply careful-mode to every fact and figure in
-it before handing it over.
+**Social media.** Run social-media: it loads the founder's brand memory,
+does the job (strategy, calendar, post, review, analysis, trends or replies)
+and scores every post before handing it over. Add harsh-buyer-review for
+posts and ads that sell a product. When a post is a video to be made, write
+the script with social-media, then build it with the video workflow.
 
-**Research.** With economy-mode, let cheaper helpers gather sources in
+**Selling online.** Run ecom: it loads only the module the task needs
+(listing, images, economics or operations) and does every number in code.
+It calls competitor-research, harsh-buyer-review and careful-mode itself
+where they help, so don't run them again on the same work.
+
+**Feedback.** Run harsh-buyer-review in full (competitor research, one-on-one
+comparison, A to J feedback). When the feedback needs fresh competitor data,
+run competitor-research first and give the buyer its `report.md` and
+`tables.md` instead of researching twice. Apply careful-mode to every fact
+and figure before handing it over.
+
+**Competitor research.** Run competitor-research. In Claude Code its four
+helpers do the work on Haiku while you only coordinate, so deep research
+stays cheap. Hand its `report.md` and `tables.md` to harsh-buyer-review when
+the founder wants feedback, so the buyer doesn't research again.
+
+**Research.** For anything that isn't about competitors, markets or pricing:
+with economy-mode, let cheaper helpers gather sources in
 parallel (searches, pages, figures). Then you check and combine them: every
 fact gets a source and a date; anything you could not confirm is marked "not
 found" or "unconfirmed". Run careful-mode on the final answer. For product or

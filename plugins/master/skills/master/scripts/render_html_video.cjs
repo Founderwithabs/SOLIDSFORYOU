@@ -7,7 +7,7 @@
 //   window.DURATION         length in seconds (or pass --duration)
 //
 // Usage:
-//   NODE_PATH=$(npm root -g) node render_html_video.cjs PAGE.html OUT.mp4 \
+//   node render_html_video.cjs PAGE.html OUT.mp4 \
 //     [--fps 30] [--width 1920] [--height 1080] [--duration 10] \
 //     [--audio mix.wav] [--from 0] [--to 10] [--png] [--transparent]
 //
@@ -19,6 +19,7 @@
 // alpha, for laying graphics over footage with ffmpeg's overlay filter.
 const { spawn, execSync } = require("child_process");
 const path = require("path");
+const { pathToFileURL } = require("url");
 
 function loadPlaywright() {
   try {
@@ -53,7 +54,7 @@ async function main() {
   const browser = await chromium.launch(launch);
   const page = await browser.newPage({ viewport: { width, height }, deviceScaleFactor: 1 });
   page.on("pageerror", (e) => console.error("page error:", e.message));
-  await page.goto("file://" + o.page);
+  await page.goto(pathToFileURL(o.page).href);  // "file://" + path breaks on Windows
   await page.evaluate(() => document.fonts.ready);
   const hasRender = await page.evaluate(() => typeof window.renderFrame === "function");
   if (!hasRender) throw new Error("page does not define window.renderFrame(t)");

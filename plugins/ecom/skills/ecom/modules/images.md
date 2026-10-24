@@ -118,7 +118,7 @@ gain. Rank by score gain, cheapest first when gains are similar.
   render:
 
   ```
-  NODE_PATH=$(npm root -g) node "SKILL_DIR/scripts/render_image.cjs" page.html out.png --width 2000 --height 2000
+  node "SKILL_DIR/scripts/render_image.cjs" page.html out.png --width 2000 --height 2000
   ```
 
   Use the same approach (an HTML page at the exact pixel size) for size
