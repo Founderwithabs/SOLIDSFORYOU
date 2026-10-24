@@ -66,11 +66,10 @@ def read_table(path):
             continue
     if "\x00" in text:
         sys.exit(f"{path} isn't a text table (CSV or TSV); export it again as CSV")
-    try:
-        dialect = csv.Sniffer().sniff(text[:4096], delimiters=",;\t")
-    except csv.Error:
-        dialect = csv.excel
-    return list(csv.DictReader(io.StringIO(text, newline=""), dialect=dialect))
+    # The header row says how columns are separated; cells further down may hold any character.
+    header = next((line for line in text.splitlines() if line.strip()), "")
+    delimiter = max([",", ";", "\t"], key=header.count) if header else ","
+    return list(csv.DictReader(io.StringIO(text, newline=""), delimiter=delimiter))
 
 
 def read(path):
@@ -116,7 +115,7 @@ def cmd_ads(args):
     groups, skipped = {}, []
     for r in rows:
         key = (r.get(cols["campaign"]) or "(all)").strip() if cols["campaign"] else "(all)"
-        if key.lower().rstrip(":") in TOTAL_ROWS or key.lower().startswith("total "):
+        if key.lower().rstrip(":") in TOTAL_ROWS:
             skipped.append(key)
             continue
         g = groups.setdefault(key, {"spend": 0, "sales": 0, "orders": 0, "clicks": 0, "impressions": 0})

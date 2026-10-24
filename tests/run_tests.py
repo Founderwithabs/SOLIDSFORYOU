@@ -1183,6 +1183,12 @@ def check_chaos_regressions(tmp: Path) -> None:
         out = py(E / "ops.py", "ads", f, "--total-sales", 1000)
         assert "| **Total** | 100.00 | 500.00 |" in out and "TACoS (ad spend ÷ all sales 1,000.00): 10.0%" in out, out
         assert "summary row (Total)" in out, out
+        # Semicolons inside names don't change the separator, and a campaign that starts with "Total" stays.
+        f = tmp / "ads.csv"
+        f.write_text('Campaign Name,Spend,Sales\n"Joggers; Men",100,500\nTotal Wellness Joggers,50,100\nTotal,150,600\n')
+        out = py(E / "ops.py", "ads", f)
+        assert "| Joggers; Men | 100.00 |" in out and "| Total Wellness Joggers | 50.00 |" in out, out
+        assert "| **Total** | 150.00 | 600.00 |" in out, out
 
     @test
     def test_excel_windows_csv_and_short_counts_are_read():

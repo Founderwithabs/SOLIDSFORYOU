@@ -74,11 +74,10 @@ def read_table(path):
             continue
     if "\x00" in text:
         sys.exit(f"{path} isn't a text table (CSV or TSV); export it again as CSV")
-    try:
-        dialect = csv.Sniffer().sniff(text[:4096], delimiters=",;\t")
-    except csv.Error:
-        dialect = csv.excel
-    return list(csv.DictReader(io.StringIO(text, newline=""), dialect=dialect))
+    # The header row says how columns are separated; cells further down may hold any character.
+    header = next((line for line in text.splitlines() if line.strip()), "")
+    delimiter = max([",", ";", "\t"], key=header.count) if header else ","
+    return list(csv.DictReader(io.StringIO(text, newline=""), delimiter=delimiter))
 
 
 def load(path):
