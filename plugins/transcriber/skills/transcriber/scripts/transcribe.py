@@ -3,7 +3,7 @@
 
 Usage:
   python3 transcribe.py FILE [--size base|small] [--language auto|en|hi|...]
-        [--prompt "words or names to expect"] [--translate] [--out-dir DIR]
+        [--hinglish] [--prompt "words or names to expect"] [--translate] [--out-dir DIR]
         [--model-dir DIR] [--no-install]
 
 Writes FILE's name with .txt, .srt, .vtt and .json (Whisper-style segments with
@@ -37,6 +37,11 @@ REGISTRY = json.loads(Path(os.environ.get("SOLIDSFORYOU_WHISPER_REGISTRY", HERE 
                       .read_text(encoding="utf-8"))
 CACHE = Path(os.environ.get("SOLIDSFORYOU_WHISPER_CACHE",
                             Path.home() / ".cache" / "solidsforyou-whisper"))
+
+# A short Roman-script Hinglish example steers Whisper to write Hindi in Roman letters and keep
+# English words in English (otherwise it writes everything in Devanagari, or even Urdu script).
+HINGLISH_PROMPT = ("Haan, toh aaj hum baat karenge ki yeh kaise banta hai. "
+                   "Shuru hota hai pure cotton se, phir cutting aur silai.")
 
 FALLBACK = """No speech model could be loaded here, so nothing was transcribed.
 Ways to get a transcript without a computer:
@@ -228,6 +233,8 @@ def main():
     ap.add_argument("--size", default=REGISTRY.get("default", "base"))
     ap.add_argument("--language", default="auto")
     ap.add_argument("--prompt")
+    ap.add_argument("--hinglish", action="store_true",
+                    help="Hindi or Hinglish speech written in Roman script, English words kept in English")
     ap.add_argument("--translate", action="store_true", help="translate the speech into English")
     ap.add_argument("--out-dir")
     ap.add_argument("--model-dir")
@@ -241,6 +248,10 @@ def main():
         sys.exit(3)
     model, how = load_model(args)
     log(f"model: {args.size} ({how})")
+    if args.hinglish:
+        args.prompt = HINGLISH_PROMPT + (" " + args.prompt if args.prompt else "")
+        if args.language == "auto":
+            args.language = "hi"
     audio = load_audio(src)
     if audio.size == 0:
         sys.exit("the file has no audio")

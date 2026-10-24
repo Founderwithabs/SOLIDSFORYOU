@@ -28,9 +28,15 @@ python3 "SKILL_DIR/scripts/transcribe.py" "<file>" --out-dir <scratch folder>
 Useful options:
 - `--language hi` (or `en`, `ta`, ...) when you know the language; default
   is automatic detection.
+- `--hinglish`: for Hindi or Hinglish speech. Writes Hindi in Roman letters
+  and keeps English words in English ("Shuru hota hai 100% pure cotton se,
+  cutting, silai... made in India"). **Use it by default for Hindi or Hinglish
+  audio** unless the founder asks for Devanagari. Without it, Whisper writes
+  everything in Devanagari (English words included, "मेद लिन्दिया" for
+  "made in India") or sometimes in Urdu script.
 - `--prompt "names and words to expect"`: brand and product names, people's
-  names, jargon. For Hinglish in Roman script, a short Roman Hinglish example
-  in the prompt usually keeps the output in Roman letters.
+  names, jargon (for example `--prompt "Solids for You"`). Combines with
+  `--hinglish`.
 - `--translate`: English translation of the speech.
 - `--size small`: slower and a bigger first download (about 480 MB against
   150 MB), but clearly more accurate. Use it for Hindi and other non-English
