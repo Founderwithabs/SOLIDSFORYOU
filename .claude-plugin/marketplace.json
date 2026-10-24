@@ -50,6 +50,11 @@
       "name": "ecom",
       "source": "./plugins/ecom",
       "description": "SOLIDS FOR YOU Ecom: your e-commerce operator for any marketplace or own store. Listings that pass a harsh buyer, product images judged, planned and rendered, unit economics and pricing calculated in code from your real fees, plus ads, returns, stock, launches and sale events."
+    },
+    {
+      "name": "ai-visuals",
+      "source": "./plugins/ai-visuals",
+      "description": "SOLIDS FOR YOU AI Visuals: Claude reviews images and videos made with ChatGPT, Midjourney, Gemini, Flux, Ideogram, Firefly, Canva, Sora, Veo, Kling or Runway for where they'll be used, and hands back the exact fixed prompt or edit, with every change explained."
     }
   ]
 }

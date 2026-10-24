@@ -12,6 +12,7 @@ its row says so.
 | Audio | audio-review |
 | Social media | social-media (+ harsh-buyer-review for posts that sell, + video workflow to make a reel) |
 | Selling online: listings, product images, margins, fees, pricing, ads, returns, stock | ecom |
+| AI-made image or video: review, fix the prompt, generate | ai-visuals (+ ecom for product images) |
 | Feedback on a product, listing, ad, copy or price | harsh-buyer-review (competitor-research first if it needs fresh competitor data) |
 | Competitors, market or pricing | competitor-research |
 | Other research | economy-mode helpers gather; you verify and cite; careful-mode |

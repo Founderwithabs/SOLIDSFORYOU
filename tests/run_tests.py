@@ -807,6 +807,192 @@ def check_ecom(tmp: Path) -> None:
             assert (int.from_bytes(head[16:20], "big"), int.from_bytes(head[20:24], "big")) == (1200, 1200)
 
 
+def check_video_and_visual_tools(tmp: Path) -> None:
+    social = PLUGINS / "social-media/skills/social-media/scripts"
+    visuals = PLUGINS / "ai-visuals/skills/ai-visuals/scripts"
+    edit = PLUGINS / "master/skills/master/scripts/transcript_edit.py"
+    srt = tmp / "talk.srt"
+    cues = [(0, 4, "Today I will show you how to price cotton joggers."), (4.2, 5, "um"),
+            (5.1, 9, "First we look at fabric cost and GSM."),
+            (12, 16, "First we look at fabric cost and GSM per metre."),
+            (16.1, 30, "Fabric cost fabric GSM supplier Tiruppur cotton fabric weight."),
+            (35, 50, "Marketplace fees referral closing shipping fees Amazon Flipkart fees."),
+            (55, 70, "Pricing strategy discount psychology ninety nine pricing anchor."),
+            (75, 90, "Final thoughts subscribe and comment your price below.")]
+
+    def ts(t):
+        return f"00:{int(t // 60):02d}:{int(t % 60):02d},{int(round(t % 1 * 1000)):03d}"
+    srt.write_text("\n".join(f"{i}\n{ts(a)} --> {ts(b)}\n{text}\n" for i, (a, b, text) in enumerate(cues, 1)))
+
+    def py(script, *args, ok=True):
+        r = subprocess.run([sys.executable, str(script), *map(str, args)], capture_output=True, text=True)
+        assert (r.returncode == 0) == ok, f"{script.name} {args}: {r.stdout}{r.stderr}"
+        return r.stdout
+
+    @test
+    def test_transcript_edit_finds_dead_air_filler_and_retakes():
+        if not edit.exists():
+            raise Skip("no transcript_edit.py")
+        out = py(edit, srt)
+        assert "FILLER" in out and "um" in out, out
+        assert 'REPEAT' in out and 'first we look at fabric' in out, out  # the restarted sentence
+        assert out.count("DEAD") == 4 and "20.90s removed" in out, out
+        need("ffmpeg", "ffprobe")
+        video = tmp / "talk.mp4"
+        ffmpeg("-f", "lavfi", "-i", "testsrc=s=320x240:r=30:d=90", "-f", "lavfi", "-i", "sine=f=440:d=90",
+               "-shortest", "-c:v", "libx264", "-pix_fmt", "yuv420p", "-c:a", "aac", str(video))
+        cut = tmp / "cut.mp4"
+        py(edit, srt, "--apply", video, cut)
+        streams = run(["ffprobe", "-v", "error", "-show_entries", "stream=codec_type,duration",
+                       "-of", "csv=p=0", str(cut)]).stdout.split()
+        lengths = {k: float(v) for k, v in (x.split(",") for x in streams)}
+        assert abs(lengths["video"] - 69.1) < 0.2 and abs(lengths["audio"] - lengths["video"]) < 0.1, lengths
+
+    @test
+    def test_chapters_drafts_and_checks_youtube_rules():
+        if not (social / "chapters.py").exists():
+            raise Skip("no chapters.py")
+        out = py(social / "chapters.py", srt, "--target", 4)
+        assert "0:00 " in out and "4 chapters" in out, out
+        good, bad = tmp / "good.txt", tmp / "bad.txt"
+        good.write_text("0:00 Intro\n0:16 Fabric costs\n0:35 Marketplace fees\n0:55 Pricing\n")
+        bad.write_text("0:05 Intro\n0:10 Fabric\n")
+        assert "valid" in py(social / "chapters.py", "--check", good, "--duration", 90)
+        out = py(social / "chapters.py", "--check", bad, "--duration", 90, ok=False)
+        assert "at least 3" in out and "must start at 0:00" in out and "needs 10s" in out, out
+
+    @test
+    def test_hookscore_and_package_check():
+        if not (social / "hookscore.py").exists():
+            raise Skip("no hookscore.py")
+        hooks = tmp / "hooks.txt"
+        hooks.write_text("I lost ₹4,00,000 on joggers before I learned this one pricing rule.\n"
+                         "In this video we will talk about some things.\n", encoding="utf-8")
+        scored = json.loads(py(social / "hookscore.py", "--json", hooks))
+        by = {h["hook"][:4]: h for h in scored}
+        assert by["I lo"]["verdict"] > by["In t"]["verdict"], scored  # a specific hook beats a summary
+        assert by["In t"]["formula"] == "Unclassified", scored
+        assert json.loads(py(social / "hookscore.py", "--format", "short", "--hook", "Stop doing this", "--json"))
+        out = py(social / "package_check.py", "--title",
+                 "I Tested 7 Jogger Brands So You Don't Have To (The Winner Shocked Me)", "--thumb", "WINNER SHOCKED ME")
+        assert "desktop search cuts near 60" in out and "duplicate" in out and "concrete figure (7)" in out, out
+
+    @test
+    def test_outliers_ranks_against_each_channels_own_median():
+        if not (social / "outliers.py").exists():
+            raise Skip("no outliers.py")
+        items = [{"channel": "Big", "title": f"Video {i}", "views": v, "url": f"b{i}", "duration": 600}
+                 for i, v in enumerate([1000000, 1100000, 900000, 1050000, 950000])]
+        items += [{"channel": "Small", "title": t, "views": v, "url": t, "duration": d} for t, v, d in
+                  [("I tried 7 joggers for 30 days", 400000, 700), ("vlog", 30000, 600), ("vlog 2", 28000, 600),
+                   ("vlog 3", 32000, 600), ("short a", 900000, 40), ("short b", 31000, 600)]]
+        items += [{"channel": "Thin", "title": "x", "views": 5, "url": "x"}]
+        listing = tmp / "collected.json"
+        listing.write_text(json.dumps(items))
+        ytdlp = tmp / "yt.json"  # yt-dlp --flat-playlist -J output
+        ytdlp.write_text(json.dumps({"channel": "YT", "entries": [
+            {"title": f"T{i}", "view_count": v, "url": f"y{i}", "duration": 500, "channel": "YT"}
+            for i, v in enumerate([100, 120, 110, 90, 5000])]}))
+        out = py(social / "outliers.py", listing, ytdlp, "--min", 2)
+        assert "45.45x" in out and "12.70x" in out and "31,500 median" in out, out
+        assert "Big" not in out.split("skipped")[0], "no Big video beats its own median by 2x"
+        assert "Thin (1)" in out, out
+        out = py(social / "outliers.py", listing, "--split-shorts", "--min", 2)
+        assert "12.90x" in out and "short a" not in out, out  # long-form median 31,000; one short is too few
+
+    @test
+    def test_retention_reads_long_and_short_videos():
+        if not (social / "retention.py").exists():
+            raise Skip("no retention.py")
+
+        def export(name, header, points):
+            f = tmp / name
+            f.write_text(header + "\n" + "\n".join(f"{x},{y:.2f}" for x, y in points))
+            return f
+
+        def report(f, duration):
+            return json.loads(py(social / "retention.py", f, "--duration", duration, "--json"))
+
+        # A 90-second Short exported as YouTube does: position as a share (0-1), rewatch spike at 0,
+        # a steady slide and one cliff at 50% (45 s).
+        short = [(i / 100, 120 if i == 0 else (100 - 8 * i if i <= 5 else 60 - 0.2 * (i - 5)) - (15 if i >= 50 else 0))
+                 for i in range(101)]
+        r = report(export("short.csv", "Video position (%),Absolute audience retention (%)", short), 90)
+        assert r["start"] == 100 and len(r["cliffs"]) == 1, r
+        assert abs(r["cliffs"][0]["at_seconds"] - 44.1) < 0.2, "a Short's percentages must not be read as seconds"
+        # Seconds on the axis, 60-second video, cliff at 40 s.
+        secs = [(t, 100 - 0.3 * t - (20 if t >= 40 else 0)) for t in range(0, 61, 2)]
+        r = report(export("secs.csv", "Time (s),Retention (%)", secs), 60)
+        assert [c["at_seconds"] for c in r["cliffs"]] == [38], r
+        # An even slide has no cliffs, however many points it has.
+        slide = [(t, 80 - t / 10) for t in range(0, 600, 30)]
+        assert report(export("slide.csv", "position,retention", slide), 600)["cliffs"] == []
+
+    @test
+    def test_ai_visuals_score_diff_and_generation():
+        if not (visuals / "score.py").exists():
+            raise Skip("no ai-visuals")
+        assert "Total: 89.5/100. Ready." in py(visuals / "score.py", 9, 10, 8, 7, 10, 9, 10, 10)
+        out = py(visuals / "score.py", 9, 10, 8, 7, 10, 9, 10, 4)
+        assert "Not ready" in out and "Platform rules and disclosure must be 10" in out, out
+        py(visuals / "score.py", 9, 10, 8, ok=False)
+        old, new = tmp / "old.txt", tmp / "new.txt"
+        old.write_text("A photo of cotton joggers on a wooden table, soft light, 4k, ultra realistic")
+        new.write_text("A studio photo of grey cotton joggers on a white background, soft light, realistic")
+        out = py(visuals / "prompt_diff.py", old, new)
+        assert 'Replaced "wooden table" with "white background"' in out and 'Removed: "4k , ultra"' in out, out
+        # Generation against a local stand-in for the OpenAI API: no key, no money, no network.
+        import base64
+        import http.server
+        import threading
+        png = base64.b64encode(b"\x89PNG\r\n\x1a\nfake").decode()
+        seen = []
+
+        class Api(http.server.BaseHTTPRequestHandler):
+            def do_POST(self):
+                body = self.rfile.read(int(self.headers["Content-Length"]))
+                seen.append((self.path, self.headers["Authorization"], self.headers["Content-Type"], body))
+                code, reply = (401, {"error": {"message": "bad key"}}) if "wrong" in self.headers["Authorization"] \
+                    else (200, {"data": [{"b64_json": png}, {"b64_json": png}]})
+                self.send_response(code)
+                self.send_header("Content-Type", "application/json")
+                self.end_headers()
+                self.wfile.write(json.dumps(reply).encode())
+
+            def log_message(self, *a):
+                pass
+
+        server = http.server.HTTPServer(("127.0.0.1", 0), Api)
+        threading.Thread(target=server.serve_forever, daemon=True).start()
+        base = f"http://127.0.0.1:{server.server_port}/v1"
+        gen = visuals / "generate_openai.py"
+
+        def generate(*args, key="sk-test", ok=True):
+            env = {k: v for k, v in os.environ.items() if k != "OPENAI_API_KEY"}
+            if key:
+                env["OPENAI_API_KEY"] = key
+            r = subprocess.run([sys.executable, str(gen), "--prompt-file", str(new), "--base-url", base, *map(str, args)],
+                               capture_output=True, text=True, env=env)
+            assert (r.returncode == 0) == ok, r.stdout + r.stderr
+            return r.stdout + r.stderr
+        try:
+            assert "OPENAI_API_KEY is not set" in generate("--out", tmp / "x.png", key=None, ok=False)
+            out = generate("--out", tmp / "gen.png", "--n", 2)
+            assert (tmp / "gen.png").read_bytes().startswith(b"\x89PNG") and (tmp / "gen-2.png").exists(), out
+            path, auth, ctype, body = seen[-1]
+            assert path == "/v1/images/generations" and auth == "Bearer sk-test" and ctype == "application/json"
+            assert json.loads(body)["n"] == 2
+            product = tmp / "product.png"
+            product.write_bytes(b"\x89PNG\r\n\x1a\nproduct")
+            generate("--out", tmp / "edit.png", "--image", product)
+            path, _, ctype, body = seen[-1]
+            assert path == "/v1/images/edits" and ctype.startswith("multipart/form-data") and b"product" in body
+            out = generate("--out", tmp / "y.png", key="sk-wrong", ok=False)
+            assert "401" in out and "bad key" in out and "sk-wrong" not in out, "errors must never print the key"
+        finally:
+            server.shutdown()
+
+
 def main() -> None:
     fast = "--fast" in sys.argv
     check_structure()
@@ -818,6 +1004,8 @@ def main() -> None:
         check_memory(Path(tmp))
     with tempfile.TemporaryDirectory(prefix="sfy_ecom_") as tmp:
         check_ecom(Path(tmp))
+    with tempfile.TemporaryDirectory(prefix="sfy_video_visual_") as tmp:
+        check_video_and_visual_tools(Path(tmp))
     if not fast:
         with tempfile.TemporaryDirectory(prefix="sfy_tests_") as tmp:
             check_media(Path(tmp))

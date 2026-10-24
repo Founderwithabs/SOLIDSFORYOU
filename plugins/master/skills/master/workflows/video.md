@@ -163,7 +163,11 @@ node "SKILL_DIR/scripts/render_html_video.cjs" \
 
 **Path B: editing footage.** Use ffmpeg. Re-encode with `-c:v libx264 -crf 17
 -pix_fmt yuv420p -c:a aac -b:a 192k -movflags +faststart` unless only
-copying streams.
+copying streams. For talking-head footage with a transcript (.srt, .vtt or
+Whisper .json), start from the rough cut: `python3
+"SKILL_DIR/scripts/transcript_edit.py" transcript.srt` lists dead air,
+filler and retakes, and `--apply in.mp4 rough.mp4` cuts them. Check the list
+against the footage first: a silent demo is not dead air.
 
 ```
 # Trim (frame-accurate, re-encoded)

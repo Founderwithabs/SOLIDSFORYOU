@@ -27,6 +27,7 @@ These are the tools the Master Skill manages. When a task needs one:
 | audio-review | Audio tasks; the sound of any video | `plugins/audio-review/skills/audio-review/initiation_prompt.md` |
 | competitor-research | Competitor, market and pricing research on marketplaces, websites, social media and ad libraries; competitor data for feedback | `plugins/competitor-research/skills/competitor-research/competitor-research.md` |
 | ecom | Selling online: listings, product images, unit economics, fees, pricing, ads, returns, stock, launches and sale events | `plugins/ecom/skills/ecom/ecom.md` |
+| ai-visuals | Reviewing, scoring and fixing AI-generated images and video; the fixed prompt; optional generation | `plugins/ai-visuals/skills/ai-visuals/ai-visuals.md` |
 | social-media | Social media strategy, calendars, posts, scripts, analytics and replies; the script and posting plan for social videos | `plugins/social-media/skills/social-media/social-media.md` |
 | Video workflow | Making or editing a video | `plugins/master/skills/master/workflows/video.md` |
 
@@ -98,6 +99,11 @@ the script with social-media, then build it with the video workflow.
 (listing, images, economics or operations) and does every number in code.
 It calls competitor-research, harsh-buyer-review and careful-mode itself
 where they help, so don't run them again on the same work.
+
+**AI-made images and video.** Run ai-visuals: it judges the result for its
+placement, scores it in code and hands back the fixed prompt. For product
+images add ecom's image rules; for a finished video, motion-design-taste.
+Generate with the founder's OpenAI key only after they agree to the cost.
 
 **Feedback.** Run harsh-buyer-review in full (competitor research, one-on-one
 comparison, A to J feedback). When the feedback needs fresh competitor data,
