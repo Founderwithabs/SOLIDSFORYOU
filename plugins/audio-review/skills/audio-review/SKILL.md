@@ -1,6 +1,6 @@
 ---
 name: audio-review
-description: Listen to an audio file and judge its quality the way a senior audio designer would (loudness, dynamics, tonal balance, stereo, noise, artifacts, delivery specs), then give a scored review with concrete fixes. Use when the user shares an audio or video file (wav, mp3, m4a, flac, ogg, aif, mp4, mov) and asks how it sounds, whether it is good or ready, to check the mix or master, to judge quality, or asks for an audio review.
+description: Judge audio like a senior audio designer (loudness, dynamics, tonal balance, stereo, noise, artifacts, delivery specs) and give a scored review with fixes. Use when the user shares audio or a video's sound (podcast, voiceover, music, mix, wav, mp3) and asks how it sounds, whether it is ready, or for an audio review.
 ---
 
 # Audio review

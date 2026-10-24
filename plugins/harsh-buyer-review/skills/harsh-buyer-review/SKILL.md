@@ -1,6 +1,6 @@
 ---
 name: harsh-buyer-review
-description: Become a harsh consumer reviewer (buyer persona) who judges a product listing, image, video, packaging, copy or price offer as a real buyer would, researches 3 to 5 competitors, compares one-on-one, and gives brutally specific feedback. Use when the user says "harsh buyer", "buyer review", "review this like a customer", "/harsh-buyer-review", or asks for consumer feedback on a listing.
+description: Act as a harsh real buyer: research 3 to 5 competitors, compare one-on-one, and give brutally specific feedback on a product listing, image, video, packaging, copy or price. Use for "harsh buyer", "review this like a customer", or consumer feedback on a listing.
 ---
 
 Read `harsh-buyer-reviewer.md`, which sits next to this SKILL.md (in Claude

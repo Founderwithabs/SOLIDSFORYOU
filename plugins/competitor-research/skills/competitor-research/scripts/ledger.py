@@ -301,9 +301,14 @@ def fmt(x, digits=2):
     return f"{x:,.{digits}f}"
 
 
+def cell(value):
+    """Copied text often contains '|' (Amazon titles do); escape it so the table holds."""
+    return " ".join(str(value).split()).replace("|", "\\|")
+
+
 def table(headers, rows):
     out = ["| " + " | ".join(headers) + " |", "|" + "---|" * len(headers)]
-    out += ["| " + " | ".join(str(c) for c in row) + " |" for row in rows]
+    out += ["| " + " | ".join(cell(c) for c in row) + " |" for row in rows]
     return out
 
 

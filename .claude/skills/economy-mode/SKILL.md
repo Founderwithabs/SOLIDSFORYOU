@@ -1,6 +1,6 @@
 ---
 name: economy-mode
-description: Turn on economy mode, which routes low-importance work to cheaper, faster models (Haiku, Sonnet) through subagents and keeps the most capable model for tasks that need judgment. Use when the user says "economy mode", "save tokens", "use cheaper models", "/economy-mode", or asks to cut cost.
+description: Economy mode: send low-importance work to cheaper models (Haiku, Sonnet) through helpers, keep the main model for judgment, and keep a memory sheet so Claude remembers decisions across sessions without carrying them. Use for "economy mode", "save tokens", "use cheaper models", "remember this", or cutting cost.
 ---
 
 This lets the tool work in sessions opened inside this repository. The real

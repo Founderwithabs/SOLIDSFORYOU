@@ -1,6 +1,6 @@
 ---
 name: quick-task
-description: Cheap, fast worker for low-stakes tasks. Use PROACTIVELY for file lookups, listing or renaming files, searching for text, summarizing a file or log, reformatting text, writing short boilerplate, simple one-line edits, and checking whether something exists. Do NOT use for design decisions, debugging, security-sensitive work, or anything customer-facing that needs judgment.
+description: Cheap Haiku helper. Use proactively for small, clear tasks: find, list or rename files, search text, check if something exists, summarize a file or log, reformat, short boilerplate, one-line edits. Not for decisions, debugging or anything risky.
 model: haiku
 ---
 
@@ -14,3 +14,7 @@ Rules:
   information, a bug you cannot explain, or anything risky or irreversible),
   STOP and reply with `ESCALATE:` followed by one sentence explaining why.
   The main agent will hand it to a stronger model.
+- If your prompt tells you to run a memory `brief` command, run it before
+  anything else and treat what it prints as the current facts about the
+  project. Don't edit the memory sheet; end your report with
+  `REMEMBER: <type>/<topic>: <text>` for any new fact worth keeping.

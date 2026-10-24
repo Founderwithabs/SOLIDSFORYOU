@@ -47,12 +47,18 @@ MIN_GROUP = 3  # fewer posts than this are reported but not ranked
 FLOOR = 0.05   # relative rates below this count as this in the overall score
 
 
+SUFFIXES = {"k": 1e3, "m": 1e6, "b": 1e9}  # "1.2K" as the apps display counts
+
+
 def num(value):
-    value = (value or "").strip().replace(",", "").rstrip("%")
+    value = (value or "").strip().replace(",", "").rstrip("%").strip()
     if not value:
         return None
+    scale = SUFFIXES.get(value[-1].lower(), 1)
+    if scale != 1:
+        value = value[:-1].strip()
     try:
-        return float(value)
+        return float(value) * scale
     except ValueError:
         return None
 

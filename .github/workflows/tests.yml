@@ -1,0 +1,43 @@
+name: Tests
+
+# Runs the full toolkit test suite (structure, docs, and every script on
+# synthetic audio and video) on every push and pull request.
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: "22"
+
+      - name: Install ffmpeg
+        # A slow package mirror once hung this step for over 6 minutes; give
+        # each attempt 4 minutes and retry instead of waiting for the job timeout.
+        run: |
+          for attempt in 1 2 3; do
+            sudo timeout 240 sh -c 'apt-get update && apt-get install -y --no-install-recommends ffmpeg' && exit 0
+            echo "ffmpeg install attempt $attempt failed or timed out; retrying"
+          done
+          exit 1
+
+      - name: Install Python packages
+        run: pip install -r plugins/audio-review/skills/audio-review/requirements.txt
+
+      - name: Install Playwright, Chromium and Claude Code
+        run: |
+          npm install -g playwright @anthropic-ai/claude-code
+          npx playwright install --with-deps chromium
+
+      - name: Run tests
+        run: python3 tests/run_tests.py
