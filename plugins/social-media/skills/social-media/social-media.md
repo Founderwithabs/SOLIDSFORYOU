@@ -375,7 +375,8 @@ you don't mean, and never end with a list of twenty problems.
    a NEW first line (the original assumed context this viewer lacks; score it
    with `hookscore.py --format short`), on-screen text for the first two
    seconds in different words from the spoken line, a loop point, and a note
-   on what a vertical crop loses.
+   on what a vertical crop loses. The SOLIDS FOR YOU `clipper` skill, if
+   installed, finds candidate spans and renders the clips with captions.
 5. Stagger posting so each platform gets its own moment; don't post
    everything in the same hour.
 6. Link between platforms only where the platform doesn't penalise outbound

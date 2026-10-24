@@ -70,6 +70,11 @@
       "name": "linkedin",
       "source": "./plugins/linkedin",
       "description": "SOLIDS FOR YOU LinkedIn: Claude becomes the founder's LinkedIn ghostwriter and editor: posts only the founder could write, hooks for the 'see more' fold, profiles, comments and messages, every draft through the humanizer."
+    },
+    {
+      "name": "clipper",
+      "source": "./plugins/clipper",
+      "description": "SOLIDS FOR YOU Clipper: long videos into vertical Shorts, Reels and TikToks for paid clipping campaigns or your own channel, with word-by-word captions, a hook and the campaign brief followed."
     }
   ]
 }

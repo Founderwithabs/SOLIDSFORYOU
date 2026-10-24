@@ -36,6 +36,7 @@ tools below. When a head needs one:
 | ai-visuals | Reviewing, scoring and fixing AI-generated images and video; the fixed prompt; optional generation | `plugins/ai-visuals/skills/ai-visuals/ai-visuals.md` |
 | linkedin | LinkedIn posts, profiles, comments, messages and plans, in the founder's voice | `plugins/linkedin/skills/linkedin/linkedin.md` |
 | humanizer | Making writing customers read sound like the founder, not a model; keeps every fact | `plugins/humanizer/skills/humanizer/humanizer.md` |
+| clipper | Long videos into vertical clips with captions and a hook, for paid clipping campaigns or the founder's own Shorts | `plugins/clipper/skills/clipper/clipper.md` |
 | transcriber | Speech to text: voice notes, podcasts, calls and videos into text and timestamped captions | `plugins/transcriber/skills/transcriber/transcriber.md` |
 | social-media | Social media strategy, calendars, posts, scripts, analytics and replies; the script and posting plan for social videos | `plugins/social-media/skills/social-media/social-media.md` |
 | Video workflow | Making or editing a video (the Design head's video path) | `plugins/master/skills/master/workflows/video.md` |
@@ -110,7 +111,8 @@ strategy, posts, scripts, YouTube and analytics, with product facts from
 ecom's store memory; transcriber turns a video or podcast into the
 transcript for chapters, captions and repurposing; ai-visuals for AI-made
 visuals; harsh-buyer-review for posts that sell; the humanizer on every
-post. All LinkedIn work goes to linkedin. Reels and videos go to Design.
+post. All LinkedIn work goes to linkedin; clipping campaigns and Shorts
+cut from long videos go to clipper. Reels and videos go to Design.
 
 **Design** (`heads/design.md`): makes the assets. Videos follow
 `workflows/video.md` from start to finish (economy mode, careful brief,

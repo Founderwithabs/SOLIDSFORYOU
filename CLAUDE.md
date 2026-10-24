@@ -144,6 +144,13 @@ or its wording without the owner's explicit decision.
   Every draft also goes through the humanizer on the `linkedin` channel; the
   Marketing head sends all LinkedIn work here. LinkedIn's limits are marked
   "check" because they change.
+- **Clipper:** `clipper.md` is the method (permission and brief rules, the
+  campaign brief in `clips/<campaign>/brief.md`, finding moments, hook and
+  words, cutting, hand-back, tracking in `social/posts.csv`).
+  `scripts/clip.py`: `find` ranks transcript spans that stand alone (the
+  score only sorts; Claude judges), `render` cuts them 9:16 (blurred fill or
+  crop) with word-by-word captions from the transcriber's word timings, a
+  hook line and -14 LUFS sound. It never posts, submits or logs in.
 - **AI visuals:** `ai-visuals.md` is the method (rules, brief, reading an
   image or video, prompt anatomy, fix ladder, scorecard, hand-back);
   `purposes.md` and `generators.md` are references read by section, and

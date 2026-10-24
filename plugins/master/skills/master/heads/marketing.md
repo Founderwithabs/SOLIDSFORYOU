@@ -19,6 +19,7 @@ and launch campaigns.
 | humanizer | Every post, caption and script sounds like the founder; facts unchanged |
 | linkedin | Everything on LinkedIn: posts, profile, comments, messages, plan |
 | transcriber | A video, podcast or voice note into text: chapters, captions, quotes and repurposed posts |
+| clipper | Clipping campaigns, and Shorts, Reels and TikToks cut from a long video |
 
 Foundation: careful-mode on claims, numbers and anything customers see;
 economy-mode for bulk work (a month's calendar, many replies); the memory
@@ -35,7 +36,8 @@ sheet.
    memory, so every channel says the same thing.
 3. **Make it** with social-media's method. Working from a video, podcast
    or voice note, transcribe it first with transcriber; its `.srt` feeds
-   chapters, retention and captions. AI-made visuals go through
+   chapters, retention and captions. Clips from a long video and clipping
+   campaigns go to clipper. AI-made visuals go through
    ai-visuals. A reel, Short or video goes to the Design head with the
    script, hook and platform specs.
 4. **Check.** Every post goes through the humanizer skill, then
