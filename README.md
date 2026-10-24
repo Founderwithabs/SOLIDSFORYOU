@@ -117,7 +117,10 @@ Haiku). Your habits matter as much:
   "remember this" and Claude writes it to `memory/memory.csv` in your
   project. It looks up only the rows a task needs, so nothing is forgotten
   after `/clear` or a new session and nothing is re-read for no reason. Open
-  the sheet in Excel or Google Sheets to see or edit what it knows.
+  the sheet in Excel or Google Sheets to see or edit what it knows. Facts
+  marked for helpers (what you sell, where files live, your voice) form a
+  helper section that every cheaper helper reads first, so you never brief
+  them on the project again.
 - **Ask once, completely.** Give the files, links, goal and constraints in
   your first message instead of over several back-and-forths.
 

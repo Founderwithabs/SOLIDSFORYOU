@@ -651,6 +651,39 @@ def check_memory(tmp: Path) -> None:
         rows = list(_csv.DictReader(sheet.open(encoding="utf-8-sig")))
         assert len(rows) == 3 and rows[2]["status"] == "forgotten", rows  # forgotten rows stay in the sheet
 
+    @test
+    def test_memory_helper_section_briefs_helpers():
+        if not memory.exists():
+            raise Skip("no memory.py")
+        sheet = tmp / "helpers" / "memory.csv"
+        sheet.parent.mkdir()
+        # a sheet made before the helpers column existed must still load and upgrade
+        sheet.write_text("id,created,updated,type,topic,text,source,pinned,status\n"
+                         "1,2026-10-01 10:00,2026-10-01 10:00,fact,brand,We sell cotton joggers,,,active\n",
+                         encoding="utf-8-sig")
+
+        def mem(*args):
+            r = subprocess.run([sys.executable, str(memory), "--file", str(sheet), *args],
+                               capture_output=True, text=True)
+            assert r.returncode == 0, f"memory {args}: {r.stdout}{r.stderr}"
+            return r.stdout
+
+        assert "nothing for helpers" in mem("brief")
+        mem("update", "1", "--helpers")
+        mem("add", "--type", "number", "--topic", "returns", "--text", "Return rate 8% in September")
+        mem("add", "--type", "preference", "--topic", "voice", "--text", "No emojis on LinkedIn", "--pin")
+        brief = mem("brief")
+        assert "cotton joggers" in brief and "No emojis" in brief and "Return rate" not in brief, brief
+        assert "REMEMBER:" in brief, "helpers must be told how to report new facts"
+        assert "Return rate" in mem("brief", "--task", "return rate"), "rows matching the task are added"
+        mem("update", "1", "--no-helpers")
+        assert "cotton joggers" not in mem("brief")
+        for i in range(60):
+            mem("add", "--topic", f"t{i}", "--text", "x" * 200, "--helpers")
+        brief = mem("brief")
+        assert len(brief) < 4600 and "left out" in brief, "the brief must stay about 1,000 tokens"
+        assert "helpers" in mem("session-start"), "session start must tell Claude to brief helpers"
+
 
 def main() -> None:
     fast = "--fast" in sys.argv

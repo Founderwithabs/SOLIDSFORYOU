@@ -30,7 +30,11 @@ is never worth a wrong result on something that matters.
   the helper's rules in the prompt: do only what was asked, report briefly,
   and reply `ESCALATE:` plus a reason instead of guessing.
 - Give the subagent a complete, self-contained prompt: the goal, the exact files
-  or paths, and what to return. It does not see this conversation.
+  or paths, and what to return. It does not see this conversation. If the
+  project has a memory sheet, start the prompt with
+  `Run python3 "<memory.py>" --file "<sheet>" brief --task "<key words>" first.`
+  (full paths, as the session-start line gives them) instead of explaining
+  the project again; see "Helper section" below.
 - Batch several small low-tier jobs into one subagent call when they are related,
   so you do not pay the start-up cost repeatedly.
 - Do not delegate tasks that take you a single tool call (one `ls`, one small
@@ -69,6 +73,17 @@ directly. The script is next to this SKILL.md (in Claude Code:
   when it no longer applies, `forget <id>` (the row stays in the sheet,
   hidden from searches). Never store passwords, card numbers or other
   secrets.
+- **Helper section.** Rows added with `--helpers` (or marked later with
+  `update <id> --helpers`) are the standing brief every helper reads: what
+  the business is and sells, where things live in the project, conventions,
+  brand voice, current prices. Pinned rows are included too. `brief --task
+  "key words"` prints that section plus the rows matching the task, capped
+  at about 1,000 tokens, so helpers always work from the latest facts and
+  you never re-explain the project. Keep the section to what almost every
+  helper needs; everything else they get through the task match. Helpers
+  only read the sheet: when a helper's report ends with
+  `REMEMBER: <type>/<topic>: <text>` lines, check them and add the true
+  ones yourself.
 - **Before `/compact` or a long break,** add any decision from this session
   that isn't in the sheet yet.
 - Saving and searching are quick tool calls; do them yourself rather than

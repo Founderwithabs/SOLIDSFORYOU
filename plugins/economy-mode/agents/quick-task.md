@@ -14,3 +14,7 @@ Rules:
   information, a bug you cannot explain, or anything risky or irreversible),
   STOP and reply with `ESCALATE:` followed by one sentence explaining why.
   The main agent will hand it to a stronger model.
+- If your prompt tells you to run a memory `brief` command, run it before
+  anything else and treat what it prints as the current facts about the
+  project. Don't edit the memory sheet; end your report with
+  `REMEMBER: <type>/<topic>: <text>` for any new fact worth keeping.

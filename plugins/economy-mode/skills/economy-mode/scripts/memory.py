@@ -9,16 +9,20 @@ never has to carry the whole sheet.
 
   python3 memory.py add --type decision --topic pricing --text "Joggers stay at Rs 999 until Diwali"
   python3 memory.py add --type preference --topic voice --text "No emojis in LinkedIn posts" --pin
+  python3 memory.py add --type fact --topic brand --text "We sell cotton joggers on Amazon and Myntra" --helpers
   python3 memory.py search "jogger price"       best 5 matching rows
   python3 memory.py pinned                      rows marked as always relevant
   python3 memory.py recent --n 10               newest rows
-  python3 memory.py update 12 --text "..." [--pin | --unpin] [--type ...] [--topic ...]
+  python3 memory.py brief --task "jogger listing"  the helper section (+ rows matching the task) for a helper
+  python3 memory.py update 12 --text "..." [--pin | --unpin] [--helpers | --no-helpers] [--type ...] [--topic ...]
   python3 memory.py forget 12                   hide a row (kept in the sheet, marked forgotten)
   python3 memory.py stats
   python3 memory.py session-start               short pinned summary for a session-start hook
 
 The sheet is memory/memory.csv in the project (or --file PATH, or the
-SFY_MEMORY_FILE environment variable). Standard library only.
+SFY_MEMORY_FILE environment variable). Rows marked --helpers form the
+helper section: the standing project brief every helper reads with `brief`,
+so helpers are never briefed on the project by hand. Standard library only.
 """
 
 import argparse
@@ -30,10 +34,12 @@ import tempfile
 from datetime import datetime
 from pathlib import Path
 
-COLUMNS = ["id", "created", "updated", "type", "topic", "text", "source", "pinned", "status"]
+# "helpers" is last so sheets made before it existed still load.
+COLUMNS = ["id", "created", "updated", "type", "topic", "text", "source", "pinned", "status", "helpers"]
 TYPES = ["fact", "decision", "preference", "task", "contact", "number", "note"]
 MAX_TEXT = 500           # one row is one memory, not a document
 SESSION_START_ROWS = 10  # pinned rows printed at session start
+BRIEF_CHARS = 4000       # about 1,000 tokens: the most a helper's brief may cost
 STOP = set("a an the and or of to in on for with is are was were be it this that at by from as".split())
 
 
@@ -75,6 +81,7 @@ def words(text):
 
 def line(r):
     pin = " [pinned]" if r["pinned"] == "yes" else ""
+    pin += " [helpers]" if r["helpers"] == "yes" else ""
     return f"#{r['id']} {r['updated'][:10]} {r['type']}/{r['topic']}{pin}: {r['text']}"
 
 
@@ -101,24 +108,24 @@ def cmd_add(a, path):
             r["updated"] = now()
             if a.pin:
                 r["pinned"] = "yes"
+            if a.helpers:
+                r["helpers"] = "yes"
             save(path, rows)
             print(f"already remembered, refreshed: {line(r)}")
             return
     next_id = max([int(r["id"]) for r in rows if r["id"].isdigit()] or [0]) + 1
     row = {"id": str(next_id), "created": now(), "updated": now(), "type": a.type,
            "topic": a.topic.lower(), "text": text, "source": a.source or "",
-           "pinned": "yes" if a.pin else "", "status": "active"}
+           "pinned": "yes" if a.pin else "", "status": "active",
+           "helpers": "yes" if a.helpers else ""}
     rows.append(row)
     save(path, rows)
     print(f"remembered: {line(row)}")
 
 
-def cmd_search(a, path):
-    query = words(a.query)
-    if not query:
-        sys.exit("give some words to search for")
+def ranked(rows, query):
     scored = []
-    for r in active(load(path)):
+    for r in rows:
         topic, text = set(words(r["topic"])), set(words(r["text"] + " " + r["type"]))
         score = sum(2 for q in query if q in topic) + sum(1 for q in query if q in text)
         # partial matches ("price" finds "pricing")
@@ -126,10 +133,18 @@ def cmd_search(a, path):
         if score:
             scored.append((score, r["pinned"] == "yes", r["updated"], r))
     scored.sort(key=lambda s: (s[0], s[1], s[2]), reverse=True)
+    return [s[-1] for s in scored]
+
+
+def cmd_search(a, path):
+    query = words(a.query)
+    if not query:
+        sys.exit("give some words to search for")
+    scored = ranked(active(load(path)), query)
     if not scored:
         print("nothing in memory matches")
         return
-    for *_, r in scored[: a.k]:
+    for r in scored[: a.k]:
         print(line(r))
     if len(scored) > a.k:
         print(f"({len(scored) - a.k} more matches; narrow the search or raise --k)")
@@ -161,6 +176,10 @@ def cmd_update(a, path):
         r["pinned"] = "yes"
     if a.unpin:
         r["pinned"] = ""
+    if a.helpers:
+        r["helpers"] = "yes"
+    if a.no_helpers:
+        r["helpers"] = ""
     r["status"], r["updated"] = "active", now()
     save(path, rows)
     print(f"updated: {line(r)}")
@@ -184,6 +203,38 @@ def cmd_stats(a, path):
           f"{len(rows) - len(live)} forgotten; " + ", ".join(f"{k} {v}" for k, v in sorted(by_type.items())))
 
 
+def cmd_brief(a, path):
+    """What a helper reads first instead of being told about the project again."""
+    rows = active(load(path))
+    section = [r for r in rows if r["helpers"] == "yes" or r["pinned"] == "yes"]
+    section.sort(key=lambda r: (r["type"], r["topic"], r["updated"]))
+    extra = []
+    if a.task and words(a.task):
+        extra = [r for r in ranked(rows, words(a.task)) if r not in section][: a.k]
+    if not section and not extra:
+        print("The memory sheet has nothing for helpers yet; work from your instructions.")
+        return
+    out = [f"Project brief from the founder's memory sheet ({path.resolve()}). It is current: "
+           "trust it over your own assumptions. Read-only: don't edit the sheet. If you learn a "
+           "fact or decision worth keeping, end your report with one line per item: "
+           "REMEMBER: <type>/<topic>: <text>"]
+    used, cut = len(out[0]), 0
+    for title, group in (("Always true for this project", section), ("Matches this task", extra)):
+        if not group:
+            continue
+        out.append(f"\n{title}:")
+        for r in group:
+            text = f"- {r['type']}/{r['topic']}: {r['text']}"
+            if used + len(text) > BRIEF_CHARS:
+                cut += 1
+                continue
+            out.append(text)
+            used += len(text)
+    if cut:
+        out.append(f"({cut} rows left out to keep this short; search the sheet if you need more)")
+    print("\n".join(out))
+
+
 def cmd_session_start(a, path):
     """Prints nothing unless the project has a memory sheet, so it costs nothing elsewhere."""
     rows = active(load(path)) if path.exists() else []
@@ -192,9 +243,12 @@ def cmd_session_start(a, path):
     pinned = sorted([r for r in rows if r["pinned"] == "yes"], key=lambda r: r["updated"], reverse=True)
     # Give the full command with --file, so a search from any folder finds this sheet.
     cmd = f'python3 "{Path(__file__).resolve()}" --file "{path.resolve()}"'
-    print(f"Memory sheet ({len(rows)} rows). Before asking the founder something they may have told "
-          f"you, search it (never read the whole file): {cmd} search \"key words\". "
-          f"Save new facts and decisions with: {cmd} add --type decision --topic <topic> --text \"...\"")
+    print(f"Memory sheet ({len(rows)} rows). MEM below means: {cmd}\n"
+          "Before asking the founder something they may have told you, run MEM search \"key words\" "
+          "(never read the whole file). Save facts and decisions with MEM add --type decision "
+          "--topic <topic> --text \"...\" (add --helpers for project facts every helper needs). "
+          "Start every helper's prompt with the full command: run MEM brief --task \"key words\" first, "
+          "and save the REMEMBER: lines helpers report.")
     for r in pinned[:SESSION_START_ROWS]:
         print(line(r))
     if len(pinned) > SESSION_START_ROWS:
@@ -211,6 +265,7 @@ def main():
     p.add_argument("--text", required=True)
     p.add_argument("--source", help="where it came from, e.g. 'founder, 2026-10-24 chat'")
     p.add_argument("--pin", action="store_true", help="always show it at session start")
+    p.add_argument("--helpers", action="store_true", help="put it in the helper section every helper reads")
     p = sub.add_parser("search")
     p.add_argument("query")
     p.add_argument("--k", type=int, default=5)
@@ -225,6 +280,12 @@ def main():
     g = p.add_mutually_exclusive_group()
     g.add_argument("--pin", action="store_true")
     g.add_argument("--unpin", action="store_true")
+    g = p.add_mutually_exclusive_group()
+    g.add_argument("--helpers", action="store_true")
+    g.add_argument("--no-helpers", action="store_true")
+    p = sub.add_parser("brief")
+    p.add_argument("--task", help="key words of the helper's task: adds the rows that match it")
+    p.add_argument("--k", type=int, default=5)
     p = sub.add_parser("forget")
     p.add_argument("id")
     sub.add_parser("stats")
@@ -232,7 +293,7 @@ def main():
     a = ap.parse_args()
     path = sheet_path(a.file)
     {"add": cmd_add, "search": cmd_search, "pinned": cmd_pinned, "recent": cmd_recent,
-     "update": cmd_update, "forget": cmd_forget, "stats": cmd_stats,
+     "update": cmd_update, "brief": cmd_brief, "forget": cmd_forget, "stats": cmd_stats,
      "session-start": cmd_session_start}[a.cmd](a, path)
 
 
