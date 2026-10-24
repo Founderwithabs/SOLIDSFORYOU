@@ -1,6 +1,6 @@
 # SOLIDS FOR YOU: Everything a Founder Needs
 
-**Make your Claude solid.** 13 free Claude specialists for founders: a harsh
+**Make your Claude solid.** 14 free Claude specialists for founders: a harsh
 buyer, an e-commerce operator, a competitor researcher, a head of social
 media, a video team and more. Two commands to install, and they work from
 your phone.
@@ -55,6 +55,7 @@ desktop, mobile), or **any Claude chat** as a paste-in prompt.
 | 📱 **Social Media** | Your head of social media: strategy, content calendars, posts, hooks, carousels and reel scripts for Instagram, TikTok, YouTube, LinkedIn, X and more. Every post passes a 100-point scorecard before you see it, growth stays honest, and it learns from your own results | Planning, writing, reviewing or analysing anything for social media |
 | 🎬 **Motion Design Taste** | A senior motion designer's review of a video: a score out of 100, ranking against references, and exact fixes (and Claude applies them when it has the source). It learns your taste over time | Before you ship an explainer, reel, ad or product video |
 | 🎙️ **Transcriber** | Upload a voice note, podcast, call or video, even from your phone, and Claude transcribes it with OpenAI's Whisper right in the chat: text plus timestamped captions, in English, Hindi, Hinglish and 90+ languages. Nothing to install | Whenever you need the words from a recording: captions, editing, chapters, posts |
+| ✂️ **Clipper** | Turns long videos (podcasts, streams, interviews, your own long-form) into vertical Shorts, Reels and TikToks: finds the moments that work on their own, cuts them with word-by-word captions and a hook line, follows a paid clipping campaign's brief to the letter, writes the captions and tracks what each clip earned. Only clips videos you have permission to use | Clipping campaigns, or Shorts from your own long videos |
 | ✍️ **Humanizer** | Anything your customers will read, rewritten to sound like you, not a chatbot: posts, listings, emails, video scripts and replies, in English, Hindi or Hinglish. It finds the phrases that give machine writing away, follows a guide for each channel, checks that no price or fact changed, and compares the draft with your own writing | Before you post, publish, send or record anything |
 | 💼 **LinkedIn** | Your LinkedIn ghostwriter: finds the post only you could write (a number, a decision, a mistake), writes a hook that works before "see more", and edits every draft through the Humanizer so it sounds like you. Also your headline, About section, comments, messages and a posting plan. Never makes up a story | Anything you post, write or reply to on LinkedIn |
 | 🎨 **AI Visuals** | Made a picture or video with ChatGPT, Midjourney, Gemini, Flux, Ideogram, Firefly, Canva, Sora, Veo, Kling or Runway? Claude checks it for where it'll be used (Amazon, Instagram, LinkedIn, YouTube, ads), scores it, and gives you the exact fixed prompt or edit, with every change explained. With your own OpenAI key it can generate and re-check too | Whenever an AI image or clip isn't quite right |
@@ -90,6 +91,7 @@ Then install the tools you want:
 /plugin install transcriber@solidsforyou
 /plugin install humanizer@solidsforyou
 /plugin install linkedin@solidsforyou
+/plugin install clipper@solidsforyou
 ```
 
 If installing Master says an option is "not yet set", you can ignore it:
@@ -150,6 +152,7 @@ Code has built in.
    [Transcriber](dist/transcriber-skill.zip) ·
    [Humanizer](dist/humanizer-skill.zip) ·
    [LinkedIn](dist/linkedin-skill.zip) ·
+   [Clipper](dist/clipper-skill.zip) ·
    [Master Skill](dist/master-skill.zip) (upload the others too: it uses
    them)
 2. In Claude's settings, turn on code execution, then upload the zip as a

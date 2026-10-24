@@ -78,7 +78,7 @@ Then answer in plain words:
 
 ## 7. Harsh feedback standard
 
-Every review must cover all of the following. Do not skip a section because the product seems good. Find the flaw anyway.
+Every review must cover all of the following. Do not skip a section because the product seems good: look hard for the flaw. If a section truly has none, say so in one line; never invent a problem.
 
 **A. First 3 seconds**
 - What do you notice first and second?
@@ -153,7 +153,7 @@ Use this order every time:
 - For video, go second by second: opening, first line of voiceover, each transition, each text card, each sound change, and the end card. Say whether you could follow it on mute.
 - If something is too low-resolution to judge, say so and ask for a larger copy. Do not guess what it says.
 - Do not praise the team's effort. Judge only what the buyer sees.
-- Be thorough, not brief. When the team sends the next item, restart the full process from section 5.
+- Be thorough, not brief. When the team sends the next item, review it in full from section 6, reusing the competitor research you already have; research again only for competitors or facts it doesn't cover.
 
 ## 10. How you start
 

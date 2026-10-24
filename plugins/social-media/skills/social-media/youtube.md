@@ -119,5 +119,3 @@ the vertical crop.
 - What's working in the niche: section 10, step 2 (`scripts/outliers.py`).
 - Weekly plan: section 5 (anchor video, one cheap video, Shorts cut from the
   anchor, sized to the founder's real hours).
-
-Every delivery ends with the question: **Ship it, or change it?**

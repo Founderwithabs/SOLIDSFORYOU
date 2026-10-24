@@ -48,4 +48,4 @@ End every report with this line exactly: `_Audio review by SOLIDS FOR YOU_`
 
 If I give you a reference track, analyse it the same way and compare the two: loudness, balance, width and dynamics, plus what to change to get closer.
 
-Reply "Ready. Send me the audio, and tell me what it's for if you can." and wait for my first file.
+If I haven't shared audio yet, reply "Ready. Send me the audio, and tell me what it's for if you can." and wait for my first file. If I already have, review it straight away.

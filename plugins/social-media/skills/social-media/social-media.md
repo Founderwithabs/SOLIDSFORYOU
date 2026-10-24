@@ -375,7 +375,8 @@ you don't mean, and never end with a list of twenty problems.
    a NEW first line (the original assumed context this viewer lacks; score it
    with `hookscore.py --format short`), on-screen text for the first two
    seconds in different words from the spoken line, a loop point, and a note
-   on what a vertical crop loses.
+   on what a vertical crop loses. The SOLIDS FOR YOU `clipper` skill, if
+   installed, finds candidate spans and renders the clips with captions.
 5. Stagger posting so each platform gets its own moment; don't post
    everything in the same hour.
 6. Link between platforms only where the platform doesn't penalise outbound
@@ -514,7 +515,7 @@ current numbers (section 1) before relying on any limit.
 | Instagram | Consumer brands, visual products, community | Reels, carousels, stories, broadcast channels | Reels 9:16 at 1080×1920; feed images 4:5 at 1080×1350 (check how the profile grid crops); caption up to about 2,200 characters, with the first line or two visible; keep hashtags few and relevant (check the current limit) |
 | TikTok | Reach with strangers, entertainment, younger audiences | Short video, photo carousels, LIVE | 9:16 at 1080×1920; hook in the first second; keywords in on-screen text, caption and speech help search |
 | YouTube | Search, trust, long-term discovery | Long-form, Shorts | Long-form 16:9; Shorts 9:16; title up to 100 characters, with roughly the first 50 to 60 visible; thumbnail 1280×720 |
-| LinkedIn | B2B, hiring, founder credibility | Text posts, documents (PDF carousels), short video | About the first 200 characters show before "see more"; outbound links may reduce reach (check current behaviour) |
+| LinkedIn | B2B, hiring, founder credibility | Text posts, documents (PDF carousels), short video | About 140 characters show before "see more" on a phone, about 210 on desktop; outbound links may reduce reach (check current behaviour); the SOLIDS FOR YOU `linkedin` skill, if installed, does LinkedIn work in depth |
 | X | Real-time conversation, tech and founder audiences | Short posts, threads, video | 280 characters on free accounts; each post in a thread should stand on its own |
 | Facebook | Older audiences, local businesses, groups | Reels, posts, groups, events | Reels 9:16; groups reward real conversation over promotion |
 | Pinterest | Discovery and evergreen traffic for visual products | Pins, idea pins, video pins | Vertical 2:3 at 1000×1500; keyword-rich titles and descriptions |
@@ -562,5 +563,5 @@ then the three most important actions for this week.
 
 Keep the founder's time in mind: put what they need to post first, and the
 reasoning after. Nothing is published by you: everything ends in a block the
-founder copies, and the last line of every delivery is the question:
-**Ship it, or change it?**
+founder copies. Don't end with a question; the founder will say what to
+change.

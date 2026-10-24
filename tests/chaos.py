@@ -272,6 +272,16 @@ def text_tools():
     run("linkedin_check no args", [P, str(LC)])
     run("linkedin_check two kinds", [P, str(LC), "--text", "hi", "--headline", "--note"])
     run("humanize bad channel", [P, str(HZ), "check", "--text", "hi", "--channel", "nope"])
+    CL = R / "clipper/skills/clipper/scripts/clip.py"
+    f("cl_nulls.json", json.dumps({"segments": [{"start": None, "end": None, "text": None, "words": None},
+                                                {"start": 0, "end": 1e308, "text": "x"}, "junk", 7]}))
+    f("cl_semi.json", json.dumps([{"start": 0, "end": 30, "text": "Why does this work?", "words": [{"start": "a"}]}]))
+    for name in ("empty.txt", "binary.bin", "hk_long.txt", "hk_hindi.txt", "cl_nulls.json", "cl_semi.json", "does-not-exist.csv"):
+        run(f"clip find {name}", [P, str(CL), "find", str(W / name)])
+    for args in ([], ["nope"], ["find"], ["find", str(W / "cl_semi.json"), "--min", "50", "--max", "10"],
+                 ["find", str(W / "cl_semi.json"), "--min", "nan"], ["find", str(W / "cl_semi.json"), "--top", "0"],
+                 ["find", str(W / "cl_semi.json"), "--max", "inf"], ["render"], ["render", str(W / "missing.mp4")]):
+        run("clip " + " ".join(Path(a).name for a in args[:4]), [P, str(CL), *args])
 
     # ai-visuals
     run("score none", [P, str(A / "score.py")]); run("score text", [P, str(A / "score.py")] + ["x"] * 8)
@@ -371,6 +381,18 @@ def media_tools():
     run("image_check without ffmpeg", [P, str(IC), str(W / "dot.png"), "--out", str(W / "ic/nf")], env=nopath)
     (W / "x.srt").write_text("1\n00:00:00,000 --> 00:00:01,000\nhi\n\n2\n00:00:03,000 --> 00:00:04,000\nyo\n")
     run("get_sounds fetch without git", [P, str(GS), "fetch", "sfx-kit", "--category", "time", "--dest", str(W / "s2")], env=nopath)
+    CL = R / "clipper/skills/clipper/scripts/clip.py"
+    for label, args in (("clip render no audio", [str(W / "noaudio.mp4"), str(W / "x.srt"), "--spans", "0-3"]),
+                        ("clip render truncated", [str(W / "truncated.mp4"), str(W / "x.srt"), "--spans", "0-3"]),
+                        ("clip render odd path crop", [str(odd / "clip.mp4"), str(W / "x.srt"), "--spans", "0.5-3.5", "--frame", "crop", "--x", "1"]),
+                        ("clip render beyond end", [str(odd / "clip.mp4"), str(W / "x.srt"), "--spans", "50-60"]),
+                        ("clip render bad spans", [str(odd / "clip.mp4"), str(W / "x.srt"), "--spans", "3-1,abc"]),
+                        ("clip render odd size", [str(odd / "clip.mp4"), str(W / "x.srt"), "--spans", "0-2", "--width", "101"]),
+                        ("clip render text as video", [str(W / "text.mp3"), str(W / "x.srt"), "--spans", "0-2"]),
+                        ("clip render hook braces", [str(odd / "clip.mp4"), str(W / "x.srt"), "--spans", "0-2", "--hook", "{\\b1}hi\\N\nthere"]),
+                        ("clip render transcript binary", [str(odd / "clip.mp4"), str(W / "binary.bin"), "--spans", "0-2"])):
+        run(label, [P, str(CL), "render", *args, "--out-dir", str(W / "cl" / label.replace(" ", "_"))])
+    run("clip render without ffmpeg", [P, str(CL), "render", str(odd / "clip.mp4"), str(W / "x.srt"), "--spans", "0-2", "--out-dir", str(W / "cl/nf")], env=nopath)
     run("transcript_edit apply without ffmpeg", [P, str(R / "master/skills/master/scripts/transcript_edit.py"), str(W / "x.srt"), "--apply", str(odd / "clip.mp4"), str(W / "o.mp4")], env=nopath)
 
 

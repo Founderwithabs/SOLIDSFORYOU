@@ -10,7 +10,7 @@ skill (invoke the skill if it isn't loaded).
 | Other work: writing, code, docs, plans | None (careful-mode if high-stakes; economy-mode if long) |
 | Competitors, market, pricing decisions, positioning, launch readiness, feedback on a product idea | Product (competitor-research, harsh-buyer-review, ecom economics) |
 | Listings, product images, store numbers, ads, returns, stock, sale events | Ecom (ecom, harsh-buyer-review, humanizer, ai-visuals) |
-| Social media, LinkedIn, content, YouTube, campaigns | Marketing (social-media, linkedin, humanizer, ai-visuals, harsh-buyer-review, transcriber) |
+| Social media, LinkedIn, content, YouTube, clipping, campaigns | Marketing (social-media, linkedin, clipper, humanizer, ai-visuals, harsh-buyer-review, transcriber) |
 | Make or edit a video, AI image or clip, product graphic, sound | Design (video workflow and its sound library, ai-visuals, motion-design-taste, audio-review, transcriber) |
 | Review or feedback on finished work: listing, ad, copy, video, audio, image, post | Review (harsh-buyer-review, motion-design-taste, audio-review, ai-visuals) |
 | Other research | No head: economy-mode helpers gather; you verify and cite; careful-mode |

@@ -1469,6 +1469,98 @@ def check_linkedin(tmp: Path) -> None:
             "with Master, the humanizer must switch on by itself for public content"
 
 
+def check_clipper(tmp: Path) -> None:
+    cl = PLUGINS / "clipper/skills/clipper/scripts/clip.py"
+    lines = ["So, um, welcome back to the channel everyone.", "And that is why we did it.",
+             "Why do most founders lose money on their first product?", "They price it from the cost, not the fees.",
+             "But the real problem is returns, which nobody counts.", "We lost 38 rupees on every order for six weeks.",
+             "You know, like, basically that's it, so yeah", "Here's what most people get wrong about ads.",
+             "They look at ACoS and ignore total ad spend.", "But your total sales tell you the truth."]
+    segs, t = [], 0.0
+    for line in lines:
+        words = line.split()
+        d = len(words) / 2.6
+        segs.append({"start": round(t, 2), "end": round(t + d, 2), "text": line,
+                     "words": [{"start": round(t + k * d / len(words), 2), "end": round(t + (k + 1) * d / len(words), 2),
+                                "word": w} for k, w in enumerate(words)]})
+        t += d + 0.6
+    tj = tmp / "talk.json"
+    tj.write_text(json.dumps({"segments": segs}), encoding="utf-8")
+
+    def find(*args):
+        r = subprocess.run([sys.executable, str(cl), "find", str(tj), "--json", *map(str, args)],
+                           capture_output=True, text=True, encoding="utf-8")
+        assert r.returncode == 0, r.stdout + r.stderr
+        return json.loads(r.stdout)
+
+    @test
+    def test_clipper_finds_spans_that_stand_alone():
+        if not cl.exists():
+            raise Skip("no clipper")
+        picks = find("--min", 8, "--max", 20, "--top", 3)
+        assert picks and picks[0]["score"] >= picks[-1]["score"], picks
+        firsts = [p["first_line"] for p in picks]
+        assert not any(f.startswith(("And ", "So, um")) for f in firsts[:2]), firsts
+        assert any(f.startswith(("Why do most", "Here's what")) for f in firsts[:2]), firsts
+        spans = sorted((p["start"], p["end"]) for p in picks)
+        assert all(a[1] <= b[0] for a, b in zip(spans, spans[1:])), "clips must not overlap"
+        assert all(8 <= p["duration"] <= 20 for p in picks), picks
+        three = subprocess.run([sys.executable, str(cl), "render", str(tj), str(tj), "--spans", "1-2,3-4",
+                                "--hook", "a|b|c"], capture_output=True, text=True)
+        assert three.returncode != 0 and "3 hooks for 2 spans" in three.stdout + three.stderr, three.stderr
+        bad = subprocess.run([sys.executable, str(cl), "find", str(tj), "--min", "30", "--max", "10"],
+                             capture_output=True, text=True)
+        assert bad.returncode != 0 and "Traceback" not in bad.stderr
+
+    @test
+    def test_clipper_renders_vertical_captioned_clips_at_minus_14():
+        if not cl.exists():
+            raise Skip("no clipper")
+        if not (shutil.which("ffmpeg") and shutil.which("ffprobe")):
+            raise Skip("no ffmpeg")
+        src = tmp / "long video.mp4"
+        subprocess.run(["ffmpeg", "-v", "error", "-y", "-f", "lavfi", "-i", f"testsrc2=s=1280x720:d={t:.1f}",
+                        "-f", "lavfi", "-i", f"sine=f=300:d={t:.1f}", "-shortest", str(src)], check=True)
+        out = tmp / "clips"
+        for frame in ("blur", "crop"):
+            r = subprocess.run([sys.executable, str(cl), "render", str(src), str(tj), "--spans", "6.5-12,25-30",
+                                "--hook", "You're losing money on returns|Your ad metric lies", "--frame", frame, "--out-dir",
+                                str(out / frame), "--json"], capture_output=True, text=True, encoding="utf-8")
+            assert r.returncode == 0, r.stdout + r.stderr
+            made = json.loads(r.stdout)
+            assert len(made) == 2 and made[1]["hook"] == "Your ad metric lies", made
+            p = subprocess.run(["ffprobe", "-v", "error", "-show_entries", "stream=width,height:format=duration",
+                                "-of", "json", made[0]["clip"]], capture_output=True, text=True)
+            info = json.loads(p.stdout)
+            v = [s for s in info["streams"] if "width" in s][0]
+            assert (v["width"], v["height"]) == (1080, 1920), v
+            assert abs(float(info["format"]["duration"]) - 5.5) < 0.2, info
+        lufs = subprocess.run(["ffmpeg", "-i", str(out / "blur/clip_01.mp4"), "-af", "ebur128", "-f", "null", "-"],
+                              capture_output=True, text=True).stderr
+        i = float(re.findall(r"I:\s+(-?[\d.]+) LUFS", lufs)[-1])
+        assert abs(i + 14) <= 1.0, i
+        # captions really burned in: a frame with a caption differs from the same frame without
+        bare = tmp / "bare"
+        subprocess.run([sys.executable, str(cl), "render", str(src), str(tj), "--spans", "6.5-12", "--no-captions",
+                        "--out-dir", str(bare)], check=True, capture_output=True)
+        def frame_at(video):
+            return subprocess.run(["ffmpeg", "-v", "error", "-ss", "3", "-i", str(video), "-frames:v", "1", "-f",
+                                   "rawvideo", "-pix_fmt", "gray", "-s", "108x192", "-"], capture_output=True).stdout
+        a, b = frame_at(out / "blur/clip_01.mp4"), frame_at(bare / "clip_01.mp4")
+        assert a and b and sum(abs(x - y) for x, y in zip(a, b)) > 5000, "captions not burned in"
+
+    @test
+    def test_clipper_is_wired_into_master_and_marketing():
+        master = (PLUGINS / "master/skills/master/master.md").read_text(encoding="utf-8")
+        head = (PLUGINS / "master/skills/master/heads/marketing.md").read_text(encoding="utf-8")
+        router = (PLUGINS / "master/skills/master/toolbox.md").read_text(encoding="utf-8")
+        assert "plugins/clipper/skills/clipper/clipper.md" in master
+        assert "| clipper |" in head and "clipper" in router
+        method = (PLUGINS / "clipper/skills/clipper/clipper.md").read_text(encoding="utf-8")
+        assert "Only clip with permission" in method and "never post, submit or log in" in \
+            (PLUGINS / "clipper/skills/clipper/SKILL.md").read_text(encoding="utf-8")
+
+
 def main() -> None:
     fast = "--fast" in sys.argv
     check_structure()
@@ -1488,6 +1580,8 @@ def main() -> None:
         check_humanizer(Path(tmp))
     with tempfile.TemporaryDirectory(prefix="sfy_linkedin_") as tmp:
         check_linkedin(Path(tmp))
+    with tempfile.TemporaryDirectory(prefix="sfy_clipper_") as tmp:
+        check_clipper(Path(tmp))
     with tempfile.TemporaryDirectory(prefix="sfy_chaos_regressions_") as tmp:
         check_chaos_regressions(Path(tmp))
     if not fast:

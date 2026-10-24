@@ -36,6 +36,7 @@ tools below. When a head needs one:
 | ai-visuals | Reviewing, scoring and fixing AI-generated images and video; the fixed prompt; optional generation | `plugins/ai-visuals/skills/ai-visuals/ai-visuals.md` |
 | linkedin | LinkedIn posts, profiles, comments, messages and plans, in the founder's voice | `plugins/linkedin/skills/linkedin/linkedin.md` |
 | humanizer | Making writing customers read sound like the founder, not a model; keeps every fact | `plugins/humanizer/skills/humanizer/humanizer.md` |
+| clipper | Long videos into vertical clips with captions and a hook, for paid clipping campaigns or the founder's own Shorts | `plugins/clipper/skills/clipper/clipper.md` |
 | transcriber | Speech to text: voice notes, podcasts, calls and videos into text and timestamped captions | `plugins/transcriber/skills/transcriber/transcriber.md` |
 | social-media | Social media strategy, calendars, posts, scripts, analytics and replies; the script and posting plan for social videos | `plugins/social-media/skills/social-media/social-media.md` |
 | Video workflow | Making or editing a video (the Design head's video path) | `plugins/master/skills/master/workflows/video.md` |
@@ -102,14 +103,16 @@ the memory sheet. Hands the result to Ecom, Marketing or Design.
 **Ecom** (`heads/ecom.md`): runs the store. ecom does listings, images,
 numbers and operations; harsh-buyer-review checks listings before they go
 live, reusing saved competitor research; AI-made product images go through
-ai-visuals. Listing and product videos go to Design, launch posts to
-Marketing.
+ai-visuals; listing copy and customer replies go through the humanizer.
+Listing and product videos go to Design, launch posts to Marketing.
 
 **Marketing** (`heads/marketing.md`): grows the audience. social-media does
 strategy, posts, scripts, YouTube and analytics, with product facts from
 ecom's store memory; transcriber turns a video or podcast into the
-transcript for chapters, captions and repurposing; ai-visuals for AI-made visuals; harsh-buyer-review for
-posts that sell. Reels and videos go to Design.
+transcript for chapters, captions and repurposing; ai-visuals for AI-made
+visuals; harsh-buyer-review for posts that sell; the humanizer on every
+post. All LinkedIn work goes to linkedin; clipping campaigns and Shorts
+cut from long videos go to clipper. Reels and videos go to Design.
 
 **Design** (`heads/design.md`): makes the assets. Videos follow
 `workflows/video.md` from start to finish (economy mode, careful brief,
@@ -117,7 +120,8 @@ taste pre-production, build and draft render, harsh buyer review, taste and
 audio review into one fix list, careful review of the plan, and up to three
 rounds of regeneration until the quality bar is met). AI images and clips go
 through ai-visuals, product graphics through ecom's templates, sound through
-audio-review. Footage with speech is transcribed first with transcriber, for
+audio-review and the sound library, scripts and voice-overs through the
+humanizer. Footage with speech is transcribed first with transcriber, for
 the rough cut and captions.
 
 **Review** (`heads/review.md`): judges finished work from the seat of

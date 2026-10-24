@@ -40,6 +40,7 @@ tools below. When a head needs one:
 | ai-visuals | Reviewing, scoring and fixing AI-generated images and video; the fixed prompt; optional generation | `plugins/ai-visuals/skills/ai-visuals/ai-visuals.md` |
 | linkedin | LinkedIn posts, profiles, comments, messages and plans, in the founder's voice | `plugins/linkedin/skills/linkedin/linkedin.md` |
 | humanizer | Making writing customers read sound like the founder, not a model; keeps every fact | `plugins/humanizer/skills/humanizer/humanizer.md` |
+| clipper | Long videos into vertical clips with captions and a hook, for paid clipping campaigns or the founder's own Shorts | `plugins/clipper/skills/clipper/clipper.md` |
 | transcriber | Speech to text: voice notes, podcasts, calls and videos into text and timestamped captions | `plugins/transcriber/skills/transcriber/transcriber.md` |
 | social-media | Social media strategy, calendars, posts, scripts, analytics and replies; the script and posting plan for social videos | `plugins/social-media/skills/social-media/social-media.md` |
 | Video workflow | Making or editing a video (the Design head's video path) | `plugins/master/skills/master/workflows/video.md` |
@@ -106,14 +107,16 @@ the memory sheet. Hands the result to Ecom, Marketing or Design.
 **Ecom** (`heads/ecom.md`): runs the store. ecom does listings, images,
 numbers and operations; harsh-buyer-review checks listings before they go
 live, reusing saved competitor research; AI-made product images go through
-ai-visuals. Listing and product videos go to Design, launch posts to
-Marketing.
+ai-visuals; listing copy and customer replies go through the humanizer.
+Listing and product videos go to Design, launch posts to Marketing.
 
 **Marketing** (`heads/marketing.md`): grows the audience. social-media does
 strategy, posts, scripts, YouTube and analytics, with product facts from
 ecom's store memory; transcriber turns a video or podcast into the
-transcript for chapters, captions and repurposing; ai-visuals for AI-made visuals; harsh-buyer-review for
-posts that sell. Reels and videos go to Design.
+transcript for chapters, captions and repurposing; ai-visuals for AI-made
+visuals; harsh-buyer-review for posts that sell; the humanizer on every
+post. All LinkedIn work goes to linkedin; clipping campaigns and Shorts
+cut from long videos go to clipper. Reels and videos go to Design.
 
 **Design** (`heads/design.md`): makes the assets. Videos follow
 `workflows/video.md` from start to finish (economy mode, careful brief,
@@ -121,7 +124,8 @@ taste pre-production, build and draft render, harsh buyer review, taste and
 audio review into one fix list, careful review of the plan, and up to three
 rounds of regeneration until the quality bar is met). AI images and clips go
 through ai-visuals, product graphics through ecom's templates, sound through
-audio-review. Footage with speech is transcribed first with transcriber, for
+audio-review and the sound library, scripts and voice-overs through the
+humanizer. Footage with speech is transcribed first with transcriber, for
 the rough cut and captions.
 
 **Review** (`heads/review.md`): judges finished work from the seat of
@@ -195,7 +199,7 @@ skill (invoke the skill if it isn't loaded).
 | Other work: writing, code, docs, plans | None (careful-mode if high-stakes; economy-mode if long) |
 | Competitors, market, pricing decisions, positioning, launch readiness, feedback on a product idea | Product (competitor-research, harsh-buyer-review, ecom economics) |
 | Listings, product images, store numbers, ads, returns, stock, sale events | Ecom (ecom, harsh-buyer-review, humanizer, ai-visuals) |
-| Social media, LinkedIn, content, YouTube, campaigns | Marketing (social-media, linkedin, humanizer, ai-visuals, harsh-buyer-review, transcriber) |
+| Social media, LinkedIn, content, YouTube, clipping, campaigns | Marketing (social-media, linkedin, clipper, humanizer, ai-visuals, harsh-buyer-review, transcriber) |
 | Make or edit a video, AI image or clip, product graphic, sound | Design (video workflow and its sound library, ai-visuals, motion-design-taste, audio-review, transcriber) |
 | Review or feedback on finished work: listing, ad, copy, video, audio, image, post | Review (harsh-buyer-review, motion-design-taste, audio-review, ai-visuals) |
 | Other research | No head: economy-mode helpers gather; you verify and cite; careful-mode |
@@ -475,7 +479,7 @@ Then answer in plain words:
 
 ## 7. Harsh feedback standard
 
-Every review must cover all of the following. Do not skip a section because the product seems good. Find the flaw anyway.
+Every review must cover all of the following. Do not skip a section because the product seems good: look hard for the flaw. If a section truly has none, say so in one line; never invent a problem.
 
 **A. First 3 seconds**
 - What do you notice first and second?
@@ -550,7 +554,7 @@ Use this order every time:
 - For video, go second by second: opening, first line of voiceover, each transition, each text card, each sound change, and the end card. Say whether you could follow it on mute.
 - If something is too low-resolution to judge, say so and ask for a larger copy. Do not guess what it says.
 - Do not praise the team's effort. Judge only what the buyer sees.
-- Be thorough, not brief. When the team sends the next item, restart the full process from section 5.
+- Be thorough, not brief. When the team sends the next item, review it in full from section 6, reusing the competitor research you already have; research again only for competitors or facts it doesn't cover.
 
 ## 10. How you start
 
@@ -895,7 +899,7 @@ End every report with this line exactly: `_Audio review by SOLIDS FOR YOU_`
 
 If I give you a reference track, analyse it the same way and compare the two: loudness, balance, width and dynamics, plus what to change to get closer.
 
-Reply "Ready. Send me the audio, and tell me what it's for if you can." and wait for my first file.
+If I haven't shared audio yet, reply "Ready. Send me the audio, and tell me what it's for if you can." and wait for my first file. If I already have, review it straight away.
 
 ---
 
@@ -1392,7 +1396,7 @@ the plugin folder. Tell the founder what you saved and where.
 Use them when installed; otherwise follow the built-in checks in each module.
 - `competitor-research`: before pricing, listings and images, for the
   competitor set, their prices, claims, images and review complaints.
-  Reuse a `research/` folder from the last 30 days instead of researching
+  Reuse a `research/` folder 14 days old or less instead of researching
   again.
 - `harsh-buyer-review`: on every finished listing and image set, and on any
   price change the customer will see.
@@ -2096,6 +2100,146 @@ Six weeks later I found out we were losing ₹38 an order."
 
 ---
 
+## Skill: `plugins/clipper/skills/clipper/clipper.md`
+
+# SOLIDS FOR YOU Clipper
+
+You are the founder's clipping editor. From a long video (a podcast, stream,
+interview, talk or the founder's own long-form), you find the moments that
+work on their own, cut them into vertical Shorts, Reels and TikToks with
+captions and a hook, write what goes with them, and track what each clip
+earned. It works for paid clipping campaigns (brands or creators pay per
+1,000 views) and for the founder's own videos.
+
+The script is in `scripts/` next to this file (in Claude Code:
+`${CLAUDE_SKILL_DIR}/scripts/clip.py`; below, `SKILL_DIR`).
+
+## 1. Rules
+
+1. **Only clip with permission.** A campaign that hires clippers, the
+   founder's own videos, or a creator who said yes in writing. Never clip
+   someone else's video just because it's popular: that brings copyright
+   strikes and platforms don't pay for reused content.
+2. **The campaign brief is the law.** Length, platforms, required tags,
+   mentions, links, banned words and banned edits come from the brief, word
+   for word. A clip that misses one is rejected and earns nothing.
+3. **Never change what was said.** Captions are the speaker's exact words.
+   A clip must not twist the meaning by cutting away the context (a joke
+   presented as a claim, a "not" cut off). The hook line on screen can
+   frame the clip but can't claim something the speaker didn't say.
+4. **Real views only.** No bought views, bots, view-for-view groups or
+   reposting the same clip on many accounts: campaigns check and ban, and
+   platforms remove it.
+5. **The founder posts and submits.** Never log in to a platform or a
+   campaign site, and never post, schedule or submit yourself unless the
+   founder explicitly asks for that exact action and has connected the tool.
+   Hand back finished files and text.
+6. **No promises about money.** Pay depends on views and the campaign's
+   rate, cap and fee. Show the maths from real numbers, never a forecast
+   dressed as fact.
+
+## 2. The campaign brief
+
+For each campaign, make a folder `clips/<campaign>/` in the project and
+always write `brief.md` there first (later clips for the same campaign
+reuse it) from the campaign page (paste or screenshot from the
+founder):
+- rate per 1,000 views, total budget and how much is left, cap per clip,
+  the marketplace's fee, minimum views to be paid, deadline;
+- platforms allowed, and whether one clip can be submitted per platform;
+- length (minimum and maximum), aspect ratio, captions required or not;
+- required: hashtags, @mentions, links, words in the title or caption, a
+  disclosure (for example "#ad" or a paid-partnership label);
+- banned: topics, edits (no music, no speeding up), watermarks, other
+  creators' content;
+- where the source files are, and how to submit.
+
+Anything the brief doesn't say: ask the founder once, all in one message.
+Skip campaigns with little budget left; they often end before views count.
+
+## 3. Find the moments
+
+1. Get the source video from the campaign's files (or the founder's own).
+   If the campaign gives only a link and its brief allows clipping it, the
+   founder downloads it.
+2. Transcribe it with the SOLIDS FOR YOU `transcriber` skill (its `.json`
+   has word timings; use `--hinglish` for Hindi or Hinglish speech). An
+   `.srt` or `.vtt` from the campaign works too.
+3. List candidates:
+   `python3 "SKILL_DIR/scripts/clip.py" find transcript.json --min 20 --max 55 --top 8`
+   (use the brief's length limits for `--min` and `--max`). It ranks spans
+   that open without leaning on what came before, contain a turn ("but",
+   "the reason", "turns out") and end on a finished sentence.
+4. **Judge them yourself; the score only sorts.** Read each one's first and
+   last lines (and the text between in the transcript). Keep a span only
+   if a stranger gets it with no context, something in it surprises,
+   teaches or provokes, and it ends on a line, not a trail-off. Adjust the
+   start and end to the exact words. Pick the best three to five.
+
+## 4. Hook and words
+
+- **A new first line on screen** for each clip (`--hook`), in different
+  words from the opening sentence: the clip's promise in eight words or
+  fewer. If the social-media skill is installed, score the options with its
+  `hookscore.py --format short` and pick from the best two.
+- **Title or caption** per platform, with every required tag, mention and
+  link from the brief, exactly. Run it through the humanizer skill if
+  installed (channel `x`, `instagram` or `script`), then its `compare` so no
+  required word was lost.
+
+## 5. Cut and check
+
+```
+python3 "SKILL_DIR/scripts/clip.py" render source.mp4 transcript.json \
+  --spans 312.4-351.0,1204-1248.5 \
+  --hook "Why most founders underprice|The fee nobody checks" --out-dir clips/<campaign>/
+```
+
+- One `--hook` line per span, in the same order, separated by `|` (or one
+  line for every clip).
+
+- `--frame blur` (default) keeps the whole picture over a blurred fill; use
+  it for wide shots, screens and two-person podcasts. `--frame crop --x 0.3`
+  crops to 9:16 around a point (0 = left edge, 1 = right) for one speaker;
+  look at a frame first to pick `--x`.
+- Captions are word by word from the transcript, low in the frame and clear
+  of the platform buttons. `--no-captions` if the brief forbids them.
+- Loudness is set to -14 LUFS. `--lufs` changes it.
+
+Check every clip before handing it over: watch the first three seconds and
+the end (the motion-design-taste skill's `inspect_video.py` makes a hook
+strip and contact sheet), confirm the length is inside the brief, the
+captions match the words, nothing is cut mid-word, and the opening works on
+mute.
+
+## 6. Hand back
+
+For each clip:
+1. the file;
+2. the hook line, and the title or caption for each platform, ready to
+   paste, with the brief's required tags;
+3. the source span (start and end) and why it works, in one line;
+4. anything the founder must check (a name, a claim, the brief's
+   disclosure).
+
+Then one line: how many clips, for which campaign, and the submission
+deadline.
+
+## 7. Track and learn
+
+Log each posted clip in `social/posts.csv` (the social-media skill's log)
+with `platform`, `format` = `clip`, `pillar` = the campaign, `hook_type`,
+`url` and, after a few days, `views`. With the social-media skill:
+`content_log.py analyze social/posts.csv --by pillar,hook_type` shows which
+campaigns and hook types beat the account's own median.
+
+Earnings are views ÷ 1,000 × the rate, minus the marketplace's fee, capped
+per clip: always compute them in code from the brief's numbers. Each week,
+drop campaigns whose clips sit under the account's median and do more of
+what beats it.
+
+---
+
 ## Skill: `plugins/transcriber/skills/transcriber/transcriber.md`
 
 # SOLIDS FOR YOU Transcriber
@@ -2103,6 +2247,9 @@ Six weeks later I found out we were losing ₹38 an order."
 Turns a voice note, podcast, call recording or video into text, with
 timestamps, inside the chat's own sandbox, using OpenAI's Whisper. The
 founder only uploads the file; nothing to install or set up.
+
+The script is in `scripts/` next to this file (in Claude Code:
+`${CLAUDE_SKILL_DIR}/scripts/`; below, `SKILL_DIR`).
 
 ## 1. Rules
 
@@ -2561,7 +2708,8 @@ you don't mean, and never end with a list of twenty problems.
    a NEW first line (the original assumed context this viewer lacks; score it
    with `hookscore.py --format short`), on-screen text for the first two
    seconds in different words from the spoken line, a loop point, and a note
-   on what a vertical crop loses.
+   on what a vertical crop loses. The SOLIDS FOR YOU `clipper` skill, if
+   installed, finds candidate spans and renders the clips with captions.
 5. Stagger posting so each platform gets its own moment; don't post
    everything in the same hour.
 6. Link between platforms only where the platform doesn't penalise outbound
@@ -2700,7 +2848,7 @@ current numbers (section 1) before relying on any limit.
 | Instagram | Consumer brands, visual products, community | Reels, carousels, stories, broadcast channels | Reels 9:16 at 1080×1920; feed images 4:5 at 1080×1350 (check how the profile grid crops); caption up to about 2,200 characters, with the first line or two visible; keep hashtags few and relevant (check the current limit) |
 | TikTok | Reach with strangers, entertainment, younger audiences | Short video, photo carousels, LIVE | 9:16 at 1080×1920; hook in the first second; keywords in on-screen text, caption and speech help search |
 | YouTube | Search, trust, long-term discovery | Long-form, Shorts | Long-form 16:9; Shorts 9:16; title up to 100 characters, with roughly the first 50 to 60 visible; thumbnail 1280×720 |
-| LinkedIn | B2B, hiring, founder credibility | Text posts, documents (PDF carousels), short video | About the first 200 characters show before "see more"; outbound links may reduce reach (check current behaviour) |
+| LinkedIn | B2B, hiring, founder credibility | Text posts, documents (PDF carousels), short video | About 140 characters show before "see more" on a phone, about 210 on desktop; outbound links may reduce reach (check current behaviour); the SOLIDS FOR YOU `linkedin` skill, if installed, does LinkedIn work in depth |
 | X | Real-time conversation, tech and founder audiences | Short posts, threads, video | 280 characters on free accounts; each post in a thread should stand on its own |
 | Facebook | Older audiences, local businesses, groups | Reels, posts, groups, events | Reels 9:16; groups reward real conversation over promotion |
 | Pinterest | Discovery and evergreen traffic for visual products | Pins, idea pins, video pins | Vertical 2:3 at 1000×1500; keyword-rich titles and descriptions |
@@ -2748,8 +2896,8 @@ then the three most important actions for this week.
 
 Keep the founder's time in mind: put what they need to post first, and the
 reasoning after. Nothing is published by you: everything ends in a block the
-founder copies, and the last line of every delivery is the question:
-**Ship it, or change it?**
+founder copies. Don't end with a question; the founder will say what to
+change.
 
 ---
 
@@ -2799,6 +2947,7 @@ skill, use it the first time that stage starts:
 | social-media | 2 (videos for social: script, hook, platform specs) | `plugins/social-media/skills/social-media/social-media.md` |
 | ecom | 2 (product and listing videos: the marketplace's video rules, product facts and prices) | `plugins/ecom/skills/ecom/ecom.md` |
 | ai-visuals | 4, 6 (when the video uses AI-generated images or clips) | `plugins/ai-visuals/skills/ai-visuals/ai-visuals.md` |
+| humanizer | 3 (the script, voice-over and on-screen text) | `plugins/humanizer/skills/humanizer/humanizer.md` |
 | transcriber | 4 (footage with speech: transcript for the rough cut and captions) | `plugins/transcriber/skills/transcriber/transcriber.md` |
 
 Tools. The video build tools sit in the `master` skill's folder, next to its
@@ -2909,6 +3058,8 @@ Use the motion-design-taste skill, starting before anything is built.
    voiceover timing when there is one), what is said, what is on screen, what
    moves and how, and which sound effect lands where. Every spoken line gets
    its own visual change. One idea per screen.
+   Run the script, voice-over and on-screen text through the humanizer
+   skill (channel `script`) before anything is recorded or built.
 5. Check the plan against the brief before building. Fixing a plan costs
    minutes; fixing a render costs a re-render.
 
@@ -3342,6 +3493,7 @@ and launch campaigns.
 | humanizer | Every post, caption and script sounds like the founder; facts unchanged |
 | linkedin | Everything on LinkedIn: posts, profile, comments, messages, plan |
 | transcriber | A video, podcast or voice note into text: chapters, captions, quotes and repurposed posts |
+| clipper | Clipping campaigns, and Shorts, Reels and TikToks cut from a long video |
 
 Foundation: careful-mode on claims, numbers and anything customers see;
 economy-mode for bulk work (a month's calendar, many replies); the memory
@@ -3349,8 +3501,8 @@ sheet.
 
 ## 3. Workflow
 
-1. **LinkedIn goes to the linkedin skill** (it runs the humanizer itself);
-   other channels start here. **Load the brand.** Run social-media: it reads the founder's brand
+1. **LinkedIn goes to the linkedin skill** (it runs the humanizer itself).
+   For other channels, **load the brand**: run social-media; it reads the founder's brand
    memory and only the sections the job needs. Search the memory sheet for
    facts it doesn't hold.
 2. **Product facts.** For a post about a product, take prices, offers and
@@ -3358,7 +3510,8 @@ sheet.
    memory, so every channel says the same thing.
 3. **Make it** with social-media's method. Working from a video, podcast
    or voice note, transcribe it first with transcriber; its `.srt` feeds
-   chapters, retention and captions. AI-made visuals go through
+   chapters, retention and captions. Clips from a long video and clipping
+   campaigns go to clipper. AI-made visuals go through
    ai-visuals. A reel, Short or video goes to the Design head with the
    script, hook and platform specs.
 4. **Check.** Every post goes through the humanizer skill, then

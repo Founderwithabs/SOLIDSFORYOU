@@ -24,10 +24,8 @@ loaded from. Below, `SKILL_DIR` means that folder.
    `master.md`'s registry by eye and tell the user once how to add it.
 5. For the rules every head shares, or a question about how the Master
    Skill works or how to change its mode, read `SKILL_DIR/master.md`.
-6. The sub-skills are separate SOLIDS FOR YOU skills: economy-mode,
-   careful-mode, harsh-buyer-review, motion-design-taste, audio-review,
-   social-media, competitor-research, ecom, ai-visuals, transcriber, humanizer and linkedin.
-   When a head needs one, invoke it. If it is missing, tell the user once how
+6. The sub-skills are the separate SOLIDS FOR YOU skills in the registry
+   in `master.md` section 1. When a head needs one, invoke it. If it is missing, tell the user once how
    to add it (`/plugin install <name>@solidsforyou` in Claude Code), then do
    the closest thing you can.
 7. Work in a scratch directory or the user's project folder, never inside
