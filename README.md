@@ -73,6 +73,12 @@ video, audio, social media, feedback and research, switch it to
 `/config`). For a single conversation, say "Master Skill off" or "Master Skill
 always on".
 
+**Sound for videos.** The Master Skill's video workflow picks real sound
+effects and music from a free, licence-checked library (whooshes, risers,
+logo stings, background music by mood), downloading only what a video needs
+from GitHub, and lists any credits the video description needs. If your
+network blocks github.com, it uses its built-in sounds instead.
+
 **Requirements:** Audio Review and Motion Design Taste need
 [ffmpeg](https://ffmpeg.org/download.html) and Python 3. Audio Review also
 needs `numpy` (`pip install numpy`). The Master Skill needs

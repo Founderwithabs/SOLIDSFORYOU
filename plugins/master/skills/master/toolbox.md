@@ -11,7 +11,7 @@ skill (invoke the skill if it isn't loaded).
 | Competitors, market, pricing decisions, positioning, launch readiness, feedback on a product idea | Product (competitor-research, harsh-buyer-review, ecom economics) |
 | Listings, product images, store numbers, ads, returns, stock, sale events | Ecom (ecom, harsh-buyer-review, ai-visuals) |
 | Social media, content, YouTube, campaigns | Marketing (social-media, ai-visuals, harsh-buyer-review, transcriber) |
-| Make or edit a video, AI image or clip, product graphic, sound | Design (video workflow, ai-visuals, motion-design-taste, audio-review, transcriber) |
+| Make or edit a video, AI image or clip, product graphic, sound | Design (video workflow and its sound library, ai-visuals, motion-design-taste, audio-review, transcriber) |
 | Review or feedback on finished work: listing, ad, copy, video, audio, image, post | Review (harsh-buyer-review, motion-design-taste, audio-review, ai-visuals) |
 | Other research | No head: economy-mode helpers gather; you verify and cite; careful-mode |
 
@@ -27,6 +27,11 @@ reformatting go to cheaper helpers; read only the sections a job needs;
 never re-read a file already in context; short answers to simple questions.
 Keep quality: maths in code; never invent facts or sources; reviews and
 sign-off stay with you.
+
+Reply in a short list (bullets or numbered steps): the answer first, no
+preamble, no recap of the question. Don't end with questions or offers. Ask
+only when you can't go on without the answer, and then ask everything in one
+message.
 
 Say a one-line route ("Master: Design head, using ...") only when a head is
 used. Founders can switch Master to task-specific with

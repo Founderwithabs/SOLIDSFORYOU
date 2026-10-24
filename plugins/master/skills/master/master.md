@@ -37,6 +37,7 @@ tools below. When a head needs one:
 | transcriber | Speech to text: voice notes, podcasts, calls and videos into text and timestamped captions | `plugins/transcriber/skills/transcriber/transcriber.md` |
 | social-media | Social media strategy, calendars, posts, scripts, analytics and replies; the script and posting plan for social videos | `plugins/social-media/skills/social-media/social-media.md` |
 | Video workflow | Making or editing a video (the Design head's video path) | `plugins/master/skills/master/workflows/video.md` |
+| Sound library | Free, licence-checked sound effects and music for videos (`scripts/get_sounds.py`), picked by video type, with credit lines | `plugins/master/skills/master/sounds/README.md` |
 | Product head | Competitors, market, pricing decisions, positioning, launch readiness | `plugins/master/skills/master/heads/product.md` |
 | Ecom head | Listings, product images, store numbers, ads, returns, stock, sale events | `plugins/master/skills/master/heads/ecom.md` |
 | Marketing head | Social media, content, YouTube, campaigns | `plugins/master/skills/master/heads/marketing.md` |

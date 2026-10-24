@@ -41,6 +41,7 @@ tools below. When a head needs one:
 | transcriber | Speech to text: voice notes, podcasts, calls and videos into text and timestamped captions | `plugins/transcriber/skills/transcriber/transcriber.md` |
 | social-media | Social media strategy, calendars, posts, scripts, analytics and replies; the script and posting plan for social videos | `plugins/social-media/skills/social-media/social-media.md` |
 | Video workflow | Making or editing a video (the Design head's video path) | `plugins/master/skills/master/workflows/video.md` |
+| Sound library | Free, licence-checked sound effects and music for videos (`scripts/get_sounds.py`), picked by video type, with credit lines | `plugins/master/skills/master/sounds/README.md` |
 | Product head | Competitors, market, pricing decisions, positioning, launch readiness | `plugins/master/skills/master/heads/product.md` |
 | Ecom head | Listings, product images, store numbers, ads, returns, stock, sale events | `plugins/master/skills/master/heads/ecom.md` |
 | Marketing head | Social media, content, YouTube, campaigns | `plugins/master/skills/master/heads/marketing.md` |
@@ -185,7 +186,7 @@ skill (invoke the skill if it isn't loaded).
 | Competitors, market, pricing decisions, positioning, launch readiness, feedback on a product idea | Product (competitor-research, harsh-buyer-review, ecom economics) |
 | Listings, product images, store numbers, ads, returns, stock, sale events | Ecom (ecom, harsh-buyer-review, ai-visuals) |
 | Social media, content, YouTube, campaigns | Marketing (social-media, ai-visuals, harsh-buyer-review, transcriber) |
-| Make or edit a video, AI image or clip, product graphic, sound | Design (video workflow, ai-visuals, motion-design-taste, audio-review, transcriber) |
+| Make or edit a video, AI image or clip, product graphic, sound | Design (video workflow and its sound library, ai-visuals, motion-design-taste, audio-review, transcriber) |
 | Review or feedback on finished work: listing, ad, copy, video, audio, image, post | Review (harsh-buyer-review, motion-design-taste, audio-review, ai-visuals) |
 | Other research | No head: economy-mode helpers gather; you verify and cite; careful-mode |
 
@@ -201,6 +202,11 @@ reformatting go to cheaper helpers; read only the sections a job needs;
 never re-read a file already in context; short answers to simple questions.
 Keep quality: maths in code; never invent facts or sources; reviews and
 sign-off stay with you.
+
+Reply in a short list (bullets or numbered steps): the answer first, no
+preamble, no recap of the question. Don't end with questions or offers. Ask
+only when you can't go on without the answer, and then ask everything in one
+message.
 
 Say a one-line route ("Master: Design head, using ...") only when a head is
 used. Founders can switch Master to task-specific with
@@ -2513,12 +2519,35 @@ python3 "SKILL_DIR/scripts/sfx_mix.py" --cues cues.json \
 
 Built-in sounds: whoosh (transitions), pop and tick (small elements),
 thump (emphasis), ding (answers and success), riser (build into a reveal).
-For richer effects or background music, take them from the sound library:
-`python3 "SKILL_DIR/scripts/get_sounds.py" fetch all --category transition`
-(only the categories the video needs), `find whoosh soft` to pick one, and
-give its path as the cue's `sfx`. Music goes under the voice with the ducking
-command above. Before delivery, run `get_sounds.py credits` on every library
-file used and put its lines in the description (CC0 needs none).
+**Real sounds and music: the sound library.** Pick categories by video type
+(the full table is in `SKILL_DIR/sounds/README.md`):
+
+| Video | Effects | Music |
+|---|---|---|
+| Product reveal or ad | `riser`, `impact`, `transition`, `shimmer`, `logo-sting` | `music-upbeat`, `music-corporate`, `music-beds` |
+| Explainer or app demo | `ui`, `pop`, `notification`, `typing`, `data` | `music-calm`, `music-beds`, `music-corporate` |
+| Stats and results | `data`, `money`, `pop`, `success` | `music-corporate`, `music-tech` |
+| Reel or short | `transition`, `pop`, one `impact` | `music-upbeat`, `music-lofi` |
+| Logo intro or outro | `logo-sting`, `shimmer`, `riser` | none |
+| Brand story or testimonial | soft `transition` only | `music-calm`, `music-emotional` |
+| E-commerce or unboxing | `foley`, `camera`, `pop`, `money` | `music-lofi`, `music-upbeat` |
+
+```
+python3 "SKILL_DIR/scripts/get_sounds.py" fetch all --category riser impact music-upbeat
+python3 "SKILL_DIR/scripts/get_sounds.py" find whoosh soft --category transition
+```
+
+Fetch only the categories the video needs; downloads need github.com in the
+network allowlist, and the script says so if it is blocked (then use the
+built-in sounds). Give a library file's path as the cue's `sfx`; music goes
+under the voice with the ducking command above. Never use a folder a source's
+`exclude` lists, or audio from outside the library whose licence wasn't
+checked the same way.
+
+**Credits (every video that uses the library).** Run
+`python3 "SKILL_DIR/scripts/get_sounds.py" credits <every library file used>`
+and put every line it prints in the delivery notes and the video description
+(CC0 files need none).
 Effects sit about 10 dB under the voice (gain 0.2 to 0.35), land on the exact
 frame of their motion, and never more than one per second unless the moment
 calls for it. Final loudness: -14 LUFS integrated, true peak -1.5 dBTP.
@@ -2601,7 +2630,9 @@ then a short report:
 6. **Open items** that need the user (approvals, assets, decisions).
 7. **Careful mode record** for the final file.
 8. **Economy mode line**: what ran on which model.
-9. **Taste notes to save**: anything learned from the references.
+9. **Sound credits**: every line `get_sounds.py credits` printed for the
+   library files used, or "none needed (all CC0)".
+10. **Taste notes to save**: anything learned from the references.
 
 Keep the source files (HTML, cue lists, mixes) with the video so it can be
 changed later. If the session's files will be lost, give the user the source
@@ -2618,6 +2649,73 @@ This document is meant to grow. To add a SOLIDS FOR YOU skill to it:
    add it to the diagram in section 2.
 4. Run `python3 scripts/build_bundle.py` to rebuild `dist/master-full.md`,
    the single file other people's Claude can read.
+
+---
+
+## Skill: `plugins/master/skills/master/sounds/README.md`
+
+# SOLIDS FOR YOU sound library
+
+Free sound effects and background music for business videos, gathered from
+GitHub repositories whose licence was checked file by file (24 October 2026).
+No memes, no game sounds, nothing with unclear rights. The audio isn't stored
+here: `scripts/get_sounds.py` downloads only the folders a video needs, from
+the commit that was checked, and refuses a download if its licence file has
+changed. `library.json` is the full list, and also says which repos were
+rejected and why.
+
+```
+python3 "SKILL_DIR/scripts/get_sounds.py" list                       # sources and categories
+python3 "SKILL_DIR/scripts/get_sounds.py" fetch all --category transition logo-sting
+python3 "SKILL_DIR/scripts/get_sounds.py" find whoosh soft           # search downloaded files
+python3 "SKILL_DIR/scripts/get_sounds.py" credits used1.wav used2.mp3
+```
+
+A file path works anywhere `sfx_mix.py` takes a built-in sound name
+(`{"t": 1.2, "sfx": "/path/to/whoosh.wav", "gain": 0.3}`), and a music
+track goes through the ducking command in `workflows/video.md`.
+
+## The sources
+
+| Id | What | Files | Licence |
+|---|---|---|---|
+| `sfx-kit` | 320 sounds made for motion graphics and interfaces: whooshes, risers, logo stings, pops, money, data, typing; `sounds.json` describes each one | WAV | CC0 |
+| `alvana` | 731 levelled sound effects (UI, notification, whoosh, riser, camera, keyboard, money) and 108 music tracks by mood, each with a beat map | WAV effects, MP3 music | CC0; `music-corporate` is CC BY |
+| `creator-pack` | 38 sound effects for creators (typing, shutter, success chime, logo sting) and 9 background beds (tech explainer, upbeat vlog, lo-fi focus, screen bed) | MP3 | CC0 |
+| `kenney-interface` | Kenney's 100 interface sounds: clicks, switches, confirmations, errors | WAV | CC0 |
+| `kenney-packs` | Kenney's UI, digital and impact packs (416 sounds) | OGG | CC0 |
+| `kenney-jingles` | Kenney's short pizzicato and hit jingles, and digital beeps | OGG | CC0 |
+| `motion-basics` | 38 motion-graphics sounds: passes, stingers, sub hits, risers, UI clicks | WAV | CC0 |
+| `elements-sfx` | 17 starter sounds for video (whoosh, riser, boom, shutter, success) | MP3 | CC0 (source not named) |
+| `oculus-pack` | Professional UI, whoosh, designed and musical-sting sounds from Oculus | OGG | CC BY: credit required |
+| `aeris-music` | 13 ambient and cinematic instrumental tracks | MP3 | CC0 (small publisher) |
+
+## What to use for each kind of business video
+
+| Video | Sound effects (categories) | Music (categories) |
+|---|---|---|
+| Product reveal or ad | `riser` into `impact`, `transition`, `shimmer`, `logo-sting` at the end | `music-upbeat`, `music-corporate`, `music-beds` (bgm_hook_loop_8s for short ads) |
+| Explainer, SaaS or app demo | `ui`, `pop`, `notification`, `typing`, `data`, soft `transition` | `music-calm`, `music-beds` (bgm_tech_explainer, bgm_screen_bed), `music-corporate` |
+| Stats, numbers, results | `data`, `money`, `pop`, `success` | `music-corporate`, `music-tech` |
+| Reel or short | `transition` on every cut, `pop` for text, one `impact` for the key line | `music-upbeat`, `music-lofi` |
+| Logo intro or outro | `logo-sting`, `shimmer`, `riser` | none, or the sting alone |
+| Brand story, founder video, testimonial | very few: soft `transition` only | `music-calm`, `music-emotional`, `aeris-music` |
+| E-commerce, unboxing | `foley`, `camera`, `pop`, `money` | `music-lofi`, `music-upbeat` |
+| Podcast or YouTube intro | `logo-sting`, `riser` | `music-intro` |
+
+## Rules
+
+1. **Credit CC BY files.** Run `credits` on the files used and put every line
+   it prints in the video description. CC0 files need no credit.
+2. **Listen before you ship.** Run the `audio-review` skill on the final mix;
+   sound effects sit about 10 to 15 dB under the voice, and music ducks under
+   speech.
+3. **Content ID.** Free music can still be claimed by mistake if someone
+   registered it with YouTube's Content ID. If a claim appears, dispute it with
+   the source and licence from `library.json`.
+4. **Nothing outside the library** goes into a founder's video unless its
+   licence was checked the same way (the licence file, not a website's
+   summary). Never use the folders a source's `exclude` lists.
 
 ---
 

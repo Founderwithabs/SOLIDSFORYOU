@@ -1242,10 +1242,28 @@ def check_chaos_regressions(tmp: Path) -> None:
             raise Skip("no sound library")
         assert "get_sounds.py" in (PLUGINS / "master/skills/master/workflows/video.md").read_text(encoding="utf-8"), \
             "the video workflow must tell Claude the sound library exists"
-        lib = json.loads((PLUGINS / "master/skills/master/sounds/library.json").read_text(encoding="utf-8"))
+        try:
+            lib = json.loads((PLUGINS / "master/skills/master/sounds/library.json").read_text(encoding="utf-8"))
+        except json.JSONDecodeError as e:
+            raise AssertionError(f"sounds/library.json doesn't parse: {e}")
+        problems = []
         for src in lib["sources"]:
-            assert len(src["commit"]) == 40 and src["license_check"], f"{src['id']}: pin a commit and a licence check"
-        assert "sfx-kit" in py(get, "list")
+            sid = src.get("id", "?")
+            if not re.fullmatch(r"[0-9a-f]{40}", src.get("commit") or ""):
+                problems.append(f"{sid}: pin a full commit")
+            if not src.get("license_check"):
+                problems.append(f"{sid}: needs a license_check")
+            cats = src.get("categories") or {}
+            if not cats or not all(isinstance(p, list) and p for p in cats.values()):
+                problems.append(f"{sid}: needs categories, each with at least one path")
+            # An exclude removes a file inside a category, never a whole category.
+            for ex in src.get("exclude", []):
+                for cat, paths in cats.items():
+                    for p in paths:
+                        if ex.rstrip("/") == p.rstrip("/*") or p.startswith(ex.rstrip("/") + "/"):
+                            problems.append(f"{sid}: exclude {ex!r} removes all of category {cat!r} ({p})")
+        assert not problems, "\n".join(problems)
+        assert all(src["id"] in py(get, "list") for src in lib["sources"])
         assert "Unknown source" in py(get, "fetch", "nope", ok=False)
         dest = tmp / "sounds"
         need("git")
@@ -1259,6 +1277,13 @@ def check_chaos_regressions(tmp: Path) -> None:
         assert "No credit required" in py(get, "credits", wavs[0], "--dest", dest)
         out = py(get, "credits", tmp / "mine.wav", "--dest", dest, ok=False)  # unknown files: check them yourself
         assert "Not from the library" in out and "No credit required" not in out, out
+
+    @test
+    def test_no_audio_is_committed():
+        # Sounds are downloaded on demand; the repo never carries audio.
+        tracked = subprocess.run(["git", "ls-files"], cwd=ROOT, capture_output=True, text=True).stdout.split("\n")
+        audio = [f for f in tracked if f.lower().endswith((".wav", ".mp3", ".ogg", ".flac", ".m4a", ".aiff", ".aif", ".opus"))]
+        assert not audio, "audio files in the repo: " + ", ".join(audio[:10])
 
     @test
     def test_no_script_crashes_or_hangs_on_hostile_input():

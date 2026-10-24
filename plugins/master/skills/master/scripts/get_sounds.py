@@ -84,11 +84,13 @@ def fetch(src, categories, dest):
     r = git(["fetch", "-q", "--depth", "1", "--filter=blob:none", "origin",
              src["commit"]], root)
     if r.returncode != 0:
+        shutil.rmtree(root, ignore_errors=True)  # no half-downloaded folder left behind
         sys.exit("Couldn't download %s from GitHub:\n%s\nIf github.com is blocked "
                  "by this environment's network settings, allow it there; don't "
                  "work around the block." % (src["repo"], r.stderr.strip()))
     r = git(["checkout", "-q", "--force", src["commit"]], root)
     if r.returncode != 0:
+        shutil.rmtree(root, ignore_errors=True)  # no half-downloaded folder left behind
         sys.exit("Checkout failed for %s:\n%s" % (src["repo"], r.stderr.strip()))
     lic = os.path.join(root, src["license_file"])
     text = open(lic, encoding="utf-8", errors="replace").read() if os.path.exists(lic) else ""

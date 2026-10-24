@@ -237,12 +237,35 @@ python3 "SKILL_DIR/scripts/sfx_mix.py" --cues cues.json \
 
 Built-in sounds: whoosh (transitions), pop and tick (small elements),
 thump (emphasis), ding (answers and success), riser (build into a reveal).
-For richer effects or background music, take them from the sound library:
-`python3 "SKILL_DIR/scripts/get_sounds.py" fetch all --category transition`
-(only the categories the video needs), `find whoosh soft` to pick one, and
-give its path as the cue's `sfx`. Music goes under the voice with the ducking
-command above. Before delivery, run `get_sounds.py credits` on every library
-file used and put its lines in the description (CC0 needs none).
+**Real sounds and music: the sound library.** Pick categories by video type
+(the full table is in `SKILL_DIR/sounds/README.md`):
+
+| Video | Effects | Music |
+|---|---|---|
+| Product reveal or ad | `riser`, `impact`, `transition`, `shimmer`, `logo-sting` | `music-upbeat`, `music-corporate`, `music-beds` |
+| Explainer or app demo | `ui`, `pop`, `notification`, `typing`, `data` | `music-calm`, `music-beds`, `music-corporate` |
+| Stats and results | `data`, `money`, `pop`, `success` | `music-corporate`, `music-tech` |
+| Reel or short | `transition`, `pop`, one `impact` | `music-upbeat`, `music-lofi` |
+| Logo intro or outro | `logo-sting`, `shimmer`, `riser` | none |
+| Brand story or testimonial | soft `transition` only | `music-calm`, `music-emotional` |
+| E-commerce or unboxing | `foley`, `camera`, `pop`, `money` | `music-lofi`, `music-upbeat` |
+
+```
+python3 "SKILL_DIR/scripts/get_sounds.py" fetch all --category riser impact music-upbeat
+python3 "SKILL_DIR/scripts/get_sounds.py" find whoosh soft --category transition
+```
+
+Fetch only the categories the video needs; downloads need github.com in the
+network allowlist, and the script says so if it is blocked (then use the
+built-in sounds). Give a library file's path as the cue's `sfx`; music goes
+under the voice with the ducking command above. Never use a folder a source's
+`exclude` lists, or audio from outside the library whose licence wasn't
+checked the same way.
+
+**Credits (every video that uses the library).** Run
+`python3 "SKILL_DIR/scripts/get_sounds.py" credits <every library file used>`
+and put every line it prints in the delivery notes and the video description
+(CC0 files need none).
 Effects sit about 10 dB under the voice (gain 0.2 to 0.35), land on the exact
 frame of their motion, and never more than one per second unless the moment
 calls for it. Final loudness: -14 LUFS integrated, true peak -1.5 dBTP.
@@ -325,7 +348,9 @@ then a short report:
 6. **Open items** that need the user (approvals, assets, decisions).
 7. **Careful mode record** for the final file.
 8. **Economy mode line**: what ran on which model.
-9. **Taste notes to save**: anything learned from the references.
+9. **Sound credits**: every line `get_sounds.py credits` printed for the
+   library files used, or "none needed (all CC0)".
+10. **Taste notes to save**: anything learned from the references.
 
 Keep the source files (HTML, cue lists, mixes) with the video so it can be
 changed later. If the session's files will be lost, give the user the source
