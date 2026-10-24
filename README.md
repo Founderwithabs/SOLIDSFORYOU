@@ -13,8 +13,8 @@ your phone.
 ![SOLIDS FOR YOU in 30 seconds](assets/demo.gif)
 
 *This video was made by Claude with SOLIDS FOR YOU's own video workflow:
-built, reviewed by a harsh buyer and a motion designer, and fixed over three
-rounds. [How it was made](examples/launch-video).*
+built, reviewed by a harsh buyer and a motion designer, and fixed until it
+scored 86 out of 100. [How it was made](examples/launch-video).*
 
 ## Start in 30 seconds
 
