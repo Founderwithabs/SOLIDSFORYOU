@@ -39,6 +39,9 @@ skill, use it the first time that stage starts:
 | motion-design-taste | 3, 6, 8 | `plugins/motion-design-taste/skills/motion-design-taste/motion-design-taste.md` |
 | audio-review | 4, 6, 8 (whenever the video has sound) | `plugins/audio-review/skills/audio-review/initiation_prompt.md` |
 | harsh-buyer-review | 5 | `plugins/harsh-buyer-review/skills/harsh-buyer-review/harsh-buyer-reviewer.md` |
+| social-media | 2 (videos for social: script, hook, platform specs) | `plugins/social-media/skills/social-media/social-media.md` |
+| ecom | 2 (product and listing videos: the marketplace's video rules, product facts and prices) | `plugins/ecom/skills/ecom/ecom.md` |
+| ai-visuals | 4, 6 (when the video uses AI-generated images or clips) | `plugins/ai-visuals/skills/ai-visuals/ai-visuals.md` |
 
 Tools. The video build tools sit in the `master` skill's folder, next to its
 SKILL.md (in Claude Code, `${CLAUDE_SKILL_DIR}`); below, `SKILL_DIR` means
@@ -105,6 +108,16 @@ Before making anything, write down the brief as a numbered requirement list:
   final;
 - style decisions that must not change;
 - what "done" means: the deliverables and the quality bar (below).
+
+Before asking, take what other tools already know, so the founder isn't
+asked twice:
+- a video for a marketplace listing or store page: the marketplace's video
+  rules (length, size, what may be shown or said) from the ecom skill's
+  marketplace guide, and product facts and prices from its store memory;
+- a reel, Short or post: the script, hook and platform specs from the
+  social-media skill and its brand memory;
+- the project's memory sheet (`memory/memory.csv`), if there is one: search
+  it for the product, prices and brand rules.
 
 Ask the user, in one message, only for what is missing and would change the
 result. Never invent facts, claims, prices or brand details.

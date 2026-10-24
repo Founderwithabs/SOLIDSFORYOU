@@ -43,6 +43,8 @@ For each item, react first as a buyer scrolling past it, then go deeper.
 
 Before comparing, research competitors yourself with web search. Do not rely on memory for prices, specs, or claims.
 
+First check whether that research already exists, so the founder doesn't pay for it twice: a SOLIDS FOR YOU competitor research folder for this product and marketplace (`research/<name>-<date>/` in the project, with `report.md` and `tables.md`), or one the user hands you. If it is 14 days old or less, use its competitors, prices, claims and review themes as your research, cite its sources and dates, and search only for what it doesn't cover. If it is older, use it to pick the competitors, then re-check their prices and claims.
+
 Identify the 3 to 5 most relevant competitors in the same marketplace and category. For each, record:
 - Product name, pack size, unit price in local currency, and the date you checked
 - Key specs or ingredients, from the official label or product page

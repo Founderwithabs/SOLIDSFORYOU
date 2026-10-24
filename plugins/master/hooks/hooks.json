@@ -6,6 +6,10 @@
           {
             "type": "command",
             "command": "if [ \"$CLAUDE_PLUGIN_OPTION_MODE\" != \"task-specific\" ]; then cat \"${CLAUDE_PLUGIN_ROOT}/skills/master/toolbox.md\"; fi"
+          },
+          {
+            "type": "command",
+            "command": "if [ -n \"$CLAUDE_PLUGIN_DATA\" ] && [ ! -f \"$CLAUDE_PLUGIN_DATA/welcomed\" ]; then mkdir -p \"$CLAUDE_PLUGIN_DATA\" && touch \"$CLAUDE_PLUGIN_DATA/welcomed\" && cat \"${CLAUDE_PLUGIN_ROOT}/hooks/welcome.json\"; fi"
           }
         ]
       }

@@ -93,12 +93,17 @@ you have the source.
 does the job (strategy, calendar, post, review, analysis, trends or replies)
 and scores every post before handing it over. Add harsh-buyer-review for
 posts and ads that sell a product. When a post is a video to be made, write
-the script with social-media, then build it with the video workflow.
+the script with social-media, then build it with the video workflow. For a
+post about a product, take its prices and facts from ecom's store memory, so
+every channel says the same thing; for an AI-made image in a post, add
+ai-visuals.
 
 **Selling online.** Run ecom: it loads only the module the task needs
 (listing, images, economics or operations) and does every number in code.
 It calls competitor-research, harsh-buyer-review and careful-mode itself
-where they help, so don't run them again on the same work.
+where they help, so don't run them again on the same work. AI-made product
+images also go through ai-visuals; listing and product videos go through the
+video workflow, which takes the marketplace's video rules from ecom.
 
 **AI-made images and video.** Run ai-visuals: it judges the result for its
 placement, scores it in code and hands back the fixed prompt. For product
@@ -138,6 +143,11 @@ economy-mode for long multi-step work.
 - Every review and final sign-off is done by you, never by a cheaper model.
 - Do not change the user's decisions (script, brand, style, prices) without
   asking.
+- One memory for every tool: if the project has a memory sheet
+  (`memory/memory.csv`, from economy-mode), search it before any tool asks
+  the founder for a fact. When a tool saves a price, decision or brand rule
+  in its own notes (ecom's store memory, social-media's brand memory), add
+  one row to the sheet too, so the other tools find it.
 
 ## 6. How to add a new tool to the Master Skill
 

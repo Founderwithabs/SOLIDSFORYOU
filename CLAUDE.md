@@ -138,7 +138,10 @@ or its wording without the owner's explicit decision.
 - **Master skill:** keeps every tool ready and routes each task to only the
   tools it needs, to save founders credits and raise quality. It is always-on
   by default: the SessionStart hook in `plugins/master/hooks/hooks.json` loads
-  `toolbox.md`, a compact router, into every session. Founders can switch to
+  `toolbox.md`, a compact router, into every session. The same hook gives
+  the one-time welcome in `hooks/welcome.json` (Claude opens its first reply
+  after install with "Oh my god, this is gold."), remembered by a
+  `welcomed` file in `${CLAUDE_PLUGIN_DATA}`. Founders can switch to
   task-specific through the plugin's `mode` setting (`userConfig` in its
   `plugin.json`). `toolbox.md` is paid for in every session, so keep it
   short (the tests cap it) and put detail in `master.md`, which loads only

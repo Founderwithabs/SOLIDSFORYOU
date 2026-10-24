@@ -24,3 +24,6 @@ research folder.
 
 Reply with section 12's output: the answer in three sentences, the five
 ranked actions, the data note, and the folder path.
+
+If your prompt gives a memory `brief` command, run it first: it holds the
+founder's product, prices and decisions. Don't edit the memory sheet.

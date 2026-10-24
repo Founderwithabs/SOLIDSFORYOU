@@ -284,8 +284,8 @@ def check_structure() -> None:
             root = hf.parent.parent
             options = json.loads((root / ".claude-plugin/plugin.json").read_text()).get("userConfig", {})
             # Run each hook once with every option at its default, as a new user has it.
-            env = {**os.environ, **{f"CLAUDE_PLUGIN_OPTION_{k.upper()}": str(v.get("default", ""))
-                                    for k, v in options.items()}}
+            env = {**{k: v for k, v in os.environ.items() if k != "CLAUDE_PLUGIN_DATA"},
+                   **{f"CLAUDE_PLUGIN_OPTION_{k.upper()}": str(v.get("default", "")) for k, v in options.items()}}
             for event, groups in json.loads(hf.read_text())["hooks"].items():
                 for group in groups:
                     for hook in group["hooks"]:
@@ -293,6 +293,53 @@ def check_structure() -> None:
                             cmd = hook["command"].replace("${CLAUDE_PLUGIN_ROOT}", str(root))
                             r = subprocess.run(["sh", "-c", cmd], capture_output=True, text=True, env=env, timeout=30)
                             assert r.returncode == 0, f"{root.name} {event} hook failed: {r.stderr[-300:]}"
+
+    @test
+    def test_every_tool_is_connected_to_master_and_its_neighbours():
+        master = PLUGINS / "master/skills/master"
+        if not master.exists():
+            raise Skip("no master plugin")
+        registry = (master / "master.md").read_text(encoding="utf-8").split("<!-- REGISTRY")[1].split("\n\n")[0]
+        router = (master / "toolbox.md").read_text(encoding="utf-8")
+        routing = (master / "master.md").read_text(encoding="utf-8").split("## 4.")[1].split("## 5.")[0]
+        problems = []
+        for name in plugin_names():
+            if name == "master":
+                continue
+            for where, text in [("master.md registry", registry), ("toolbox.md", router), ("master.md section 4", routing)]:
+                if not re.search(rf"\b{re.escape(name)}\b", text):
+                    problems.append(f"{name} is missing from {where}")
+        # Links between tools that save the founder paying or answering twice.
+        links = [("harsh-buyer-review/skills/harsh-buyer-review/harsh-buyer-reviewer.md", "research/<name>-<date>/",
+                  "the buyer reuses saved competitor research"),
+                 ("master/skills/master/workflows/video.md", "ecom", "product videos follow the marketplace's video rules"),
+                 ("master/skills/master/workflows/video.md", "memory/memory.csv", "videos check the memory sheet"),
+                 ("master/skills/master/master.md", "memory/memory.csv", "every tool checks the memory sheet"),
+                 ("competitor-research/skills/competitor-research/SKILL.md", "memory sheet", "research checks the memory sheet")]
+        for rel, needle, why in links:
+            f = PLUGINS / rel
+            if f.exists() and needle not in f.read_text(encoding="utf-8"):
+                problems.append(f"{rel}: lost the link that makes {why}")
+        assert not problems, "\n".join(problems)
+
+    @test
+    def test_master_welcomes_the_founder_once():
+        hooks = PLUGINS / "master/hooks/hooks.json"
+        if not hooks.exists():
+            raise Skip("no master plugin")
+        need("sh")
+        cmd = next(h["command"] for g in json.loads(hooks.read_text())["hooks"]["SessionStart"]
+                   for h in g["hooks"] if "welcome" in h["command"])
+        cmd = cmd.replace("${CLAUDE_PLUGIN_ROOT}", str(PLUGINS / "master"))
+        with tempfile.TemporaryDirectory() as data:
+            def start(**env):
+                full = {k: v for k, v in os.environ.items() if k != "CLAUDE_PLUGIN_DATA"}
+                return subprocess.run(["sh", "-c", cmd], capture_output=True, text=True,
+                                      env={**full, **env}, timeout=30).stdout
+            first = json.loads(start(CLAUDE_PLUGIN_DATA=data))
+            assert "Oh my god, this is gold." in first["hookSpecificOutput"]["additionalContext"], first
+            assert start(CLAUDE_PLUGIN_DATA=data) == "", "the welcome must only come once"
+            assert start() == "", "without a plugin data folder there is nowhere to remember it: say nothing"
 
     @test
     def test_master_is_on_by_default_cheap_and_switchable():

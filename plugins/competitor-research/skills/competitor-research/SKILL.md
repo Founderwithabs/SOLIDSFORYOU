@@ -19,12 +19,14 @@ yourself; the helpers do that on Haiku and send back short summaries.
 1. Print only what you need from the method:
    `python3 "SKILL_DIR/scripts/read_sections.py" "SKILL_DIR/competitor-research.md" 1 2 3 step1 11`. Write
    `brief.md` (step 1) in `research/<short-name>-<YYYY-MM-DD>/` in the
-   user's project, asking the user only for what you can't find. Then run
+   user's project, asking the user only for what you can't find (search the
+   project's memory sheet first, if it has one). Then run
    `python3 "SKILL_DIR/scripts/ledger.py" init <folder>`.
 2. Start the `research-scout` helper (installed as
    `competitor-research:research-scout`) with SKILL_DIR, the folder and the
    depth level. Show the user its competitor list and let them change it if
-   they want before you go on.
+   they want before you go on. If the project has a memory sheet, give the
+   scout and the analyst its `brief --task "<product>"` command too.
 3. Start one `research-collector` helper per competitor, including `us`,
    up to five at a time in parallel. Give each: SKILL_DIR, the folder, its
    competitor id, its id prefix (`<id>-`), and the depth level.

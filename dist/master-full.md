@@ -97,12 +97,17 @@ you have the source.
 does the job (strategy, calendar, post, review, analysis, trends or replies)
 and scores every post before handing it over. Add harsh-buyer-review for
 posts and ads that sell a product. When a post is a video to be made, write
-the script with social-media, then build it with the video workflow.
+the script with social-media, then build it with the video workflow. For a
+post about a product, take its prices and facts from ecom's store memory, so
+every channel says the same thing; for an AI-made image in a post, add
+ai-visuals.
 
 **Selling online.** Run ecom: it loads only the module the task needs
 (listing, images, economics or operations) and does every number in code.
 It calls competitor-research, harsh-buyer-review and careful-mode itself
-where they help, so don't run them again on the same work.
+where they help, so don't run them again on the same work. AI-made product
+images also go through ai-visuals; listing and product videos go through the
+video workflow, which takes the marketplace's video rules from ecom.
 
 **AI-made images and video.** Run ai-visuals: it judges the result for its
 placement, scores it in code and hands back the fixed prompt. For product
@@ -142,6 +147,11 @@ economy-mode for long multi-step work.
 - Every review and final sign-off is done by you, never by a cheaper model.
 - Do not change the user's decisions (script, brand, style, prices) without
   asking.
+- One memory for every tool: if the project has a memory sheet
+  (`memory/memory.csv`, from economy-mode), search it before any tool asks
+  the founder for a fact. When a tool saves a price, decision or brand rule
+  in its own notes (ecom's store memory, social-media's brand memory), add
+  one row to the sheet too, so the other tools find it.
 
 ## 6. How to add a new tool to the Master Skill
 
@@ -404,6 +414,8 @@ For each item, react first as a buyer scrolling past it, then go deeper.
 ## 5. Competitor research (required for every review)
 
 Before comparing, research competitors yourself with web search. Do not rely on memory for prices, specs, or claims.
+
+First check whether that research already exists, so the founder doesn't pay for it twice: a SOLIDS FOR YOU competitor research folder for this product and marketplace (`research/<name>-<date>/` in the project, with `report.md` and `tables.md`), or one the user hands you. If it is 14 days old or less, use its competitors, prices, claims and review themes as your research, cite its sources and dates, and search only for what it doesn't cover. If it is older, use it to pick the competitors, then re-check their prices and claims.
 
 Identify the 3 to 5 most relevant competitors in the same marketplace and category. For each, record:
 - Product name, pack size, unit price in local currency, and the date you checked
@@ -2211,6 +2223,9 @@ skill, use it the first time that stage starts:
 | motion-design-taste | 3, 6, 8 | `plugins/motion-design-taste/skills/motion-design-taste/motion-design-taste.md` |
 | audio-review | 4, 6, 8 (whenever the video has sound) | `plugins/audio-review/skills/audio-review/initiation_prompt.md` |
 | harsh-buyer-review | 5 | `plugins/harsh-buyer-review/skills/harsh-buyer-review/harsh-buyer-reviewer.md` |
+| social-media | 2 (videos for social: script, hook, platform specs) | `plugins/social-media/skills/social-media/social-media.md` |
+| ecom | 2 (product and listing videos: the marketplace's video rules, product facts and prices) | `plugins/ecom/skills/ecom/ecom.md` |
+| ai-visuals | 4, 6 (when the video uses AI-generated images or clips) | `plugins/ai-visuals/skills/ai-visuals/ai-visuals.md` |
 
 Tools. The video build tools sit in the `master` skill's folder, next to its
 SKILL.md (in Claude Code, `${CLAUDE_SKILL_DIR}`); below, `SKILL_DIR` means
@@ -2277,6 +2292,16 @@ Before making anything, write down the brief as a numbered requirement list:
   final;
 - style decisions that must not change;
 - what "done" means: the deliverables and the quality bar (below).
+
+Before asking, take what other tools already know, so the founder isn't
+asked twice:
+- a video for a marketplace listing or store page: the marketplace's video
+  rules (length, size, what may be shown or said) from the ecom skill's
+  marketplace guide, and product facts and prices from its store memory;
+- a reel, Short or post: the script, hook and platform specs from the
+  social-media skill and its brand memory;
+- the project's memory sheet (`memory/memory.csv`), if there is one: search
+  it for the product, prices and brand rules.
 
 Ask the user, in one message, only for what is missing and would change the
 result. Never invent facts, claims, prices or brand details.
