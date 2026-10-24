@@ -1145,6 +1145,99 @@ class WhisperModel:
         assert not any((tmp / "cache-000000/base").iterdir()), "a model that fails its hash must be deleted"
 
 
+def check_chaos_regressions(tmp: Path) -> None:
+    """The silent wrong answers chaos testing found, pinned so they can't come back."""
+    E = PLUGINS / "ecom/skills/ecom/scripts"
+    S = PLUGINS / "social-media/skills/social-media/scripts"
+    M = PLUGINS / "economy-mode/skills/economy-mode/scripts/memory.py"
+
+    def py(script, *args, ok=True, env=None):
+        r = subprocess.run([sys.executable, str(script), *map(str, args)], capture_output=True, text=True,
+                           env={**os.environ, **(env or {})}, encoding="utf-8", errors="replace")
+        assert (r.returncode == 0) == ok, f"{script.name} {args}: {r.stdout}{r.stderr}"
+        assert "Traceback" not in r.stdout + r.stderr, r.stderr
+        return r.stdout + r.stderr
+
+    @test
+    def test_economics_rejects_settings_that_give_wrong_profit():
+        if not (E / "economics.py").exists():
+            raise Skip("no ecom")
+        base = {"channel": "t", "currency": "INR", "source": "s", "checked_at": "2026-10-20",
+                "fees": [{"name": "ref", "type": "percent", "value": 10, "of": "price"}]}
+        for extra, said in [({"tax": {"mode": "inclusiv", "rate_pct": 18}}, "tax mode"),
+                            ({"returns": {"rate_pct": 150}}, "rate_pct"),
+                            ({"fees": [{"name": "r", "type": "percent_tiers", "tiers": []}]}, "tiers"),
+                            ({"fees": {"ref": 10}}, "list of fees")]:
+            f = tmp / "fees.json"
+            f.write_text(json.dumps({**base, **extra}))
+            assert said in py(E / "economics.py", "unit", "--fees", f, "--price", 999, "--cost", 300, ok=False)
+        f.write_text(json.dumps(base))
+        assert "must be above 0" in py(E / "economics.py", "unit", "--fees", f, "--price", -10, "--cost", 300, ok=False)
+
+    @test
+    def test_ads_report_skips_its_total_row_and_reads_tab_exports():
+        if not (E / "ops.py").exists():
+            raise Skip("no ecom")
+        f = tmp / "ads.tsv"
+        f.write_text("Campaign Name\tSpend\tSales\nX\t100\t500\nTotal\t100\t500\n")
+        out = py(E / "ops.py", "ads", f, "--total-sales", 1000)
+        assert "| **Total** | 100.00 | 500.00 |" in out and "TACoS (ad spend ÷ all sales 1,000.00): 10.0%" in out, out
+        assert "summary row (Total)" in out, out
+
+    @test
+    def test_excel_windows_csv_and_short_counts_are_read():
+        if not (S / "outliers.py").exists():
+            raise Skip("no social-media")
+        f = tmp / "views.csv"
+        rows = ["channel;title;views"] + [f"Café;Vidéo {i};{v}" for i, v in enumerate(["1.2K", "1K", "1.1K", "900", "9K"])]
+        f.write_bytes("\n".join(rows).encode("cp1252"))  # what Excel on Windows saves
+        out = json.loads(py(S / "outliers.py", f, "--json", "--min", 2))
+        assert [r["title"] for r in out["outliers"]] == ["Vidéo 4"] and out["outliers"][0]["views"] == 9000, out
+
+    @test
+    def test_scripts_print_rupees_and_hindi_through_windows_pipes():
+        if not M.exists():
+            raise Skip("no memory.py")
+        sheet = tmp / "win" / "memory.csv"
+        py(M, "--file", sheet, "add", "--topic", "pricing", "--text", "Joggers ₹999, क्या")
+        out = py(M, "--file", sheet, "search", "joggers", env={"PYTHONIOENCODING": "cp1252"})
+        assert "₹999" in out and "क्या" in out, out
+
+    @test
+    def test_listing_bullet_given_as_text_is_one_bullet():
+        if not (E / "listing_check.py").exists():
+            raise Skip("no ecom")
+        f = tmp / "listing.json"
+        f.write_text(json.dumps({"title": "Joggers", "bullets": "Soft 220 GSM cotton"}))
+        out = py(E / "listing_check.py", f)
+        assert "| bullet 1 | 19 |" in out and "bullet 2" not in out, out
+
+    @test
+    def test_retention_reads_european_exports():
+        if not (S / "retention.py").exists():
+            raise Skip("no social-media")
+        f = tmp / "eu.csv"
+        f.write_text("Position;Rétention\n" + "\n".join(f'"{i},5";"{90 - i},5"' for i in range(20)))
+        r = json.loads(py(S / "retention.py", f, "--duration", 60, "--json"))
+        assert r["points"] == 20 and r["start"] == 90.5, r
+
+    @test
+    def test_economy_hook_works_where_python3_is_missing():
+        hooks = PLUGINS / "economy-mode/hooks/hooks.json"
+        if not hooks.exists():
+            raise Skip("no economy-mode hooks")
+        cmd = json.loads(hooks.read_text())["hooks"]["SessionStart"][0]["hooks"][0]["command"]
+        assert "|| python " in cmd, "Windows often has python but not python3"
+
+    @test
+    def test_no_script_crashes_or_hangs_on_hostile_input():
+        if "--fast" in sys.argv:
+            raise Skip("full mode only")
+        chaos = ROOT / "tests/chaos.py"
+        r = subprocess.run([sys.executable, str(chaos)], capture_output=True, text=True, timeout=1800)
+        assert r.returncode == 0, r.stdout[-3000:] + r.stderr[-1000:]
+
+
 def main() -> None:
     fast = "--fast" in sys.argv
     check_structure()
@@ -1160,6 +1253,8 @@ def main() -> None:
         check_video_and_visual_tools(Path(tmp))
     with tempfile.TemporaryDirectory(prefix="sfy_transcriber_") as tmp:
         check_transcriber(Path(tmp))
+    with tempfile.TemporaryDirectory(prefix="sfy_chaos_regressions_") as tmp:
+        check_chaos_regressions(Path(tmp))
     if not fast:
         with tempfile.TemporaryDirectory(prefix="sfy_tests_") as tmp:
             check_media(Path(tmp))

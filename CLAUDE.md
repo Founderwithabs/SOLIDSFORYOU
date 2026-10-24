@@ -82,7 +82,11 @@ links in the docs, that `dist/` is up to date, and every script run on
 synthetic audio and video it builds itself. `--fast` runs only the structure
 and docs checks. GitHub Actions (`.github/workflows/tests.yml`) runs the full
 suite on every push and pull request. A SKIP means a tool was missing on that
-machine, not that the check passed.
+machine, not that the check passed. `tests/chaos.py` (part of the full run)
+fires hostile inputs at every script: empty, binary, cp1252 and semicolon or
+tab files, nulls and huge values, odd paths, parallel writes, fake media and a
+machine without ffmpeg. A script may refuse an input with a plain message,
+never with a traceback or a hang; add your new script's hostile inputs there.
 
 ## License
 
