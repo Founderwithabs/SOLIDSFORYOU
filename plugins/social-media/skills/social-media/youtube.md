@@ -91,7 +91,8 @@ filler.
 
 ## 7. Editing a raw recording
 
-With a timestamped transcript (Whisper, faster-whisper, or the captions
+With a timestamped transcript (from the SOLIDS FOR YOU `transcriber` skill,
+which makes one from the uploaded video in the chat, or from the captions
 YouTube makes for an unlisted upload):
 
 ```

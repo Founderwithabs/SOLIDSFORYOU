@@ -91,6 +91,15 @@ owner's explicit decision.
 - **Motion design taste:** `scripts/inspect_video.py` inspects; the prompt
   holds the rubric. Use it before delivering any video Claude made.
 - **Harsh buyer review:** needs web search for its competitor research.
+- **Transcriber:** `transcribe.py` installs faster-whisper and the
+  `solidsforyou-whisper-<size>-<n>` PyPI packages, joins split files and
+  trusts them only if every SHA-256 matches `models.json`; it tightens word
+  timings to the audio and cuts captions at real pauses. Maintainers build
+  and publish the packages with `scripts/build_whisper_packages.py` (official
+  OpenAI checkpoint, checked against OpenAI's published SHA-256, converted,
+  split under PyPI's size limit, uploaded with `PYPI_TOKEN`). Until they're
+  published, `models.json` has `published: false` and the script falls back to
+  faster-whisper's own download, then to phone instructions.
 - **AI visuals:** `ai-visuals.md` is the method (rules, brief, reading an
   image or video, prompt anatomy, fix ladder, scorecard, hand-back);
   `purposes.md` and `generators.md` are references read by section, and
