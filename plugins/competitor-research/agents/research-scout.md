@@ -22,3 +22,6 @@ research folder.
 
 Reply in at most 10 lines: the competitors chosen (id, name, channel, type),
 anything blocked, and anything the main conversation must ask the user.
+
+If your prompt gives a memory `brief` command, run it first: it holds the
+founder's product, prices and decisions. Don't edit the memory sheet.

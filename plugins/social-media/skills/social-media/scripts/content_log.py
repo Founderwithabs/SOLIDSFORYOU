@@ -20,9 +20,16 @@ Standard library only.
 """
 import argparse
 import csv
+import io
+from pathlib import Path
 import math
 import statistics
 import sys
+
+# Windows pipes default to a legacy code page: print ₹, Hindi and emoji as UTF-8 instead of crashing.
+for _stream in (sys.stdout, sys.stderr):
+    if hasattr(_stream, "reconfigure"):
+        _stream.reconfigure(encoding="utf-8", errors="replace")
 
 COLUMNS = ["date", "platform", "format", "pillar", "funnel", "hook_type", "topic",
            "url", "views", "reach", "likes", "comments", "shares", "saves",
@@ -63,9 +70,29 @@ def num(value):
         return None
 
 
+def read_table(path):
+    """Rows of a CSV or TSV export, however Excel or the platform saved it: UTF-8 or
+    Windows (cp1252) text, separated by commas, semicolons or tabs."""
+    try:
+        raw = Path(path).read_bytes()
+    except OSError as e:
+        sys.exit(f"can't read {path}: {e.strerror}")
+    for enc in ("utf-8-sig", "cp1252", "latin-1"):
+        try:
+            text = raw.decode(enc)
+            break
+        except UnicodeDecodeError:
+            continue
+    if "\x00" in text:
+        sys.exit(f"{path} isn't a text table (CSV or TSV); export it again as CSV")
+    # The header row says how columns are separated; cells further down may hold any character.
+    header = next((line for line in text.splitlines() if line.strip()), "")
+    delimiter = max([",", ";", "\t"], key=header.count) if header else ","
+    return list(csv.DictReader(io.StringIO(text, newline=""), delimiter=delimiter))
+
+
 def load(path):
-    with open(path, newline="", encoding="utf-8-sig") as f:
-        rows = list(csv.DictReader(f))
+    rows = read_table(path)
     if not rows:
         sys.exit(f"{path} has no posts")
     posts = []

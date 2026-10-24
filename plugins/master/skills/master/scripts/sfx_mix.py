@@ -16,9 +16,15 @@ The mix is normalized to -14 LUFS integrated, -1.5 dBTP true peak.
 import argparse
 import json
 import os
+import shutil
 import subprocess
 import sys
 import tempfile
+
+# Windows pipes default to a legacy code page: print ₹, Hindi and emoji as UTF-8 instead of crashing.
+for _stream in (sys.stdout, sys.stderr):
+    if hasattr(_stream, "reconfigure"):
+        _stream.reconfigure(encoding="utf-8", errors="replace")
 
 SOUNDS = {
     # Band-limited noise burst that swells and falls.
@@ -75,10 +81,48 @@ def main():
     ap.add_argument("--out", required=True)
     ap.add_argument("--vo")
     args = ap.parse_args()
-    with open(args.cues) as f:
-        cues = json.load(f)
+    if not (shutil.which("ffmpeg") and shutil.which("ffprobe")):
+        sys.exit("sfx_mix needs ffmpeg: install it (Mac: brew install ffmpeg; Windows: winget install "
+                 "ffmpeg; Linux: sudo apt install ffmpeg)")
+    if not args.duration > 0:
+        sys.exit("--duration is the video's length in seconds, e.g. --duration 30")
+    if args.vo and not os.path.isfile(args.vo):
+        sys.exit(f"voiceover not found: {args.vo}")
+    try:
+        with open(args.cues, encoding="utf-8-sig") as f:
+            cues = json.load(f)
+    except OSError as e:
+        sys.exit(f"can't read {args.cues}: {e.strerror}")
+    except json.JSONDecodeError:
+        sys.exit(f'{args.cues} isn\'t valid JSON: give a list like [{{"t": 0.5, "sfx": "whoosh"}}]')
+    if isinstance(cues, dict):
+        cues = cues.get("cues", [])
+    if not isinstance(cues, list):
+        sys.exit(f'{args.cues} must hold a list of cues like [{{"t": 0.5, "sfx": "whoosh"}}]')
+    clean = []
+    for n, cue in enumerate(cues, 1):
+        try:
+            t, gain = float(cue["t"]), float(cue.get("gain", 0.25))
+            name = str(cue["sfx"])
+        except (TypeError, KeyError, ValueError):
+            sys.exit(f'cue {n} needs a time and a sound, like {{"t": 0.5, "sfx": "whoosh", "gain": 0.3}}: {cue!r}')
+        if not 0 <= t < args.duration:
+            print(f"skipping cue {n} at {t:g} s: outside the {args.duration:g} s video", file=sys.stderr)
+            continue
+        if not 0 <= gain <= 2:
+            sys.exit(f"cue {n}: gain {gain:g} is out of range; use 0 to 1 (about 0.2 to 0.35 under a voice)")
+        clean.append({"t": t, "sfx": name, "gain": gain})
+    cues = clean
+    os.makedirs(os.path.dirname(os.path.abspath(args.out)), exist_ok=True)
 
     tmp = tempfile.mkdtemp(prefix="sfx_")
+    try:
+        mix(args, cues, tmp)
+    finally:
+        shutil.rmtree(tmp, ignore_errors=True)
+
+
+def mix(args, cues, tmp):
     paths = {}
     for cue in cues:
         name = cue["sfx"]

@@ -19,11 +19,17 @@ from __future__ import annotations
 import argparse
 import json
 import re
+import shutil
 import subprocess
 import sys
 from pathlib import Path
 
 import numpy as np
+
+# Windows pipes default to a legacy code page: print ₹, Hindi and emoji as UTF-8 instead of crashing.
+for _stream in (sys.stdout, sys.stderr):
+    if hasattr(_stream, "reconfigure"):
+        _stream.reconfigure(encoding="utf-8", errors="replace")
 
 # Analysis sample rate cap. Higher-rate files are resampled down; 48 kHz still
 # shows everything up to 24 kHz, which covers lossy-codec cutoffs and "air".
@@ -583,8 +589,19 @@ def main() -> None:
     ap.add_argument("--out", help="directory for metrics.json and images (default: print JSON only)")
     ap.add_argument("--no-images", action="store_true", help="skip spectrogram/waveform rendering")
     args = ap.parse_args()
-
-    report = analyze(args.audio, args.out, images=not args.no_images)
+    if not (shutil.which("ffmpeg") and shutil.which("ffprobe")):
+        sys.exit("this needs ffmpeg: install it (Mac: brew install ffmpeg; Windows: winget install ffmpeg; "
+                 "Linux: sudo apt install ffmpeg), then run it again")
+    if not Path(args.audio).is_file():
+        sys.exit(f"not a file: {args.audio}")
+    try:
+        report = analyze(args.audio, args.out, images=not args.no_images)
+    except subprocess.CalledProcessError as e:
+        detail = (e.stderr or "").strip().splitlines()
+        sys.exit(f"ffmpeg couldn't read {args.audio} as audio"
+                 + (f": {detail[-1]}" if detail else "") + ". Is it a complete audio or video file?")
+    except ValueError as e:
+        sys.exit(f"{e}. Give a file with sound (a video without an audio track has nothing to review).")
     summary = {k: v for k, v in report.items() if k != "loudness"}
     summary["loudness"] = {k: v for k, v in report["loudness"].items() if k != "short_term_timeline"}
     print(json.dumps(summary, indent=2))

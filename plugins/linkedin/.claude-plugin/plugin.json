@@ -1,0 +1,18 @@
+{
+  "name": "linkedin",
+  "displayName": "LinkedIn by SOLIDS FOR YOU",
+  "description": "SOLIDS FOR YOU LinkedIn: Claude becomes the founder's LinkedIn ghostwriter and editor. Finds the post only the founder could write, writes the hook for the 'see more' fold, edits every draft through the humanizer, and covers profiles, comments, messages and a posting plan. Never invents a story.",
+  "author": {
+    "name": "SOLIDS FOR YOU"
+  },
+  "homepage": "https://github.com/Founderwithabs/SOLIDSFORYOU",
+  "license": "MIT",
+  "keywords": [
+    "linkedin",
+    "ghostwriting",
+    "personal brand",
+    "founder-led",
+    "copywriting",
+    "humanizer"
+  ]
+}

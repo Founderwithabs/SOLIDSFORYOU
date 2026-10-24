@@ -17,6 +17,11 @@ import re
 import sys
 from pathlib import Path
 
+# Windows pipes default to a legacy code page: print ₹, Hindi and emoji as UTF-8 instead of crashing.
+for _stream in (sys.stdout, sys.stderr):
+    if hasattr(_stream, "reconfigure"):
+        _stream.reconfigure(encoding="utf-8", errors="replace")
+
 RISKY = [
     "best", "#1", "number one", "no. 1", "top rated", "top-rated", "bestseller", "best seller",
     "guarantee", "guaranteed", "100%", "cheapest", "lowest price", "free", "sale", "offer",
@@ -42,12 +47,23 @@ def main():
     args = ap.parse_args()
     try:
         listing = json.loads(Path(args.listing).read_text(encoding="utf-8"))
-    except (OSError, json.JSONDecodeError) as e:
+    except (OSError, UnicodeDecodeError, json.JSONDecodeError) as e:
         sys.exit(f"{args.listing}: {e}")
+    if not isinstance(listing, dict):
+        sys.exit(f'{args.listing} must be an object like {{"title": "...", "bullets": ["..."]}}')
+    # Text fields as text; a single bullet given as a string is one bullet, not one per letter.
+    for key in ("title", "description", "search_terms"):
+        if listing.get(key) is not None and not isinstance(listing[key], str):
+            listing[key] = str(listing[key])
+    bullets = listing.get("bullets")
+    listing["bullets"] = [bullets] if isinstance(bullets, str) else [str(b) for b in bullets or [] if b is not None]
     limits = {}
     for part in [p for p in args.limits.split(",") if p.strip()]:
         k, _, v = part.partition("=")
-        limits[k.strip()] = int(v)
+        try:
+            limits[k.strip()] = int(v)
+        except ValueError:
+            sys.exit(f"--limits takes field=number pairs, e.g. title=200,bullet=500 (got {part!r})")
 
     fields = []
     if listing.get("title"):
@@ -85,7 +101,11 @@ def main():
 
     everything = " ".join(t for _, _, t in fields).lower()
     if args.keywords:
-        kws = [k.strip() for k in Path(args.keywords).read_text(encoding="utf-8").splitlines() if k.strip()]
+        try:
+            kws = [k.strip() for k in Path(args.keywords).read_text(encoding="utf-8-sig", errors="replace")
+                   .splitlines() if k.strip()]
+        except OSError as e:
+            sys.exit(f"can't read {args.keywords}: {e.strerror}")
         covered = [k for k in kws if all(w in words(everything) for w in words(k))]
         missing = [k for k in kws if k not in covered]
         in_title = [k for k in covered if all(w in words(listing.get("title", "")) for w in words(k))]

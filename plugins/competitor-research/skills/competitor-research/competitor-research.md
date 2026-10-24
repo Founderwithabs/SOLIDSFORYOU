@@ -137,6 +137,15 @@ For each competitor:
 4. Check the public ad libraries where available (for example the Meta Ad
    Library) for active ads: count them, note the main messages and formats.
    Record only what the library shows.
+5. For Deep and Exhaustive, find which of their content actually works. List
+   their recent public posts or videos (at least four per account; for
+   YouTube, `yt-dlp --flat-playlist -J <channel URL>`) with views, and rank
+   each against that account's own median with the SOLIDS FOR YOU
+   `social-media` skill's `scripts/outliers.py` if it is installed (or the
+   same calculation in code). Record each item at 2x its median or more as a
+   `note` row: the title or first line (copied), its multiple, and the URL.
+   Raw view counts only measure account size; the multiple shows what
+   resonated.
 
 ### Step 5. Reviews deep dive
 

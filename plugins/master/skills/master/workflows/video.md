@@ -39,6 +39,10 @@ skill, use it the first time that stage starts:
 | motion-design-taste | 3, 6, 8 | `plugins/motion-design-taste/skills/motion-design-taste/motion-design-taste.md` |
 | audio-review | 4, 6, 8 (whenever the video has sound) | `plugins/audio-review/skills/audio-review/initiation_prompt.md` |
 | harsh-buyer-review | 5 | `plugins/harsh-buyer-review/skills/harsh-buyer-review/harsh-buyer-reviewer.md` |
+| social-media | 2 (videos for social: script, hook, platform specs) | `plugins/social-media/skills/social-media/social-media.md` |
+| ecom | 2 (product and listing videos: the marketplace's video rules, product facts and prices) | `plugins/ecom/skills/ecom/ecom.md` |
+| ai-visuals | 4, 6 (when the video uses AI-generated images or clips) | `plugins/ai-visuals/skills/ai-visuals/ai-visuals.md` |
+| transcriber | 4 (footage with speech: transcript for the rough cut and captions) | `plugins/transcriber/skills/transcriber/transcriber.md` |
 
 Tools. The video build tools sit in the `master` skill's folder, next to its
 SKILL.md (in Claude Code, `${CLAUDE_SKILL_DIR}`); below, `SKILL_DIR` means
@@ -49,6 +53,10 @@ that folder.
   by frame, optionally with audio, or to a transparent ProRes 4444 `.mov`.
 - `SKILL_DIR/scripts/sfx_mix.py`: synthesizes sound effects, places them on
   cue times, mixes them under the voiceover and normalizes loudness.
+- `SKILL_DIR/scripts/get_sounds.py` with `SKILL_DIR/sounds/`: a licence-checked
+  library of free sound effects and music (whooshes, risers, logo stings,
+  money, typing, background beds by mood), downloaded only when a video needs
+  them; `credits` gives the credit lines for the description.
 - The motion-design-taste skill's `scripts/inspect_video.py`: turns a video
   into contact sheets, a hook strip, frame-by-frame strips, cut times, static
   stretches and loudness. The audio-review skill's `analyze.py` measures the
@@ -105,6 +113,16 @@ Before making anything, write down the brief as a numbered requirement list:
   final;
 - style decisions that must not change;
 - what "done" means: the deliverables and the quality bar (below).
+
+Before asking, take what other tools already know, so the founder isn't
+asked twice:
+- a video for a marketplace listing or store page: the marketplace's video
+  rules (length, size, what may be shown or said) from the ecom skill's
+  marketplace guide, and product facts and prices from its store memory;
+- a reel, Short or post: the script, hook and platform specs from the
+  social-media skill and its brand memory;
+- the project's memory sheet (`memory/memory.csv`), if there is one: search
+  it for the product, prices and brand rules.
 
 Ask the user, in one message, only for what is missing and would change the
 result. Never invent facts, claims, prices or brand details.
@@ -163,7 +181,12 @@ node "SKILL_DIR/scripts/render_html_video.cjs" \
 
 **Path B: editing footage.** Use ffmpeg. Re-encode with `-c:v libx264 -crf 17
 -pix_fmt yuv420p -c:a aac -b:a 192k -movflags +faststart` unless only
-copying streams.
+copying streams. For talking-head footage, make the transcript with the
+transcriber skill if there isn't one (.srt, .vtt or Whisper .json), then
+start from the rough cut: `python3
+"SKILL_DIR/scripts/transcript_edit.py" transcript.srt` lists dead air,
+filler and retakes, and `--apply in.mp4 rough.mp4` cuts them. Check the list
+against the footage first: a silent demo is not dead air.
 
 ```
 # Trim (frame-accurate, re-encoded)
@@ -214,6 +237,35 @@ python3 "SKILL_DIR/scripts/sfx_mix.py" --cues cues.json \
 
 Built-in sounds: whoosh (transitions), pop and tick (small elements),
 thump (emphasis), ding (answers and success), riser (build into a reveal).
+**Real sounds and music: the sound library.** Pick categories by video type
+(the full table is in `SKILL_DIR/sounds/README.md`):
+
+| Video | Effects | Music |
+|---|---|---|
+| Product reveal or ad | `riser`, `impact`, `transition`, `shimmer`, `logo-sting` | `music-upbeat`, `music-corporate`, `music-beds` |
+| Explainer or app demo | `ui`, `pop`, `notification`, `typing`, `data` | `music-calm`, `music-beds`, `music-corporate` |
+| Stats and results | `data`, `money`, `pop`, `success` | `music-corporate`, `music-tech` |
+| Reel or short | `transition`, `pop`, one `impact` | `music-upbeat`, `music-lofi` |
+| Logo intro or outro | `logo-sting`, `shimmer`, `riser` | none |
+| Brand story or testimonial | soft `transition` only | `music-calm`, `music-emotional` |
+| E-commerce or unboxing | `foley`, `camera`, `pop`, `money` | `music-lofi`, `music-upbeat` |
+
+```
+python3 "SKILL_DIR/scripts/get_sounds.py" fetch all --category riser impact music-upbeat
+python3 "SKILL_DIR/scripts/get_sounds.py" find whoosh soft --category transition
+```
+
+Fetch only the categories the video needs; downloads need github.com in the
+network allowlist, and the script says so if it is blocked (then use the
+built-in sounds). Give a library file's path as the cue's `sfx`; music goes
+under the voice with the ducking command above. Never use a folder a source's
+`exclude` lists, or audio from outside the library whose licence wasn't
+checked the same way.
+
+**Credits (every video that uses the library).** Run
+`python3 "SKILL_DIR/scripts/get_sounds.py" credits <every library file used>`
+and put every line it prints in the delivery notes and the video description
+(CC0 files need none).
 Effects sit about 10 dB under the voice (gain 0.2 to 0.35), land on the exact
 frame of their motion, and never more than one per second unless the moment
 calls for it. Final loudness: -14 LUFS integrated, true peak -1.5 dBTP.
@@ -296,7 +348,9 @@ then a short report:
 6. **Open items** that need the user (approvals, assets, decisions).
 7. **Careful mode record** for the final file.
 8. **Economy mode line**: what ran on which model.
-9. **Taste notes to save**: anything learned from the references.
+9. **Sound credits**: every line `get_sounds.py credits` printed for the
+   library files used, or "none needed (all CC0)".
+10. **Taste notes to save**: anything learned from the references.
 
 Keep the source files (HTML, cue lists, mixes) with the video so it can be
 changed later. If the session's files will be lost, give the user the source

@@ -27,6 +27,10 @@ SKILLS = [
     "social-media",
     "competitor-research",
     "ecom",
+    "ai-visuals",
+    "transcriber",
+    "humanizer",
+    "linkedin",
 ]
 FIXED_TIME = (1980, 1, 1, 0, 0, 0)  # earliest date a zip can hold
 

@@ -18,8 +18,14 @@ import argparse
 import json
 import os
 import re
+import shutil
 import subprocess
 import sys
+
+# Windows pipes default to a legacy code page: print ₹, Hindi and emoji as UTF-8 instead of crashing.
+for _stream in (sys.stdout, sys.stderr):
+    if hasattr(_stream, "reconfigure"):
+        _stream.reconfigure(encoding="utf-8", errors="replace")
 
 STATIC_THRESHOLD = 0.0002  # scene score below this counts as "nothing moving"
 STATIC_MIN_SECONDS = 1.5
@@ -133,6 +139,20 @@ def main():
     ap.add_argument("--every", type=float, default=1.0,
                     help="seconds between contact-sheet frames")
     args = ap.parse_args()
+    if not (shutil.which("ffmpeg") and shutil.which("ffprobe")):
+        sys.exit("this needs ffmpeg: install it (Mac: brew install ffmpeg; Windows: winget install ffmpeg; "
+                 "Linux: sudo apt install ffmpeg), then run it again")
+    if not os.path.isfile(args.video):
+        sys.exit(f"not a file: {args.video}")
+    if os.path.exists(args.out_dir) and not os.path.isdir(args.out_dir):
+        sys.exit(f"{args.out_dir} is a file; give a folder for the frames and report")
+    if not args.every > 0:
+        sys.exit("--every is the seconds between contact-sheet frames, e.g. --every 1")
+    try:
+        at_times = [float(x) for x in args.at.split(",") if x.strip()]
+        zoom_times = [float(x) for x in args.zoom.split(",") if x.strip()]
+    except ValueError:
+        sys.exit("--at and --zoom take seconds separated by commas, e.g. --at 3.9,17")
     os.makedirs(args.out_dir, exist_ok=True)
 
     info = probe(args.video)
@@ -140,7 +160,10 @@ def main():
     a = next((s for s in info["streams"] if s["codec_type"] == "audio"), None)
     if v is None:
         sys.exit("no video stream")
-    duration = float(info["format"]["duration"])
+    try:
+        duration = float(info["format"]["duration"])
+    except (KeyError, ValueError):
+        sys.exit(f"{args.video} has no length: give a video, not a still image")
     num, den = v["avg_frame_rate"].split("/")
     fps = float(num) / float(den) if float(den) else 0
 
@@ -152,10 +175,13 @@ def main():
     contact_sheets(args.video, args.out_dir, args.every,
                    384 if int(v["width"]) >= int(v["height"]) else 216)
     hook_strip(args.video, args.out_dir)
-    at_times = [float(x) for x in args.at.split(",") if x.strip()]
+    late = [t for t in at_times + zoom_times if not 0 <= t < duration]
+    if late:
+        print(f"skipping {', '.join(f'{t:g}' for t in late)} s: outside the {duration:.2f} s video", file=sys.stderr)
+    at_times = [t for t in at_times if 0 <= t < duration]
+    zoom_times = [t for t in zoom_times if 0 <= t < duration]
     for t in at_times:
         frame_at(args.video, args.out_dir, t)
-    zoom_times = [float(x) for x in args.zoom.split(",") if x.strip()]
     for t in zoom_times:
         zoom_strip(args.video, args.out_dir, t, fps)
 
@@ -184,7 +210,7 @@ def main():
     lines += [f"- `at_{t:.2f}.png`: full-size frame at {t:.2f} s" for t in at_times]
     lines += [f"- `zoom_{t:.2f}.png`: every frame from {t:.2f} s to {t + 1:.2f} s, "
               "frame numbers burned in" for t in zoom_times]
-    with open(os.path.join(args.out_dir, "report.md"), "w") as f:
+    with open(os.path.join(args.out_dir, "report.md"), "w", encoding="utf-8") as f:
         f.write("\n".join(lines) + "\n")
     print("\n".join(lines))
 

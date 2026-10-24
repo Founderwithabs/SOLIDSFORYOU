@@ -26,6 +26,11 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from analyze import analyze  # noqa: E402
 
+# Windows pipes default to a legacy code page: print ₹, Hindi and emoji as UTF-8 instead of crashing.
+for _stream in (sys.stdout, sys.stderr):
+    if hasattr(_stream, "reconfigure"):
+        _stream.reconfigure(encoding="utf-8", errors="replace")
+
 HERE = Path(__file__).resolve().parent
 MODEL = "claude-opus-5-5"
 IMAGE_ORDER = ["spectrogram", "spectrogram_linear", "waveform"]
@@ -70,7 +75,7 @@ def review(audio: str, out_dir: Path, reference: str | None = None,
            context: str | None = None, dry_run: bool = False) -> str:
     report = analyze(audio, out_dir)
     ref_report = analyze(reference, out_dir / "reference") if reference else None
-    system = (HERE / "designer_rubric.md").read_text()
+    system = (HERE / "designer_rubric.md").read_text(encoding="utf-8")
     content = build_request(report, ref_report, context)
 
     if dry_run:
@@ -114,7 +119,7 @@ def main() -> None:
     text = review(args.audio, out_dir, args.reference, args.context, args.dry_run)
     print(text)
     if not args.dry_run:
-        (out_dir / "review.md").write_text(text)
+        (out_dir / "review.md").write_text(text, encoding="utf-8")
         print(f"\nSaved {out_dir / 'review.md'}", file=sys.stderr)
 
 

@@ -15,6 +15,11 @@ Standard library only.
 import re
 import sys
 
+# Windows pipes default to a legacy code page: print ₹, Hindi and emoji as UTF-8 instead of crashing.
+for _stream in (sys.stdout, sys.stderr):
+    if hasattr(_stream, "reconfigure"):
+        _stream.reconfigure(encoding="utf-8", errors="replace")
+
 
 def parse(text):
     """[(key, top, title, body)] for every "## N." and "### ..." heading.
@@ -42,7 +47,10 @@ def parse(text):
 def main():
     if len(sys.argv) < 3:
         sys.exit(__doc__)
-    text = open(sys.argv[1], encoding="utf-8").read()
+    try:
+        text = open(sys.argv[1], encoding="utf-8", errors="replace").read()
+    except OSError as e:
+        sys.exit(f"can't read {sys.argv[1]}: {e.strerror}")
     parts = parse(text)
     if sys.argv[2] == "--list":
         for key, _, title, body in parts:

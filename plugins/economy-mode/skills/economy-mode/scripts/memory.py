@@ -26,6 +26,7 @@ so helpers are never briefed on the project by hand. Standard library only.
 """
 
 import argparse
+import contextlib
 import csv
 import os
 import re
@@ -34,10 +35,16 @@ import tempfile
 from datetime import datetime
 from pathlib import Path
 
+# Windows pipes default to a legacy code page: print ₹, Hindi and emoji as UTF-8 instead of crashing.
+for _stream in (sys.stdout, sys.stderr):
+    if hasattr(_stream, "reconfigure"):
+        _stream.reconfigure(encoding="utf-8", errors="replace")
+
 # "helpers" is last so sheets made before it existed still load.
 COLUMNS = ["id", "created", "updated", "type", "topic", "text", "source", "pinned", "status", "helpers"]
 TYPES = ["fact", "decision", "preference", "task", "contact", "number", "note"]
 MAX_TEXT = 500           # one row is one memory, not a document
+MAX_TOPIC = 60           # a topic is a label: "pricing", "brand voice"
 SESSION_START_ROWS = 10  # pinned rows printed at session start
 BRIEF_CHARS = 4000       # about 1,000 tokens: the most a helper's brief may cost
 STOP = set("a an the and or of to in on for with is are was were be it this that at by from as".split())
@@ -52,11 +59,53 @@ def sheet_path(arg):
     return base / "memory" / "memory.csv"
 
 
+@contextlib.contextmanager
+def locked(path):
+    """Hold a lock on the sheet while it is read and rewritten, so two saves made at the
+    same moment (parallel tool calls) can't overwrite each other's rows."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with open(path.parent / f".{path.name}.lock", "a+b") as lock:
+        if os.name == "nt":
+            import msvcrt
+            lock.seek(0)
+            while True:
+                try:
+                    msvcrt.locking(lock.fileno(), msvcrt.LK_LOCK, 1)
+                    break
+                except OSError:  # LK_LOCK gives up after 10 s; keep waiting
+                    pass
+        else:
+            import fcntl
+            fcntl.flock(lock.fileno(), fcntl.LOCK_EX)
+        try:
+            yield
+        finally:
+            if os.name == "nt":
+                lock.seek(0)
+                msvcrt.locking(lock.fileno(), msvcrt.LK_UNLCK, 1)
+            else:
+                fcntl.flock(lock.fileno(), fcntl.LOCK_UN)
+
+
 def load(path):
+    if path.is_dir():
+        sys.exit(f"{path} is a folder; give the sheet's file name, e.g. {path / 'memory.csv'}")
     if not path.exists():
         return []
-    with open(path, newline="", encoding="utf-8-sig") as f:
-        return [{c: (row.get(c) or "").strip() for c in COLUMNS} for row in csv.DictReader(f)]
+    raw = path.read_bytes()
+    for enc in ("utf-8-sig", "cp1252"):  # Excel on Windows may save the sheet as cp1252
+        try:
+            text = raw.decode(enc)
+            break
+        except UnicodeDecodeError:
+            continue
+    else:
+        sys.exit(f"{path} isn't a readable text sheet; restore it from a backup or move it aside")
+    rows = list(csv.DictReader(text.splitlines()))
+    if rows and not {"id", "text"} <= set(rows[0]):
+        sys.exit(f"{path} isn't a memory sheet (it has no id and text columns); "
+                 "use another file with --file")
+    return [{c: (row.get(c) or "").strip() for c in COLUMNS} for row in rows]
 
 
 def save(path, rows):
@@ -98,10 +147,21 @@ def find(rows, rid):
 
 def cmd_add(a, path):
     text = " ".join(a.text.split())
+    topic = " ".join(a.topic.split()).lower()
     if not text:
         sys.exit("--text is empty")
+    if not topic:
+        sys.exit("--topic is empty: give a short label such as pricing or brand voice")
     if len(text) > MAX_TEXT:
         sys.exit(f"keep one memory per row: {len(text)} characters, the limit is {MAX_TEXT}")
+    if len(topic) > MAX_TOPIC:
+        sys.exit(f"a topic is a short label: {len(topic)} characters, the limit is {MAX_TOPIC}")
+    a.topic = topic
+    with locked(path):
+        _add(a, path, text)
+
+
+def _add(a, path, text):
     rows = load(path)
     for r in active(rows):  # same topic and text already stored: just refresh it
         if r["topic"] == a.topic.lower() and r["text"].lower() == text.lower():
@@ -161,6 +221,11 @@ def cmd_recent(a, path):
 
 
 def cmd_update(a, path):
+    with locked(path):
+        _update(a, path)
+
+
+def _update(a, path):
     rows = load(path)
     r = find(rows, a.id)
     if a.text:
@@ -171,7 +236,10 @@ def cmd_update(a, path):
     if a.type:
         r["type"] = a.type
     if a.topic:
-        r["topic"] = a.topic.lower()
+        topic = " ".join(a.topic.split()).lower()
+        if len(topic) > MAX_TOPIC:
+            sys.exit(f"a topic is a short label: the limit is {MAX_TOPIC} characters")
+        r["topic"] = topic
     if a.pin:
         r["pinned"] = "yes"
     if a.unpin:
@@ -186,6 +254,11 @@ def cmd_update(a, path):
 
 
 def cmd_forget(a, path):
+    with locked(path):
+        _forget(a, path)
+
+
+def _forget(a, path):
     rows = load(path)
     r = find(rows, a.id)
     r["status"], r["updated"] = "forgotten", now()
@@ -255,6 +328,13 @@ def cmd_session_start(a, path):
         print(f"({len(pinned) - SESSION_START_ROWS} more pinned rows: run pinned)")
 
 
+def count(value):
+    n = int(value)
+    if n < 1:
+        raise argparse.ArgumentTypeError("must be 1 or more")
+    return n
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--file", help="memory sheet (default memory/memory.csv in the project)")
@@ -268,10 +348,10 @@ def main():
     p.add_argument("--helpers", action="store_true", help="put it in the helper section every helper reads")
     p = sub.add_parser("search")
     p.add_argument("query")
-    p.add_argument("--k", type=int, default=5)
+    p.add_argument("--k", type=count, default=5)
     sub.add_parser("pinned")
     p = sub.add_parser("recent")
-    p.add_argument("--n", type=int, default=10)
+    p.add_argument("--n", type=count, default=10)
     p = sub.add_parser("update")
     p.add_argument("id")
     p.add_argument("--text")
@@ -285,7 +365,7 @@ def main():
     g.add_argument("--no-helpers", action="store_true")
     p = sub.add_parser("brief")
     p.add_argument("--task", help="key words of the helper's task: adds the rows that match it")
-    p.add_argument("--k", type=int, default=5)
+    p.add_argument("--k", type=count, default=5)
     p = sub.add_parser("forget")
     p.add_argument("id")
     sub.add_parser("stats")

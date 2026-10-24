@@ -62,8 +62,9 @@ ask for it.
 5. Add the tool to `SKILLS` in `scripts/build_skill_zip.py` if it works on
    claude.ai, then run the script.
 6. Add the tool to the Master Skill: its registry in
-   `plugins/master/skills/master/master.md`, the task-type table in
-   `toolbox.md`, and, if videos should use it,
+   `plugins/master/skills/master/master.md`, the head or heads that should
+   call it (`heads/<head>.md`: sub-skills table, workflow step, hand-offs),
+   the head's row in `toolbox.md`, and, if videos should use it,
    `plugins/master/skills/master/workflows/video.md` (section 6 of
    `master.md` has the steps). After changing any of these or any tool in the
    registry, run `python3 scripts/build_bundle.py` (`--check` tells you if
@@ -81,7 +82,11 @@ links in the docs, that `dist/` is up to date, and every script run on
 synthetic audio and video it builds itself. `--fast` runs only the structure
 and docs checks. GitHub Actions (`.github/workflows/tests.yml`) runs the full
 suite on every push and pull request. A SKIP means a tool was missing on that
-machine, not that the check passed.
+machine, not that the check passed. `tests/chaos.py` (part of the full run)
+fires hostile inputs at every script: empty, binary, cp1252 and semicolon or
+tab files, nulls and huge values, odd paths, parallel writes, fake media and a
+machine without ffmpeg. A script may refuse an input with a plain message,
+never with a traceback or a hang; add your new script's hostile inputs there.
 
 ## License
 
@@ -108,6 +113,42 @@ or its wording without the owner's explicit decision.
 - **Motion design taste:** `scripts/inspect_video.py` inspects; the prompt
   holds the rubric. Use it before delivering any video Claude made.
 - **Harsh buyer review:** needs web search for its competitor research.
+- **Transcriber:** `transcribe.py` installs faster-whisper and the
+  `solidsforyou-whisper-<size>-<n>` PyPI packages, joins split files and
+  trusts them only if every SHA-256 matches `models.json`; it tightens word
+  timings to the audio and cuts captions at real pauses. Maintainers build
+  and publish the packages with `scripts/build_whisper_packages.py` (official
+  OpenAI checkpoint, checked against OpenAI's published SHA-256, converted,
+  split under PyPI's size limit, uploaded with `PYPI_TOKEN`). Until they're
+  published, `models.json` has `published: false` and the script falls back to
+  faster-whisper's own download, then to phone instructions.
+- **Humanizer:** `humanizer.md` is the method (ground rules, process,
+  pattern catalogue, rewriting moves, a guide per channel, Hindi and
+  Hinglish, voice matching, examples, hand-back), read by section.
+  `patterns.json` holds every phrase group, construction, opener and closer
+  with weights, the per-channel limits and the claim words; edit it rather
+  than the script. `scripts/humanize.py`: `check` (score and flags by line),
+  `compare` (fails if a number, price, link or claim changed), `voice`
+  (draft against the founder's samples), `profile`. The Marketing, Ecom,
+  Design and Review heads call it on writing customers read. Its tests use
+  the human and machine samples in `tests/fixtures/humanizer/`: human writing
+  must score 85+ on every channel and machine writing under 50, so re-run
+  them after editing the patterns. It changes how things are said, never the
+  facts, and never promises to beat AI detectors.
+- **LinkedIn:** `linkedin.md` is the ghostwriter's method (rules, the
+  founder's voice and memory in `social/linkedin-samples.md`, a job table,
+  idea mining, post types, the hook and the fold, format, profile, comments
+  and messages, the edit, planning, repurposing, examples, hand-back), read
+  by section. `scripts/linkedin_check.py` checks posts (fold preview, limits,
+  hook, broetry, bait, unicode bold), headlines, About, notes and comments.
+  Every draft also goes through the humanizer on the `linkedin` channel; the
+  Marketing head sends all LinkedIn work here. LinkedIn's limits are marked
+  "check" because they change.
+- **AI visuals:** `ai-visuals.md` is the method (rules, brief, reading an
+  image or video, prompt anatomy, fix ladder, scorecard, hand-back);
+  `purposes.md` and `generators.md` are references read by section, and
+  must be re-checked as tools change. Scripts: `prompt_diff.py`, `score.py`
+  and the optional `generate_openai.py` (key from `OPENAI_API_KEY` only).
 - **Ecom:** `ecom.md` is the core (rules, module choice, store memory in the
   founder's `ecom/` folder or `${CLAUDE_PLUGIN_DATA}/ecom/`); `modules/`
   holds listing, images, economics and operations, loaded only when needed;
@@ -130,10 +171,19 @@ or its wording without the owner's explicit decision.
   (`brand-voice.md`, `strategy.md`, `learnings.md`, `posts.csv`) lives in the
   founder's `social/` folder or `${CLAUDE_PLUGIN_DATA}`. Platform limits in
   its playbook must be re-checked when platforms change them.
-- **Master skill:** keeps every tool ready and routes each task to only the
-  tools it needs, to save founders credits and raise quality. It is always-on
+- **Master skill:** keeps every tool ready and routes each task to one of five
+  heads in `plugins/master/skills/master/heads/` (product, ecom, marketing,
+  design, review), each a short workflow with five sections (when it runs,
+  sub-skills, workflow, hand-offs, done when) that calls only the tools the
+  task needs. Careful mode, economy mode and the memory sheet are the
+  foundation every head uses, and the humanizer is always on for anything
+  going public, head or no head (a rule in `toolbox.md`). Every tool must be called by at least one head
+  (the tests check it), to save founders credits and raise quality. It is always-on
   by default: the SessionStart hook in `plugins/master/hooks/hooks.json` loads
-  `toolbox.md`, a compact router, into every session. Founders can switch to
+  `toolbox.md`, a compact router, into every session. The same hook gives
+  the one-time welcome in `hooks/welcome.json` (Claude opens its first reply
+  after install with "Oh my god, this is gold."), remembered by a
+  `welcomed` file in `${CLAUDE_PLUGIN_DATA}`. Founders can switch to
   task-specific through the plugin's `mode` setting (`userConfig` in its
   `plugin.json`). `toolbox.md` is paid for in every session, so keep it
   short (the tests cap it) and put detail in `master.md`, which loads only

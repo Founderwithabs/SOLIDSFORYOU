@@ -16,9 +16,15 @@ Needs ffmpeg and ffprobe. Standard library only.
 """
 import argparse
 import json
+import shutil
 import subprocess
 import sys
 from pathlib import Path
+
+# Windows pipes default to a legacy code page: print ₹, Hindi and emoji as UTF-8 instead of crashing.
+for _stream in (sys.stdout, sys.stderr):
+    if hasattr(_stream, "reconfigure"):
+        _stream.reconfigure(encoding="utf-8", errors="replace")
 
 ANALYSE_SIDE = 600  # analysed at this size with nearest-neighbour scaling, so pure white stays pure
 BG_TOLERANCE = 16   # a pixel within this of the background colour on every channel counts as background
@@ -34,7 +40,9 @@ def run(cmd, binary=False):
 def probe(path):
     info = json.loads(run(["ffprobe", "-v", "error", "-select_streams", "v:0", "-show_entries",
                            "stream=width,height,codec_name,pix_fmt", "-of", "json", str(path)]))
-    s = info["streams"][0]
+    s = (info.get("streams") or [{}])[0]
+    if not s.get("width") or not s.get("height"):
+        sys.exit(f"{path} isn't an image ffmpeg can read")
     return int(s["width"]), int(s["height"]), s.get("codec_name"), s.get("pix_fmt")
 
 
@@ -44,6 +52,8 @@ def pixels(path, w, h):
     raw = run(["ffmpeg", "-v", "error", "-i", str(path), "-vf",
                f"scale={sw}:{sh}:flags=neighbor,format=rgb24", "-frames:v", "1",
                "-f", "rawvideo", "-"], binary=True)
+    if len(raw) < sw * sh * 3:
+        sys.exit(f"{path} couldn't be decoded as an image")
     return raw, sw, sh
 
 
@@ -125,6 +135,9 @@ def main():
     ap.add_argument("--min-side", type=int, default=1000, dest="min_side")
     ap.add_argument("--white-threshold", type=int, default=250, dest="white_threshold")
     args = ap.parse_args()
+    if not (shutil.which("ffmpeg") and shutil.which("ffprobe")):
+        sys.exit("this needs ffmpeg: install it (Mac: brew install ffmpeg; Windows: winget install ffmpeg; "
+                 "Linux: sudo apt install ffmpeg), then run it again")
     out_dir = Path(args.out)
     out_dir.mkdir(parents=True, exist_ok=True)
     paths = [Path(p) for p in args.images]

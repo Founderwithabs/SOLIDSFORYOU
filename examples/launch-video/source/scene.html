@@ -1,0 +1,473 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<!-- SOLIDS FOR YOU launch video, v2. Built from the Master Skill's scene
+     template: everything is driven by renderFrame(t); cue times come from the
+     music's beat map, 8 beats per tool. Each tool has its own visual and its
+     own way of moving. -->
+<style>
+  :root {
+    --bg: #0a0a0a;
+    --grid: rgba(255,255,255,0.045);
+    --rule: rgba(255,255,255,0.16);
+    --text: #f4f3ef;
+    --muted: #8b8a85;
+    --dim: #4a4945;
+    --accent: #ff5b2e;
+  }
+  html, body { margin: 0; width: 1920px; height: 1080px; overflow: hidden; background: var(--bg); }
+  body { font-family: "Inter", sans-serif; color: var(--text); }
+  #stage { position: absolute; inset: 0; overflow: hidden; }
+  #grid { position: absolute; inset: 0;
+    background-image: linear-gradient(var(--grid) 1px, transparent 1px), linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+    background-size: 120px 120px; background-position: 0 0; }
+  #grain { position: absolute; inset: 0; opacity: 0.05; pointer-events: none;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/></filter><rect width='200' height='200' filter='url(%23n)'/></svg>"); }
+  .mono { font-family: "JetBrains Mono", monospace; }
+  .tag { font-family: "JetBrains Mono", monospace; font-size: 26px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+  .scene { position: absolute; inset: 0; visibility: hidden; }
+  .display { font-family: "Inter Display", "Inter", sans-serif; font-weight: 700; letter-spacing: -0.035em; line-height: 1.0; }
+  .desc { font-family: "Inter", sans-serif; font-size: 32px; line-height: 1.45; color: var(--muted); }
+  .mask { display: block; overflow: hidden; padding-bottom: 0.08em; }
+  .mask > span { display: inline-block; will-change: transform; }
+  .accent { color: var(--accent); }
+  .muted { color: var(--muted); }
+  /* chrome */
+  #brand { position: absolute; left: 96px; top: 64px; }
+  #index { position: absolute; right: 96px; top: 64px; text-align: right; }
+  #bar { position: absolute; left: 96px; right: 96px; bottom: 64px; height: 2px; background: var(--rule); }
+  #barfill { position: absolute; left: 0; top: 0; bottom: 0; width: 0; background: var(--accent); }
+  #wipe { position: absolute; top: 0; bottom: 0; left: 0; width: 1920px; background: var(--accent); transform: translateX(-2000px); }
+  /* listing mock */
+  .panel { position: absolute; border: 1.5px solid var(--rule); background: #111110; }
+  .ph { background: repeating-linear-gradient(135deg, #1a1a18 0 14px, #151513 14px 28px); }
+  .line { position: absolute; height: 18px; background: #26251f; border-radius: 3px; }
+  svg text { font-family: "JetBrains Mono", monospace; }
+</style>
+</head>
+<body>
+<div id="stage">
+  <div id="grid"></div>
+
+  <!-- 0 · Hook: kinetic type -->
+  <div class="scene" id="s0">
+    <div class="display" style="position:absolute; left:96px; top:250px; font-size:150px">
+      <span class="mask"><span id="h1">Claude is smart.</span></span>
+      <span class="mask"><span id="h2" class="muted">Now make it</span></span>
+    </div>
+    <div class="display accent" id="h3" style="position:absolute; left:96px; top:560px; font-size:300px; transform-origin: 0 80%">solid.</div>
+    <div class="tag" id="h4" style="position:absolute; left:104px; top:900px">11 specialists for founders · free · open source</div>
+  </div>
+
+  <!-- 1 · Harsh buyer: a listing gets marked up -->
+  <div class="scene" id="s1">
+    <div class="tag" style="position:absolute; left:96px; top:250px" id="b-tag">01 · Harsh Buyer Review</div>
+    <div class="display" style="position:absolute; left:96px; top:310px; font-size:96px">
+      <span class="mask"><span id="b1">Would a real</span></span>
+      <span class="mask"><span id="b2">buyer buy this?</span></span>
+    </div>
+    <div class="desc" id="b-note" style="position:absolute; left:96px; top:560px; width:620px">Checks your listing against 3 to 5 real competitors and says why a buyer would scroll past.</div>
+    <div class="panel" id="b-panel" style="left:860px; top:230px; width:700px; height:620px">
+      <div class="ph" id="b-photo" style="position:absolute; left:40px; top:40px; width:280px; height:360px"></div>
+      <div style="position:absolute; left:350px; top:50px; font-size:32px; font-weight:600">Cotton Kurta, Navy</div>
+      <div class="mono" style="position:absolute; left:350px; top:100px; font-size:22px; color:var(--muted)">★★★★☆ 4.1 · 212 ratings</div>
+      <div class="display" id="b-price" style="position:absolute; left:350px; top:150px; font-size:68px">₹1,299</div>
+      <div class="line" style="left:350px; top:260px; width:300px"></div>
+      <div class="line" style="left:350px; top:296px; width:260px"></div>
+      <div class="line" id="b-size" style="left:350px; top:332px; width:220px"></div>
+      <div class="line" style="left:350px; top:368px; width:280px"></div>
+      <div class="mono" style="position:absolute; right:24px; top:14px; font-size:18px; color:var(--dim)">ILLUSTRATIVE LISTING</div>
+    </div>
+    <svg id="b-marks" width="1920" height="1080" style="position:absolute; left:0; top:0">
+      <rect id="m1" x="888" y="258" width="304" height="384" fill="none" stroke="#ff5b2e" stroke-width="4"/>
+      <line id="m2" x1="1440" y1="420" x2="1600" y2="420" stroke="#ff5b2e" stroke-width="4"/>
+      <line id="m3" x1="1420" y1="571" x2="1600" y2="571" stroke="#ff5b2e" stroke-width="4"/>
+    </svg>
+    <div class="mono accent" id="n1" style="position:absolute; left:900px; top:660px; font-size:26px">↑ No size reference in the photos</div>
+    <div class="mono accent" id="n2" style="position:absolute; left:1616px; top:392px; font-size:26px; width:220px; line-height:1.25">₹200 above<br>3 rivals</div>
+    <div class="mono accent" id="n3" style="position:absolute; left:1616px; top:545px; font-size:26px; width:220px; line-height:1.25">No size<br>chart</div>
+    <div id="stamp" style="position:absolute; left:1250px; top:720px; border:6px solid var(--accent); color:var(--accent); padding:10px 26px; font-family:'Inter Display'; font-weight:800; font-size:64px; letter-spacing:0.04em; transform-origin:50% 50%">NOT YET</div>
+  </div>
+
+  <!-- 2 · Ecom: the price chart -->
+  <div class="scene" id="s2">
+    <div class="tag" style="position:absolute; left:96px; top:250px">02 · Ecom</div>
+    <div class="display" style="position:absolute; left:96px; top:310px; font-size:96px">
+      <span class="mask"><span id="e1">Raise the price?</span></span>
+      <span class="mask"><span id="e2" class="muted">Check the fees first.</span></span>
+    </div>
+    <div id="e-call" style="position:absolute; left:96px; top:560px; width:640px">
+      <div class="display" style="font-size:56px; line-height:1.1">₹1,099 earns <span class="accent">less</span><br>than ₹999.</div>
+      <div class="desc" style="margin-top:24px">It crosses a fee tier. Ecom works it out in code, per order, after fees, returns and ads.</div>
+    </div>
+    <div id="chart" style="position:absolute; left:900px; top:220px; width:900px; height:640px">
+      <div style="position:absolute; left:0; right:0; top:560px; height:2px; background:var(--rule)"></div>
+    </div>
+    <div class="mono" style="position:absolute; left:900px; top:880px; font-size:22px; color:var(--dim)">REAL OUTPUT · ECONOMICS.PY · EXAMPLE FEE PROFILE</div>
+  </div>
+
+  <!-- 3 · Competitor research: a ledger that verifies itself -->
+  <div class="scene" id="s3">
+    <div class="tag" style="position:absolute; left:96px; top:250px">03 · Competitor Research</div>
+    <div class="display" style="position:absolute; left:96px; top:310px; font-size:96px">
+      <span class="mask"><span id="c1">Every fact</span></span>
+      <span class="mask"><span id="c2">has a source.</span></span>
+    </div>
+    <div class="desc" id="c-note" style="position:absolute; left:96px; top:560px; width:620px">Sourced, dated, then double-checked. Run by Claude's cheapest model to save credits.</div>
+    <div class="mono" id="ledger" style="position:absolute; left:900px; top:240px; width:900px; font-size:26px"></div>
+    <div class="mono" id="c-count" style="position:absolute; left:900px; top:880px; font-size:26px; color:var(--muted)"></div>
+  </div>
+
+  <!-- 4 · Social media: a post and its scorecard -->
+  <div class="scene" id="s4">
+    <div class="tag" style="position:absolute; left:96px; top:250px">04 · Social Media</div>
+    <div class="display" style="position:absolute; left:96px; top:310px; font-size:96px">
+      <span class="mask"><span id="p1">Scored before</span></span>
+      <span class="mask"><span id="p2">you post it.</span></span>
+    </div>
+    <div id="phone" style="position:absolute; left:120px; top:560px; width:250px; height:400px; border:2px solid var(--rule); border-radius:34px; background:#111110; overflow:hidden">
+      <div class="ph" style="position:absolute; left:16px; right:16px; top:56px; height:200px; border-radius:10px"></div>
+      <div class="line" style="left:16px; top:276px; width:200px; height:14px"></div>
+      <div class="line" style="left:16px; top:302px; width:160px; height:14px"></div>
+      <div class="line" style="left:16px; top:328px; width:180px; height:14px"></div>
+    </div>
+    <div id="score" style="position:absolute; left:900px; top:230px; width:900px"></div>
+  </div>
+
+  <!-- 5 · Video: an edit timeline -->
+  <div class="scene" id="s5">
+    <div class="tag" style="position:absolute; left:96px; top:250px">05 · Video workflow</div>
+    <div class="display" style="position:absolute; left:96px; top:310px; font-size:96px">
+      <span class="mask"><span id="v1">It reviews</span></span>
+      <span class="mask"><span id="v2">its own work.</span></span>
+    </div>
+    <div class="desc" id="v-note" style="position:absolute; left:96px; top:560px; width:620px">Builds, renders, reviews as a buyer and a motion designer, fixes, renders again. This video went through it.</div>
+    <div id="tl" style="position:absolute; left:900px; top:250px; width:900px; height:560px"></div>
+  </div>
+
+  <!-- 6 · Six more -->
+  <div class="scene" id="s6">
+    <div class="tag" style="position:absolute; left:96px; top:180px">And six more</div>
+    <div id="tiles" style="position:absolute; left:96px; top:240px; width:1728px; height:700px"></div>
+  </div>
+
+  <!-- 7 · Install -->
+  <div class="scene" id="s7">
+    <div class="tag" style="position:absolute; left:96px; top:250px">Install</div>
+    <div class="display" style="position:absolute; left:96px; top:310px; font-size:96px">
+      <span class="mask"><span id="i1">Two commands.</span></span>
+    </div>
+    <div class="mono" id="term" style="position:absolute; left:96px; top:480px; width:1728px; height:250px; border:1.5px solid var(--rule); background:#0f0f0e; font-size:40px">
+      <div style="position:absolute; left:48px; top:56px"><span class="accent">$ </span><span id="t1"></span><span id="cur1">▍</span></div>
+      <div style="position:absolute; left:48px; top:146px"><span class="accent" id="pr2">$ </span><span id="t2"></span><span id="cur2">▍</span></div>
+    </div>
+    <div class="desc" id="i-note" style="position:absolute; left:96px; top:780px">In Claude Code, or upload the skills to the Claude app on your phone.</div>
+  </div>
+
+  <!-- 8 · End -->
+  <div class="scene" id="s8">
+    <div class="display" style="position:absolute; left:96px; top:300px; font-size:150px">
+      <span class="mask"><span id="z1">Make your Claude</span></span>
+      <span class="mask"><span id="z2" class="accent">solid.</span></span>
+    </div>
+    <div id="z5" style="position:absolute; left:100px; top:640px; width:420px; height:6px; background:var(--accent); transform-origin:0 50%">
+    </div>
+    <div class="mono" id="z3" style="position:absolute; left:100px; top:690px; font-size:36px">github.com/Founderwithabs/SOLIDSFORYOU</div>
+    <div class="mono" id="z4" style="position:absolute; left:100px; top:770px; font-size:28px; color:var(--muted)">Free · MIT · <span class="accent">★ Star it on GitHub</span></div>
+  </div>
+
+  <div class="tag" id="brand">Solids for you</div>
+  <div class="tag" id="index"></div>
+  <div id="bar"><div id="barfill"></div></div>
+  <div id="wipe"></div>
+  <div id="grain"></div>
+</div>
+<script>
+const FPS = 30;
+const B = __BEATS__;
+const beat = (k) => B[k];
+const DURATION = 32.3;
+const ROUNDS = __ROUNDS__;   // this video's own review scores, filled in at the end
+
+const ease = {
+  linear: (x) => x,
+  outCubic: (x) => 1 - Math.pow(1 - x, 3),
+  outQuart: (x) => 1 - Math.pow(1 - x, 4),
+  inCubic: (x) => x * x * x,
+  inOutCubic: (x) => (x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2),
+  outBack: (x) => { const c1 = 1.6, c3 = c1 + 1; return 1 + c3 * Math.pow(x - 1, 3) + c1 * Math.pow(x - 1, 2); },
+};
+function tween(t, start, dur, from, to, e = ease.outCubic) {
+  if (t <= start) return from;
+  if (t >= start + dur) return to;
+  return from + (to - from) * e((t - start) / dur);
+}
+const frames = (n) => n / FPS;
+const $ = (id) => document.getElementById(id);
+const clamp01 = (x) => Math.max(0, Math.min(1, x));
+
+// ---- Cue sheet --------------------------------------------------------------
+const SC = [0, 8, 16, 24, 32, 40, 48, 54, 62].map(beat);   // scene starts
+SC.push(DURATION);
+const CUE = {
+  h2: beat(2), h3: beat(3), h4: beat(5),
+};
+
+// Masked line reveal: the line rises from behind its own baseline.
+function reveal(el, t, start, dur = frames(14)) {
+  el.style.transform = `translateY(${tween(t, start, dur, 110, 0, ease.outQuart)}%)`;
+}
+function fadeUp(el, t, start, dy = 24, dur = frames(12)) {
+  el.style.opacity = tween(t, start, dur * 0.7, 0, 1, ease.linear);
+  el.style.transform = `translateY(${tween(t, start, dur, dy, 0, ease.outQuart)}px)`;
+}
+function draw(el, t, start, dur) {
+  const len = el.getTotalLength ? el.getTotalLength() : 1000;
+  el.style.strokeDasharray = len;
+  el.style.strokeDashoffset = len * (1 - tween(t, start, dur, 0, 1, ease.inOutCubic));
+}
+
+// ---- Build: Ecom chart (real numbers from examples/ecom-unit-economics) -------
+const PRICES = [["₹799", 135.52], ["₹899", 197.43], ["₹999", 259.33], ["₹1,099", 247.68]];
+const chart = $("chart");
+PRICES.forEach(([p, v], i) => {
+  const x = 40 + i * 215, h = v / 259.33 * 420;
+  chart.insertAdjacentHTML("beforeend", `
+    <div id="bar${i}" style="position:absolute; left:${x}px; width:150px; top:${560 - h}px; height:${h}px; transform-origin:50% 100%;
+      background:${i === 3 ? "var(--accent)" : i === 2 ? "var(--text)" : "#3a3934"}"></div>
+    <div class="mono" id="val${i}" style="position:absolute; left:${x}px; width:150px; text-align:center; top:${560 - h - 52}px; font-size:30px; ${i === 3 ? "color:var(--accent)" : ""}"></div>
+    <div class="mono" style="position:absolute; left:${x}px; width:150px; text-align:center; top:580px; font-size:26px; color:var(--muted)">${p}</div>`);
+});
+chart.insertAdjacentHTML("beforeend", `<div class="mono" style="position:absolute; left:0; top:-10px; font-size:22px; color:var(--dim)">PROFIT PER ORDER, ₹</div>`);
+
+// ---- Build: ledger -----------------------------------------------------------
+const FACTS = [["Price, three sizes", "listing page"], ["Review count", "listing page"], ["Delivery promise", "product page"],
+               ["Return window", "brand website"], ["Ad running since", "ad library"], ["Bestseller rank", "category page"]];
+const ledger = $("ledger");
+ledger.insertAdjacentHTML("beforeend", `<div style="display:flex; color:var(--dim); font-size:22px; padding:0 0 18px; border-bottom:1.5px solid var(--rule)">
+  <div style="width:360px">FACT</div><div style="width:440px">SOURCE · DATE</div><div>CHECKED</div></div>`);
+FACTS.forEach(([f, s], i) => ledger.insertAdjacentHTML("beforeend",
+  `<div id="lr${i}" style="display:flex; padding:22px 0 22px 12px; margin-left:-12px; border-bottom:1px solid rgba(255,255,255,0.08)">
+     <div style="width:360px" id="lf${i}"></div><div style="width:440px; color:var(--muted)" id="ls${i}"></div>
+     <div id="lc${i}" class="accent" style="transform-origin:0 50%">✓</div></div>`));
+
+// ---- Build: scorecard (criteria and weights from social-media.md 7.1; example scores) --
+const CRIT = [["Hook stopping power", 20, 9], ["Payoff and value", 15, 9], ["Shareability", 10, 8], ["Clarity", 10, 9],
+              ["Proof and specificity", 10, 8], ["Native to the platform", 10, 9], ["Brand voice", 10, 8],
+              ["Call to action", 5, 9], ["Human writing", 5, 9], ["Compliance and honesty", 5, 10]];
+const TOTAL = CRIT.reduce((s, [, w, v]) => s + w * v, 0) / 10;   // 87.5
+const score = $("score");
+CRIT.forEach(([n, w, v], i) => score.insertAdjacentHTML("beforeend", `
+  <div style="position:relative; height:52px">
+    <div class="mono" style="position:absolute; left:0; top:8px; font-size:24px; color:var(--muted)">${n}</div>
+    <div style="position:absolute; left:400px; top:20px; width:380px; height:6px; background:#22221f"></div>
+    <div id="sb${i}" style="position:absolute; left:400px; top:20px; width:${380 * v / 10}px; height:6px; background:${i === 0 ? "var(--accent)" : "var(--text)"}; transform-origin:0 50%"></div>
+    <div class="mono" id="sv${i}" style="position:absolute; left:810px; top:8px; font-size:24px"></div>
+  </div>`));
+score.insertAdjacentHTML("beforeend", `<div style="margin-top:22px; padding-top:22px; border-top:1.5px solid var(--rule); display:flex; align-items:baseline; gap:28px">
+  <div class="display" id="stot" style="font-size:96px"></div><div class="mono muted" style="font-size:26px">/ 100 · EXAMPLE · <span class="accent">SHIP IT</span> (≥ 80)</div></div>`);
+
+// ---- Build: timeline -------------------------------------------------------------
+const tl = $("tl");
+tl.insertAdjacentHTML("beforeend", `<div class="mono" style="position:absolute; left:0; top:0; font-size:22px; color:var(--dim)">REVIEW ROUNDS, MOTION DESIGN SCORE</div>`);
+ROUNDS.forEach(([label, s], i) => tl.insertAdjacentHTML("beforeend", `
+  <div id="rd${i}" style="position:absolute; left:${i * 225}px; top:50px; width:200px">
+    <div class="display" id="rs${i}" style="font-size:80px; ${i === ROUNDS.length - 1 ? "color:var(--accent)" : ""}">${s}</div>
+    <div class="mono" style="font-size:22px; color:var(--muted); margin-top:6px">${label}</div></div>`));
+const TRACKS = [["V1", [[0, 120], [130, 260], [400, 150], [560, 210], [780, 120]], "#3a3934"],
+                ["A1", [[0, 900]], "#26251f"], ["FX", [[60, 8], [180, 8], [330, 8], [470, 8], [610, 8], [700, 8], [840, 8]], "#ff5b2e"]];
+TRACKS.forEach(([name, clips, col], r) => {
+  tl.insertAdjacentHTML("beforeend", `<div class="mono" style="position:absolute; left:0; top:${270 + r * 82}px; font-size:22px; color:var(--dim)">${name}</div>`);
+  clips.forEach(([x, w], k) => tl.insertAdjacentHTML("beforeend",
+    `<div id="clip${r}_${k}" style="position:absolute; left:${60 + x * 0.93}px; top:${256 + r * 82}px; width:${w * 0.93}px; height:56px; background:${col}; transform-origin:0 50%"></div>`));
+});
+tl.insertAdjacentHTML("beforeend", `<div id="head" style="position:absolute; left:60px; top:240px; width:2px; height:260px; background:var(--accent)"></div>`);
+
+// ---- Build: tiles ------------------------------------------------------------------
+const MORE = [["Transcriber", "Voice notes and videos to captions. Hinglish too."], ["AI Visuals", "Fixes AI images and the prompt behind them."],
+              ["Audio Review", "Scores a mix like a senior audio designer."], ["Motion Design Taste", "Scores and fixes any video out of 100."],
+              ["Careful Mode", "Three reviews before anything is handed over."], ["Economy Mode", "Simple work on cheaper models."]];
+const tiles = $("tiles");
+MORE.forEach(([n, d], i) => {
+  const x = (i % 3) * 586, y = Math.floor(i / 3) * 340;
+  tiles.insertAdjacentHTML("beforeend", `
+    <svg style="position:absolute; left:${x}px; top:${y}px" width="556" height="310"><rect id="tb${i}" x="1" y="1" width="554" height="308" fill="none" stroke="rgba(255,255,255,0.22)" stroke-width="1.5"/></svg>
+    <div style="position:absolute; left:${x + 40}px; top:${y + 36}px; width:480px">
+      <div class="mono accent" style="font-size:24px" id="tn${i}">${String(i + 6).padStart(2, "0")}</div>
+      <div class="mask" style="margin-top:56px"><span id="tt${i}" class="display" style="font-size:52px">${n}</span></div>
+      <div id="td${i}" style="font-size:26px; color:var(--muted); margin-top:16px; line-height:1.35">${d}</div>
+    </div>`);
+});
+
+function typed(t, start, text, dur) { return text.slice(0, Math.round(tween(t, start, dur, 0, text.length, ease.linear))); }
+
+// ---- Transitions between scenes (each one different) ------------------------------
+// 0→1 hard cut · 1→2 accent wipe · 2→3 push up · 3→4 hard cut · 4→5 zoom through
+// 5→6 accent wipe · 6→7 push up · 7→8 hard cut
+const TRANS = ["cut", "wipe", "push", "cut", "zoom", "wipe", "push", "cut"];
+const WIPE = frames(14), PUSH = frames(14), ZOOM = frames(10);
+
+function placeScenes(t) {
+  let cur = 0;
+  for (let i = 0; i < 9; i++) if (t >= SC[i]) cur = i;
+  for (let i = 0; i < 9; i++) {
+    const el = $(`s${i}`);
+    el.style.visibility = i === cur ? "visible" : "hidden";
+    el.style.transform = "none"; el.style.opacity = 1;
+  }
+  $("wipe").style.transform = "translateX(-2000px)";
+  // wipe: an accent panel crosses the frame; the scene changes under its middle
+  for (let k = 0; k < 8; k++) {
+    const at = SC[k + 1];
+    if (TRANS[k] === "wipe" && t >= at - WIPE / 2 && t < at + WIPE / 2) {
+      const x = tween(t, at - WIPE / 2, WIPE, -1920, 1920, ease.inOutCubic);
+      $("wipe").style.transform = `translateX(${x}px)`;
+    }
+    if (TRANS[k] === "push" && t >= at - PUSH && t < at) {
+      const p = tween(t, at - PUSH, PUSH, 0, 1, ease.inOutCubic);
+      const a = $(`s${k}`), b = $(`s${k + 1}`);
+      a.style.transform = `translateY(${-1080 * p}px)`;
+      b.style.visibility = "visible"; b.style.transform = `translateY(${1080 * (1 - p)}px)`;
+    }
+    if (TRANS[k] === "zoom" && t >= at - ZOOM && t < at + ZOOM) {
+      if (t < at) {
+        const p = tween(t, at - ZOOM, ZOOM, 0, 1, ease.inCubic);
+        const a = $(`s${k}`); a.style.transform = `scale(${1 + 0.25 * p})`; a.style.opacity = 1 - p;
+      } else {
+        const p = tween(t, at, ZOOM, 0, 1, ease.outCubic);
+        const b = $(`s${k + 1}`); b.style.transform = `scale(${0.9 + 0.1 * p})`; b.style.opacity = p;
+      }
+    }
+  }
+  return cur;
+}
+
+function renderFrame(t) {
+  const cur = placeScenes(t);
+  $("index").textContent = cur >= 1 && cur <= 5 ? `0${cur} / 05` : cur === 6 ? "06–11" : "";
+  $("barfill").style.width = `${100 * clamp01(t / DURATION)}%`;
+
+  // 0 · hook
+  reveal($("h1"), t, frames(-4));
+  reveal($("h2"), t, CUE.h2);
+  const sl = tween(t, CUE.h3, frames(9), 1.35, 1, ease.outBack);
+  $("h3").style.opacity = t >= CUE.h3 ? 1 : 0;
+  $("h3").style.transform = `scale(${sl})`;
+  fadeUp($("h4"), t, CUE.h4);
+
+  // 1 · harsh buyer
+  const s1 = SC[1];
+  reveal($("b1"), t, s1); reveal($("b2"), t, s1 + frames(3));
+  fadeUp($("b-note"), t, s1 + frames(8));
+  const pan = $("b-panel");
+  pan.style.clipPath = `inset(0 ${100 - 100 * tween(t, s1 + frames(4), frames(16), 0, 1, ease.outQuart)}% 0 0)`;
+  draw($("m1"), t, beat(10), frames(14));
+  draw($("m2"), t, beat(11), frames(8));
+  draw($("m3"), t, beat(12), frames(8));
+  fadeUp($("n1"), t, beat(10) + frames(10), 12, frames(8));
+  fadeUp($("n2"), t, beat(11) + frames(6), 12, frames(8));
+  fadeUp($("n3"), t, beat(12) + frames(6), 12, frames(8));
+  const st = tween(t, beat(13), frames(8), 2.2, 1, ease.outBack);
+  $("stamp").style.opacity = t >= beat(13) ? 1 : 0;
+  $("stamp").style.transform = `rotate(-8deg) scale(${st})`;
+
+  // 2 · ecom: bars grow from the baseline, then the last one drops in accent
+  const s2 = SC[2];
+  reveal($("e1"), t, s2); reveal($("e2"), t, s2 + frames(3));
+  PRICES.forEach(([, v], i) => {
+    const g = tween(t, beat(17) + frames(4 * i), frames(16), 0, 1, ease.outCubic);
+    $(`bar${i}`).style.transform = `scaleY(${i === 3 ? tween(t, beat(19), frames(14), 0, 1, ease.outCubic) : g})`;
+    const show = i === 3 ? tween(t, beat(19), frames(14), 0, 1) : g;
+    $(`val${i}`).textContent = show > 0 ? `${Math.round(v * show)}` : "";
+  });
+  fadeUp($("e-call"), t, beat(20), 30, frames(14));
+
+  // 3 · ledger: rows type in, ticks land on the beat
+  const s3 = SC[3];
+  reveal($("c1"), t, s3); reveal($("c2"), t, s3 + frames(3));
+  fadeUp($("c-note"), t, s3 + frames(8));
+  let ticks = 0;
+  FACTS.forEach(([f, s], i) => {
+    const r0 = beat(25) + frames(6 * i);
+    $(`lf${i}`).textContent = typed(t, r0, f, frames(10));
+    $(`ls${i}`).textContent = typed(t, r0 + frames(4), s + " · 12 Oct", frames(10));
+    const tk = beat(28) + i * (beat(29) - beat(28)) * 0.62;
+    const sc = tween(t, tk, frames(7), 0, 1, ease.outBack);
+    $(`lc${i}`).style.transform = `scale(${sc})`;
+    // the row lights up as it is verified, then settles
+    const glow = t < tk ? 0 : Math.max(0.05, 0.22 * (1 - (t - tk) / 0.5));
+    $(`lr${i}`).style.background = t < tk ? "transparent" : `rgba(255,91,46,${glow})`;
+    if (t >= tk) ticks++;
+  });
+  $("c-count").textContent = t >= beat(28) ? `${ticks} / 6 verified · runs on Haiku` : "";
+
+  // 4 · social: phone rises, bars fill one after another, total counts up
+  const s4 = SC[4];
+  reveal($("p1"), t, s4); reveal($("p2"), t, s4 + frames(3));
+  $("phone").style.transform = `translateY(${tween(t, s4 + frames(6), frames(16), 500, 0, ease.outQuart)}px)`;
+  CRIT.forEach(([, , v], i) => {
+    const g = tween(t, beat(33) + frames(3 * i), frames(12), 0, 1, ease.outCubic);
+    $(`sb${i}`).style.transform = `scaleX(${g})`;
+    $(`sv${i}`).textContent = g > 0.05 ? `${v}` : "";
+  });
+  const tot = tween(t, beat(35), frames(24), 0, TOTAL, ease.outCubic);
+  $("stot").textContent = t >= beat(35) ? (tot >= TOTAL - 0.01 ? TOTAL.toFixed(1) : tot.toFixed(1)) : "";
+
+  // 5 · video: clips cut onto the tracks, the playhead runs, scores step up
+  const s5 = SC[5];
+  reveal($("v1"), t, s5); reveal($("v2"), t, s5 + frames(3));
+  fadeUp($("v-note"), t, s5 + frames(8));
+  TRACKS.forEach(([, clips], r) => clips.forEach((_, k) => {
+    $(`clip${r}_${k}`).style.transform = `scaleX(${tween(t, s5 + frames(4 + 2 * k + 3 * r), frames(8), 0, 1, ease.outQuart)})`;
+  }));
+  const hx = tween(t, beat(41), beat(47) - beat(41), 0, 837, ease.inOutCubic);
+  $("head").style.transform = `translateX(${hx}px)`;
+  ROUNDS.forEach((_, i) => {
+    const at = beat(42 + i * 1.0 | 0) + (i * 1.5 % 1) * 0;
+    fadeUp($(`rd${i}`), t, beat(42) + i * (beat(43) - beat(42)) * 1.25, 30, frames(10));
+  });
+
+  // 6 · tiles: borders draw, then the names rise, staggered on a diagonal
+  const s6 = SC[6];
+  MORE.forEach((_, i) => {
+    const d = s6 + frames(3 * ((i % 3) + Math.floor(i / 3)));
+    draw($(`tb${i}`), t, d, frames(16));
+    reveal($(`tt${i}`), t, d + frames(8));
+    fadeUp($(`td${i}`), t, d + frames(12), 14, frames(10));
+    $(`tn${i}`).style.opacity = tween(t, d + frames(6), frames(6), 0, 1, ease.linear);
+  });
+
+  // 7 · install: typed for real
+  const s7 = SC[7];
+  reveal($("i1"), t, s7);
+  $("term").style.clipPath = `inset(0 ${100 - 100 * tween(t, s7 + frames(4), frames(14), 0, 1, ease.outQuart)}% 0 0)`;
+  const L1 = "/plugin marketplace add Founderwithabs/SOLIDSFORYOU", L2 = "/plugin install master@solidsforyou";
+  $("t1").textContent = typed(t, beat(55), L1, 1.0);
+  $("t2").textContent = typed(t, beat(58), L2, 0.75);
+  const blink = Math.floor(t * 2.2) % 2 === 0 ? 1 : 0;
+  $("cur1").style.opacity = t < beat(58) ? blink : 0;
+  $("cur2").style.opacity = t >= beat(58) ? blink : 0;
+  $("pr2").parentElement.style.opacity = t >= beat(58) - frames(2) ? 1 : 0;
+  fadeUp($("i-note"), t, beat(60));
+
+  // 8 · end
+  const s8 = SC[8];
+  reveal($("z1"), t, s8);
+  reveal($("z2"), t, beat(63), frames(12));
+  fadeUp($("z3"), t, beat(64));
+  fadeUp($("z4"), t, beat(65));
+  $("z5").style.transform = `scaleX(${tween(t, beat(64), DURATION - beat(64) - 0.3, 0, 1, ease.inOutCubic)})`;
+}
+
+window.renderFrame = renderFrame;
+window.DURATION = DURATION;
+if (!navigator.webdriver) {
+  const t0 = performance.now();
+  (function loop() { renderFrame(((performance.now() - t0) / 1000) % DURATION); requestAnimationFrame(loop); })();
+} else {
+  renderFrame(0);
+}
+</script>
+</body>
+</html>

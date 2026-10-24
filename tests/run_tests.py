@@ -284,8 +284,8 @@ def check_structure() -> None:
             root = hf.parent.parent
             options = json.loads((root / ".claude-plugin/plugin.json").read_text()).get("userConfig", {})
             # Run each hook once with every option at its default, as a new user has it.
-            env = {**os.environ, **{f"CLAUDE_PLUGIN_OPTION_{k.upper()}": str(v.get("default", ""))
-                                    for k, v in options.items()}}
+            env = {**{k: v for k, v in os.environ.items() if k != "CLAUDE_PLUGIN_DATA"},
+                   **{f"CLAUDE_PLUGIN_OPTION_{k.upper()}": str(v.get("default", "")) for k, v in options.items()}}
             for event, groups in json.loads(hf.read_text())["hooks"].items():
                 for group in groups:
                     for hook in group["hooks"]:
@@ -293,6 +293,75 @@ def check_structure() -> None:
                             cmd = hook["command"].replace("${CLAUDE_PLUGIN_ROOT}", str(root))
                             r = subprocess.run(["sh", "-c", cmd], capture_output=True, text=True, env=env, timeout=30)
                             assert r.returncode == 0, f"{root.name} {event} hook failed: {r.stderr[-300:]}"
+
+    @test
+    def test_every_tool_is_connected_to_master_and_its_neighbours():
+        master = PLUGINS / "master/skills/master"
+        if not master.exists():
+            raise Skip("no master plugin")
+        registry = (master / "master.md").read_text(encoding="utf-8").split("<!-- REGISTRY")[1].split("\n\n")[0]
+        router = (master / "toolbox.md").read_text(encoding="utf-8")
+        routing = (master / "master.md").read_text(encoding="utf-8").split("## 4.")[1].split("## 5.")[0]
+        heads = {f.stem: f.read_text(encoding="utf-8") for f in sorted((master / "heads").glob("*.md"))}
+        problems = []
+        if not heads:
+            problems.append("no head files in plugins/master/skills/master/heads/")
+        # Master -> heads: every head is routed to, registered and described.
+        for head, text in heads.items():
+            title = head.capitalize()
+            if not re.search(rf"\| {title} \(", router):
+                problems.append(f"the {title} head has no row in toolbox.md")
+            if f"heads/{head}.md" not in registry or f"heads/{head}.md" not in routing:
+                problems.append(f"the {title} head is missing from master.md's registry or section 4")
+            for section in ["## 1. When it runs", "## 2. Sub-skills", "## 3. Workflow", "## 4. Hand-offs", "## 5. Done when"]:
+                if section not in text:
+                    problems.append(f"heads/{head}.md has no '{section}'")
+            # Heads load on every task they own, so keep them short.
+            if len(text.split()) > 450:
+                problems.append(f"heads/{head}.md is {len(text.split())} words; keep heads under 450")
+            for other in text.split("## 4. Hand-offs")[-1].split("## 5.")[0].split("- ")[1:]:
+                named = re.match(r"(\w+) head", other)
+                if named and named.group(1).lower() not in heads:
+                    problems.append(f"heads/{head}.md hands off to a head that doesn't exist: {named.group(1)}")
+        # Heads -> sub-skills: every tool is registered and called by at least one head.
+        for name in plugin_names():
+            if name == "master":
+                continue
+            if not re.search(rf"\b{re.escape(name)}\b", registry):
+                problems.append(f"{name} is missing from master.md's registry")
+            if not any(re.search(rf"\b{re.escape(name)}\b", t) for t in heads.values()):
+                problems.append(f"no head calls {name}")
+        # Links between tools that save the founder paying or answering twice.
+        links = [("harsh-buyer-review/skills/harsh-buyer-review/harsh-buyer-reviewer.md", "research/<name>-<date>/",
+                  "the buyer reuses saved competitor research"),
+                 ("master/skills/master/workflows/video.md", "ecom", "product videos follow the marketplace's video rules"),
+                 ("master/skills/master/workflows/video.md", "memory/memory.csv", "videos check the memory sheet"),
+                 ("master/skills/master/master.md", "memory/memory.csv", "every tool checks the memory sheet"),
+                 ("competitor-research/skills/competitor-research/SKILL.md", "memory sheet", "research checks the memory sheet")]
+        for rel, needle, why in links:
+            f = PLUGINS / rel
+            if f.exists() and needle not in f.read_text(encoding="utf-8"):
+                problems.append(f"{rel}: lost the link that makes {why}")
+        assert not problems, "\n".join(problems)
+
+    @test
+    def test_master_welcomes_the_founder_once():
+        hooks = PLUGINS / "master/hooks/hooks.json"
+        if not hooks.exists():
+            raise Skip("no master plugin")
+        need("sh")
+        cmd = next(h["command"] for g in json.loads(hooks.read_text())["hooks"]["SessionStart"]
+                   for h in g["hooks"] if "welcome" in h["command"])
+        cmd = cmd.replace("${CLAUDE_PLUGIN_ROOT}", str(PLUGINS / "master"))
+        with tempfile.TemporaryDirectory() as data:
+            def start(**env):
+                full = {k: v for k, v in os.environ.items() if k != "CLAUDE_PLUGIN_DATA"}
+                return subprocess.run(["sh", "-c", cmd], capture_output=True, text=True,
+                                      env={**full, **env}, timeout=30).stdout
+            first = json.loads(start(CLAUDE_PLUGIN_DATA=data))
+            assert "Oh my god, this is gold." in first["hookSpecificOutput"]["additionalContext"], first
+            assert start(CLAUDE_PLUGIN_DATA=data) == "", "the welcome must only come once"
+            assert start() == "", "without a plugin data folder there is nowhere to remember it: say nothing"
 
     @test
     def test_master_is_on_by_default_cheap_and_switchable():
@@ -807,6 +876,599 @@ def check_ecom(tmp: Path) -> None:
             assert (int.from_bytes(head[16:20], "big"), int.from_bytes(head[20:24], "big")) == (1200, 1200)
 
 
+def check_video_and_visual_tools(tmp: Path) -> None:
+    social = PLUGINS / "social-media/skills/social-media/scripts"
+    visuals = PLUGINS / "ai-visuals/skills/ai-visuals/scripts"
+    edit = PLUGINS / "master/skills/master/scripts/transcript_edit.py"
+    srt = tmp / "talk.srt"
+    cues = [(0, 4, "Today I will show you how to price cotton joggers."), (4.2, 5, "um"),
+            (5.1, 9, "First we look at fabric cost and GSM."),
+            (12, 16, "First we look at fabric cost and GSM per metre."),
+            (16.1, 30, "Fabric cost fabric GSM supplier Tiruppur cotton fabric weight."),
+            (35, 50, "Marketplace fees referral closing shipping fees Amazon Flipkart fees."),
+            (55, 70, "Pricing strategy discount psychology ninety nine pricing anchor."),
+            (75, 90, "Final thoughts subscribe and comment your price below.")]
+
+    def ts(t):
+        return f"00:{int(t // 60):02d}:{int(t % 60):02d},{int(round(t % 1 * 1000)):03d}"
+    srt.write_text("\n".join(f"{i}\n{ts(a)} --> {ts(b)}\n{text}\n" for i, (a, b, text) in enumerate(cues, 1)))
+
+    def py(script, *args, ok=True):
+        r = subprocess.run([sys.executable, str(script), *map(str, args)], capture_output=True, text=True)
+        assert (r.returncode == 0) == ok, f"{script.name} {args}: {r.stdout}{r.stderr}"
+        return r.stdout
+
+    @test
+    def test_transcript_edit_finds_dead_air_filler_and_retakes():
+        if not edit.exists():
+            raise Skip("no transcript_edit.py")
+        out = py(edit, srt)
+        assert "FILLER" in out and "um" in out, out
+        assert 'REPEAT' in out and 'first we look at fabric' in out, out  # the restarted sentence
+        assert out.count("DEAD") == 4 and "20.90s removed" in out, out
+        need("ffmpeg", "ffprobe")
+        video = tmp / "talk.mp4"
+        ffmpeg("-f", "lavfi", "-i", "testsrc=s=320x240:r=30:d=90", "-f", "lavfi", "-i", "sine=f=440:d=90",
+               "-shortest", "-c:v", "libx264", "-pix_fmt", "yuv420p", "-c:a", "aac", str(video))
+        cut = tmp / "cut.mp4"
+        py(edit, srt, "--apply", video, cut)
+        streams = run(["ffprobe", "-v", "error", "-show_entries", "stream=codec_type,duration",
+                       "-of", "csv=p=0", str(cut)]).stdout.split()
+        lengths = {k: float(v) for k, v in (x.split(",") for x in streams)}
+        assert abs(lengths["video"] - 69.1) < 0.2 and abs(lengths["audio"] - lengths["video"]) < 0.1, lengths
+
+    @test
+    def test_chapters_drafts_and_checks_youtube_rules():
+        if not (social / "chapters.py").exists():
+            raise Skip("no chapters.py")
+        out = py(social / "chapters.py", srt, "--target", 4)
+        assert "0:00 " in out and "4 chapters" in out, out
+        good, bad = tmp / "good.txt", tmp / "bad.txt"
+        good.write_text("0:00 Intro\n0:16 Fabric costs\n0:35 Marketplace fees\n0:55 Pricing\n")
+        bad.write_text("0:05 Intro\n0:10 Fabric\n")
+        assert "valid" in py(social / "chapters.py", "--check", good, "--duration", 90)
+        out = py(social / "chapters.py", "--check", bad, "--duration", 90, ok=False)
+        assert "at least 3" in out and "must start at 0:00" in out and "needs 10s" in out, out
+
+    @test
+    def test_hookscore_and_package_check():
+        if not (social / "hookscore.py").exists():
+            raise Skip("no hookscore.py")
+        hooks = tmp / "hooks.txt"
+        hooks.write_text("I lost ₹4,00,000 on joggers before I learned this one pricing rule.\n"
+                         "In this video we will talk about some things.\n", encoding="utf-8")
+        scored = json.loads(py(social / "hookscore.py", "--json", hooks))
+        by = {h["hook"][:4]: h for h in scored}
+        assert by["I lo"]["verdict"] > by["In t"]["verdict"], scored  # a specific hook beats a summary
+        assert by["In t"]["formula"] == "Unclassified", scored
+        assert json.loads(py(social / "hookscore.py", "--format", "short", "--hook", "Stop doing this", "--json"))
+        out = py(social / "package_check.py", "--title",
+                 "I Tested 7 Jogger Brands So You Don't Have To (The Winner Shocked Me)", "--thumb", "WINNER SHOCKED ME")
+        assert "desktop search cuts near 60" in out and "duplicate" in out and "concrete figure (7)" in out, out
+
+    @test
+    def test_outliers_ranks_against_each_channels_own_median():
+        if not (social / "outliers.py").exists():
+            raise Skip("no outliers.py")
+        items = [{"channel": "Big", "title": f"Video {i}", "views": v, "url": f"b{i}", "duration": 600}
+                 for i, v in enumerate([1000000, 1100000, 900000, 1050000, 950000])]
+        items += [{"channel": "Small", "title": t, "views": v, "url": t, "duration": d} for t, v, d in
+                  [("I tried 7 joggers for 30 days", 400000, 700), ("vlog", 30000, 600), ("vlog 2", 28000, 600),
+                   ("vlog 3", 32000, 600), ("short a", 900000, 40), ("short b", 31000, 600)]]
+        items += [{"channel": "Thin", "title": "x", "views": 5, "url": "x"}]
+        listing = tmp / "collected.json"
+        listing.write_text(json.dumps(items))
+        ytdlp = tmp / "yt.json"  # yt-dlp --flat-playlist -J output
+        ytdlp.write_text(json.dumps({"channel": "YT", "entries": [
+            {"title": f"T{i}", "view_count": v, "url": f"y{i}", "duration": 500, "channel": "YT"}
+            for i, v in enumerate([100, 120, 110, 90, 5000])]}))
+        out = py(social / "outliers.py", listing, ytdlp, "--min", 2)
+        assert "45.45x" in out and "12.70x" in out and "31,500 median" in out, out
+        assert "Big" not in out.split("skipped")[0], "no Big video beats its own median by 2x"
+        assert "Thin (1)" in out, out
+        out = py(social / "outliers.py", listing, "--split-shorts", "--min", 2)
+        assert "12.90x" in out and "short a" not in out, out  # long-form median 31,000; one short is too few
+
+    @test
+    def test_retention_reads_long_and_short_videos():
+        if not (social / "retention.py").exists():
+            raise Skip("no retention.py")
+
+        def export(name, header, points):
+            f = tmp / name
+            f.write_text(header + "\n" + "\n".join(f"{x},{y:.2f}" for x, y in points))
+            return f
+
+        def report(f, duration):
+            return json.loads(py(social / "retention.py", f, "--duration", duration, "--json"))
+
+        # A 90-second Short exported as YouTube does: position as a share (0-1), rewatch spike at 0,
+        # a steady slide and one cliff at 50% (45 s).
+        short = [(i / 100, 120 if i == 0 else (100 - 8 * i if i <= 5 else 60 - 0.2 * (i - 5)) - (15 if i >= 50 else 0))
+                 for i in range(101)]
+        r = report(export("short.csv", "Video position (%),Absolute audience retention (%)", short), 90)
+        assert r["start"] == 100 and len(r["cliffs"]) == 1, r
+        assert abs(r["cliffs"][0]["at_seconds"] - 44.1) < 0.2, "a Short's percentages must not be read as seconds"
+        # Seconds on the axis, 60-second video, cliff at 40 s.
+        secs = [(t, 100 - 0.3 * t - (20 if t >= 40 else 0)) for t in range(0, 61, 2)]
+        r = report(export("secs.csv", "Time (s),Retention (%)", secs), 60)
+        assert [c["at_seconds"] for c in r["cliffs"]] == [38], r
+        # An even slide has no cliffs, however many points it has.
+        slide = [(t, 80 - t / 10) for t in range(0, 600, 30)]
+        assert report(export("slide.csv", "position,retention", slide), 600)["cliffs"] == []
+
+    @test
+    def test_ai_visuals_score_diff_and_generation():
+        if not (visuals / "score.py").exists():
+            raise Skip("no ai-visuals")
+        assert "Total: 89.5/100. Ready." in py(visuals / "score.py", 9, 10, 8, 7, 10, 9, 10, 10)
+        out = py(visuals / "score.py", 9, 10, 8, 7, 10, 9, 10, 4)
+        assert "Not ready" in out and "Platform rules and disclosure must be 10" in out, out
+        py(visuals / "score.py", 9, 10, 8, ok=False)
+        old, new = tmp / "old.txt", tmp / "new.txt"
+        old.write_text("A photo of cotton joggers on a wooden table, soft light, 4k, ultra realistic")
+        new.write_text("A studio photo of grey cotton joggers on a white background, soft light, realistic")
+        out = py(visuals / "prompt_diff.py", old, new)
+        assert 'Replaced "wooden table" with "white background"' in out and 'Removed: "4k , ultra"' in out, out
+        # Generation against a local stand-in for the OpenAI API: no key, no money, no network.
+        import base64
+        import http.server
+        import threading
+        png = base64.b64encode(b"\x89PNG\r\n\x1a\nfake").decode()
+        seen = []
+
+        class Api(http.server.BaseHTTPRequestHandler):
+            def do_POST(self):
+                body = self.rfile.read(int(self.headers["Content-Length"]))
+                seen.append((self.path, self.headers["Authorization"], self.headers["Content-Type"], body))
+                code, reply = (401, {"error": {"message": "bad key"}}) if "wrong" in self.headers["Authorization"] \
+                    else (200, {"data": [{"b64_json": png}, {"b64_json": png}]})
+                self.send_response(code)
+                self.send_header("Content-Type", "application/json")
+                self.end_headers()
+                self.wfile.write(json.dumps(reply).encode())
+
+            def log_message(self, *a):
+                pass
+
+        server = http.server.HTTPServer(("127.0.0.1", 0), Api)
+        threading.Thread(target=server.serve_forever, daemon=True).start()
+        base = f"http://127.0.0.1:{server.server_port}/v1"
+        gen = visuals / "generate_openai.py"
+
+        def generate(*args, key="sk-test", ok=True):
+            env = {k: v for k, v in os.environ.items() if k != "OPENAI_API_KEY"}
+            if key:
+                env["OPENAI_API_KEY"] = key
+            r = subprocess.run([sys.executable, str(gen), "--prompt-file", str(new), "--base-url", base, *map(str, args)],
+                               capture_output=True, text=True, env=env)
+            assert (r.returncode == 0) == ok, r.stdout + r.stderr
+            return r.stdout + r.stderr
+        try:
+            assert "OPENAI_API_KEY is not set" in generate("--out", tmp / "x.png", key=None, ok=False)
+            out = generate("--out", tmp / "gen.png", "--n", 2)
+            assert (tmp / "gen.png").read_bytes().startswith(b"\x89PNG") and (tmp / "gen-2.png").exists(), out
+            path, auth, ctype, body = seen[-1]
+            assert path == "/v1/images/generations" and auth == "Bearer sk-test" and ctype == "application/json"
+            assert json.loads(body)["n"] == 2
+            product = tmp / "product.png"
+            product.write_bytes(b"\x89PNG\r\n\x1a\nproduct")
+            generate("--out", tmp / "edit.png", "--image", product)
+            path, _, ctype, body = seen[-1]
+            assert path == "/v1/images/edits" and ctype.startswith("multipart/form-data") and b"product" in body
+            out = generate("--out", tmp / "y.png", key="sk-wrong", ok=False)
+            assert "401" in out and "bad key" in out and "sk-wrong" not in out, "errors must never print the key"
+        finally:
+            server.shutdown()
+
+
+def check_transcriber(tmp: Path) -> None:
+    script = PLUGINS / "transcriber/skills/transcriber/scripts/transcribe.py"
+    # A stand-in for faster-whisper, so the test needs no model download: it "hears" two
+    # sentences with a 2-second pause and a stretched first word.
+    fake = tmp / "fake"
+    (fake / "faster_whisper").mkdir(parents=True)
+    (fake / "faster_whisper/__init__.py").write_text("""
+import types
+import numpy as np
+
+def decode_audio(path, sampling_rate=16000):
+    return np.zeros(sampling_rate * 6, dtype=np.float32)
+
+class WhisperModel:
+    def __init__(self, where, device="cpu", compute_type="int8"):
+        self.where = where
+
+    def transcribe(self, audio, **kw):
+        W = lambda s, e, w: types.SimpleNamespace(start=s, end=e, word=w, probability=0.9)
+        segs = [types.SimpleNamespace(start=0.0, end=5.0, text="Hello founders. Price your joggers.",
+                                      words=[W(0.0, 0.6, "Hello"), W(0.6, 1.2, "founders."),
+                                             W(3.2, 3.8, "Price"), W(3.8, 4.2, "your"), W(4.2, 5.0, "joggers.")])]
+        return iter(segs), types.SimpleNamespace(language="en", language_probability=0.99, duration=6.0)
+""")
+
+    def transcribe(*args, env=None):
+        full = {**os.environ, "PYTHONPATH": str(fake), "SOLIDSFORYOU_WHISPER_CACHE": str(tmp / "cache"), **(env or {})}
+        return subprocess.run([sys.executable, str(script), *map(str, args)], capture_output=True, text=True, env=full)
+
+    @test
+    def test_transcriber_writes_captions_the_other_tools_read():
+        if not script.exists():
+            raise Skip("no transcriber")
+        try:
+            import numpy  # noqa: F401
+        except ImportError:
+            raise Skip("numpy not installed")
+        need("ffmpeg")
+        note = tmp / "note.wav"
+        ffmpeg("-f", "lavfi", "-i", "sine=f=300:d=6", str(note))
+        r = transcribe(note, "--out-dir", tmp / "out", "--model-dir", tmp, "--no-install")
+        assert r.returncode == 0, r.stdout + r.stderr
+        srt = (tmp / "out/note.srt").read_text()
+        assert "00:00:00,000 --> " in srt and srt.count(" --> ") == 2, srt  # the 2 s pause starts a new cue
+        assert (tmp / "out/note.vtt").read_text().startswith("WEBVTT")
+        data = json.loads((tmp / "out/note.json").read_text())
+        assert data["language"] == "en" and data["segments"][1]["text"] == "Price your joggers.", data
+        assert (tmp / "out/note.txt").read_text().splitlines()[0] == "Hello founders."
+        # The captions feed the editing tool: the pause between the cues is dead air.
+        edit = PLUGINS / "master/skills/master/scripts/transcript_edit.py"
+        if edit.exists():
+            out = run([sys.executable, str(edit), str(tmp / "out/note.srt")]).stdout
+            assert "DEAD" in out, out
+
+    @test
+    def test_transcriber_refuses_a_model_that_fails_its_hash():
+        if not script.exists():
+            raise Skip("no transcriber")
+        import hashlib
+        pkg = tmp / "fake/sfy_test_model"
+        (pkg / "data").mkdir(parents=True)
+        (pkg / "__init__.py").write_text("")
+        (pkg / "data/model.bin.part0").write_bytes(b"first half ")
+        (pkg / "data/model.bin.part1").write_bytes(b"second half")
+        good = hashlib.sha256(b"first half second half").hexdigest()
+
+        def registry(digest):
+            f = tmp / f"models-{digest[:6]}.json"
+            f.write_text(json.dumps({"default": "base", "models": {"base": {
+                "published": True, "packages": [{"name": "sfy-test-model", "version": "1", "module": "sfy_test_model"}],
+                "files": {"model.bin": digest}}}}))
+            return {"SOLIDSFORYOU_WHISPER_REGISTRY": str(f), "SOLIDSFORYOU_WHISPER_CACHE": str(tmp / f"cache-{digest[:6]}")}
+        note = tmp / "silence.wav"
+        need("ffmpeg")
+        ffmpeg("-f", "lavfi", "-i", "anullsrc=r=16000:cl=mono", "-t", "1", str(note))
+        r = transcribe(note, "--out-dir", tmp / "h1", "--no-install", env=registry(good))
+        assert "SOLIDS FOR YOU package (verified)" in r.stderr, r.stderr  # parts joined in order, hash matches
+        assert (tmp / f"cache-{good[:6]}/base/model.bin").read_bytes() == b"first half second half"
+        r = transcribe(note, "--out-dir", tmp / "h2", "--no-install", env=registry("0" * 64))
+        assert "failed its SHA-256 check" in r.stderr, r.stderr
+        assert not any((tmp / "cache-000000/base").iterdir()), "a model that fails its hash must be deleted"
+
+
+def check_chaos_regressions(tmp: Path) -> None:
+    """The silent wrong answers chaos testing found, pinned so they can't come back."""
+    E = PLUGINS / "ecom/skills/ecom/scripts"
+    S = PLUGINS / "social-media/skills/social-media/scripts"
+    M = PLUGINS / "economy-mode/skills/economy-mode/scripts/memory.py"
+
+    def py(script, *args, ok=True, env=None):
+        r = subprocess.run([sys.executable, str(script), *map(str, args)], capture_output=True, text=True,
+                           env={**os.environ, **(env or {})}, encoding="utf-8", errors="replace")
+        assert (r.returncode == 0) == ok, f"{script.name} {args}: {r.stdout}{r.stderr}"
+        assert "Traceback" not in r.stdout + r.stderr, r.stderr
+        return r.stdout + r.stderr
+
+    @test
+    def test_economics_rejects_settings_that_give_wrong_profit():
+        if not (E / "economics.py").exists():
+            raise Skip("no ecom")
+        base = {"channel": "t", "currency": "INR", "source": "s", "checked_at": "2026-10-20",
+                "fees": [{"name": "ref", "type": "percent", "value": 10, "of": "price"}]}
+        for extra, said in [({"tax": {"mode": "inclusiv", "rate_pct": 18}}, "tax mode"),
+                            ({"returns": {"rate_pct": 150}}, "rate_pct"),
+                            ({"fees": [{"name": "r", "type": "percent_tiers", "tiers": []}]}, "tiers"),
+                            ({"fees": {"ref": 10}}, "list of fees")]:
+            f = tmp / "fees.json"
+            f.write_text(json.dumps({**base, **extra}))
+            assert said in py(E / "economics.py", "unit", "--fees", f, "--price", 999, "--cost", 300, ok=False)
+        f.write_text(json.dumps(base))
+        assert "must be above 0" in py(E / "economics.py", "unit", "--fees", f, "--price", -10, "--cost", 300, ok=False)
+
+    @test
+    def test_ads_report_skips_its_total_row_and_reads_tab_exports():
+        if not (E / "ops.py").exists():
+            raise Skip("no ecom")
+        f = tmp / "ads.tsv"
+        f.write_text("Campaign Name\tSpend\tSales\nX\t100\t500\nTotal\t100\t500\n")
+        out = py(E / "ops.py", "ads", f, "--total-sales", 1000)
+        assert "| **Total** | 100.00 | 500.00 |" in out and "TACoS (ad spend ÷ all sales 1,000.00): 10.0%" in out, out
+        assert "summary row (Total)" in out, out
+        # Semicolons inside names don't change the separator, and a campaign that starts with "Total" stays.
+        f = tmp / "ads.csv"
+        f.write_text('Campaign Name,Spend,Sales\n"Joggers; Men",100,500\nTotal Wellness Joggers,50,100\nTotal,150,600\n')
+        out = py(E / "ops.py", "ads", f)
+        assert "| Joggers; Men | 100.00 |" in out and "| Total Wellness Joggers | 50.00 |" in out, out
+        assert "| **Total** | 150.00 | 600.00 |" in out, out
+
+    @test
+    def test_excel_windows_csv_and_short_counts_are_read():
+        if not (S / "outliers.py").exists():
+            raise Skip("no social-media")
+        f = tmp / "views.csv"
+        rows = ["channel;title;views"] + [f"Café;Vidéo {i};{v}" for i, v in enumerate(["1.2K", "1K", "1.1K", "900", "9K"])]
+        f.write_bytes("\n".join(rows).encode("cp1252"))  # what Excel on Windows saves
+        out = json.loads(py(S / "outliers.py", f, "--json", "--min", 2))
+        assert [r["title"] for r in out["outliers"]] == ["Vidéo 4"] and out["outliers"][0]["views"] == 9000, out
+
+    @test
+    def test_scripts_print_rupees_and_hindi_through_windows_pipes():
+        if not M.exists():
+            raise Skip("no memory.py")
+        sheet = tmp / "win" / "memory.csv"
+        py(M, "--file", sheet, "add", "--topic", "pricing", "--text", "Joggers ₹999, क्या")
+        out = py(M, "--file", sheet, "search", "joggers", env={"PYTHONIOENCODING": "cp1252"})
+        assert "₹999" in out and "क्या" in out, out
+
+    @test
+    def test_listing_bullet_given_as_text_is_one_bullet():
+        if not (E / "listing_check.py").exists():
+            raise Skip("no ecom")
+        f = tmp / "listing.json"
+        f.write_text(json.dumps({"title": "Joggers", "bullets": "Soft 220 GSM cotton"}))
+        out = py(E / "listing_check.py", f)
+        assert "| bullet 1 | 19 |" in out and "bullet 2" not in out, out
+
+    @test
+    def test_retention_reads_european_exports():
+        if not (S / "retention.py").exists():
+            raise Skip("no social-media")
+        f = tmp / "eu.csv"
+        f.write_text("Position;Rétention\n" + "\n".join(f'"{i},5";"{90 - i},5"' for i in range(20)))
+        r = json.loads(py(S / "retention.py", f, "--duration", 60, "--json"))
+        assert r["points"] == 20 and r["start"] == 90.5, r
+
+    @test
+    def test_economy_hook_works_where_python3_is_missing():
+        hooks = PLUGINS / "economy-mode/hooks/hooks.json"
+        if not hooks.exists():
+            raise Skip("no economy-mode hooks")
+        cmd = json.loads(hooks.read_text())["hooks"]["SessionStart"][0]["hooks"][0]["command"]
+        assert "|| python " in cmd, "Windows often has python but not python3"
+
+    @test
+    def test_sound_library_lists_fetches_and_credits():
+        get = PLUGINS / "master/skills/master/scripts/get_sounds.py"
+        if not get.exists():
+            raise Skip("no sound library")
+        assert "get_sounds.py" in (PLUGINS / "master/skills/master/workflows/video.md").read_text(encoding="utf-8"), \
+            "the video workflow must tell Claude the sound library exists"
+        try:
+            lib = json.loads((PLUGINS / "master/skills/master/sounds/library.json").read_text(encoding="utf-8"))
+        except json.JSONDecodeError as e:
+            raise AssertionError(f"sounds/library.json doesn't parse: {e}")
+        problems = []
+        for src in lib["sources"]:
+            sid = src.get("id", "?")
+            if not re.fullmatch(r"[0-9a-f]{40}", src.get("commit") or ""):
+                problems.append(f"{sid}: pin a full commit")
+            if not src.get("license_check"):
+                problems.append(f"{sid}: needs a license_check")
+            cats = src.get("categories") or {}
+            if not cats or not all(isinstance(p, list) and p for p in cats.values()):
+                problems.append(f"{sid}: needs categories, each with at least one path")
+            # An exclude removes a file inside a category, never a whole category.
+            for ex in src.get("exclude", []):
+                for cat, paths in cats.items():
+                    for p in paths:
+                        if ex.rstrip("/") == p.rstrip("/*") or p.startswith(ex.rstrip("/") + "/"):
+                            problems.append(f"{sid}: exclude {ex!r} removes all of category {cat!r} ({p})")
+        assert not problems, "\n".join(problems)
+        assert all(src["id"] in py(get, "list") for src in lib["sources"])
+        assert "Unknown source" in py(get, "fetch", "nope", ok=False)
+        dest = tmp / "sounds"
+        need("git")
+        r = subprocess.run([sys.executable, str(get), "fetch", "sfx-kit", "--category", "money", "--dest", str(dest)],
+                           capture_output=True, text=True, timeout=300)
+        if r.returncode != 0:
+            raise Skip("couldn't reach GitHub to download sounds")
+        wavs = sorted(dest.rglob("*.wav"))
+        assert wavs and all("money" in str(w) for w in wavs), wavs
+        assert "coin" in py(get, "find", "coin", "--dest", dest)
+        assert "No credit required" in py(get, "credits", wavs[0], "--dest", dest)
+        out = py(get, "credits", tmp / "mine.wav", "--dest", dest, ok=False)  # unknown files: check them yourself
+        assert "Not from the library" in out and "No credit required" not in out, out
+
+    @test
+    def test_no_audio_is_committed():
+        # Sounds are downloaded on demand; the repo never carries audio.
+        tracked = subprocess.run(["git", "ls-files"], cwd=ROOT, capture_output=True, text=True).stdout.split("\n")
+        audio = [f for f in tracked if f.lower().endswith((".wav", ".mp3", ".ogg", ".flac", ".m4a", ".aiff", ".aif", ".opus"))]
+        assert not audio, "audio files in the repo: " + ", ".join(audio[:10])
+
+    @test
+    def test_no_script_crashes_or_hangs_on_hostile_input():
+        if "--fast" in sys.argv:
+            raise Skip("full mode only")
+        chaos = ROOT / "tests/chaos.py"
+        r = subprocess.run([sys.executable, str(chaos)], capture_output=True, text=True, timeout=1800)
+        assert r.returncode == 0, r.stdout[-3000:] + r.stderr[-1000:]
+
+
+def check_humanizer(tmp: Path) -> None:
+    skill = PLUGINS / "humanizer/skills/humanizer"
+    hz = skill / "scripts/humanize.py"
+    fx = ROOT / "tests/fixtures/humanizer"
+
+    def run_hz(*args, ok=True):
+        r = subprocess.run([sys.executable, str(hz), *map(str, args)], capture_output=True, text=True,
+                           encoding="utf-8")
+        assert (r.returncode == 0) == ok, f"humanize.py {args}: {r.stdout}{r.stderr}"
+        return r.stdout + r.stderr
+
+    def score(name, channel):
+        return json.loads(run_hz("check", fx / name, "--channel", channel, "--json"))
+
+    @test
+    def test_humanizer_patterns_are_valid():
+        if not hz.exists():
+            raise Skip("no humanizer")
+        pats = json.loads((skill / "patterns.json").read_text(encoding="utf-8"))
+        for name, g in pats["groups"].items():
+            assert 1 <= g["weight"] <= 5 and g["advice"] and g["phrases"], name
+        for c in pats["constructions"]:
+            re.compile(c["regex"])
+        for rx in pats["openers"] + pats["closers"]:
+            re.compile(rx)
+        assert {"general", "linkedin", "instagram", "x", "email", "listing", "script", "landing", "reply"} <= \
+            set(pats["channels"]), pats["channels"].keys()
+
+    @test
+    def test_humanizer_passes_human_writing_on_every_channel():
+        if not hz.exists():
+            raise Skip("no humanizer")
+        # Real-sounding founder writing must not be flagged: false alarms make founders rewrite good copy.
+        for name, channel in [("linkedin.txt", "linkedin"), ("reply.txt", "reply"), ("listing.txt", "listing"),
+                              ("email.txt", "email"), ("script.txt", "script"), ("insta.txt", "instagram")]:
+            r = score(name, channel)
+            assert r["score"] >= 85, f"{name} ({channel}) scored {r['score']}: {r['issues']}"
+
+    @test
+    def test_humanizer_catches_machine_writing_on_every_channel():
+        if not hz.exists():
+            raise Skip("no humanizer")
+        for name, channel, must in [("ai_general.txt", "general", {"opener", "closer", "construction", "hype"}),
+                                    ("ai_linkedin.txt", "linkedin", {"assistant_speak", "heading", "unsupported"}),
+                                    ("ai_email.txt", "email", {"stock_email", "filler"}),
+                                    ("ai_listing.txt", "listing", {"ai_vocabulary", "hype", "construction"}),
+                                    ("ai_caption.txt", "instagram", {"hindi_hinglish", "hashtags"}),
+                                    ("ai_script.txt", "script", {"opener", "assistant_speak"})]:
+            r = score(name, channel)
+            kinds = {i["kind"] for i in r["issues"]}
+            assert r["score"] < 50, f"{name} ({channel}) scored {r['score']}"
+            assert must <= kinds, f"{name}: expected {must - kinds} among {kinds}"
+
+    @test
+    def test_humanizer_compare_guards_every_fact():
+        if not hz.exists():
+            raise Skip("no humanizer")
+        out = json.loads(run_hz("compare", fx / "before.txt", fx / "good_after.txt", "--json"))
+        assert out["facts_kept"] and out["score_after"] > out["score_before"], out
+        out = json.loads(run_hz("compare", fx / "before.txt", fx / "bad_after.txt", "--json", ok=False))
+        assert {"220", "₹999", "30"} <= set(out["lost"]["numbers"]), out["lost"]
+        assert {"240", "₹899"} <= set(out["added"]["numbers"]), out["added"]
+        assert "organic" in out["lost"]["claims"] and "clinically" in out["added"]["claims"], out
+        assert "@solidthreads" in out["lost"]["links"], out
+
+    @test
+    def test_humanizer_voice_finds_what_differs_from_the_founder():
+        if not hz.exists():
+            raise Skip("no humanizer")
+        samples = tmp / "founder.txt"
+        samples.write_text("\n\n".join((fx / n).read_text(encoding="utf-8")
+                                       for n in ("linkedin.txt", "email.txt", "script.txt", "insta.txt")),
+                           encoding="utf-8")
+        own = json.loads(run_hz("voice", samples, "--draft", fx / "linkedin.txt", "--json"))
+        ai = json.loads(run_hz("voice", samples, "--draft", fx / "ai_caption.txt", "--json"))
+        assert own["voice_match"] > ai["voice_match"], (own["voice_match"], ai["voice_match"])
+        assert any("emoji" in n for n in ai["off"]) and "toh der kis baat ki" in ai["phrases_the_founder_never_uses"]
+        assert "at least 80 words" in run_hz("voice", fx / "reply.txt", "--draft", fx / "insta.txt", ok=False)
+
+    @test
+    def test_humanizer_is_wired_into_master_and_handles_bad_input():
+        if not hz.exists():
+            raise Skip("no humanizer")
+        for head in ("marketing", "ecom", "review", "design"):
+            text = (PLUGINS / f"master/skills/master/heads/{head}.md").read_text(encoding="utf-8")
+            assert "humanizer" in text, f"the {head} head must run the humanizer on writing customers read"
+        assert "nothing to check" in run_hz("check", "--text", "  ", ok=False)
+        assert "unknown --channel" in run_hz("check", "--text", "Hello there friend", "--channel", "tiktok", ok=False)
+        assert '"words"' in run_hz("profile", fx / "email.txt")
+
+
+def check_linkedin(tmp: Path) -> None:
+    lc = PLUGINS / "linkedin/skills/linkedin/scripts/linkedin_check.py"
+    fx = ROOT / "tests/fixtures/humanizer"
+
+    def li(*args, ok=True):
+        r = subprocess.run([sys.executable, str(lc), *map(str, args), "--json"], capture_output=True, text=True,
+                           encoding="utf-8")
+        assert (r.returncode == 0) == ok, f"linkedin_check {args}: {r.stdout}{r.stderr}"
+        return json.loads(r.stdout)
+
+    @test
+    def test_linkedin_check_passes_a_good_post_and_shows_the_fold():
+        if not lc.exists():
+            raise Skip("no linkedin")
+        r = li(fx / "linkedin.txt")
+        assert not r["errors"] and not r["warnings"], r
+        assert r["fold_phone"].startswith("We shipped 412 orders in October.") and len(r["fold_phone"]) <= 141, r
+        assert len(r["fold_desktop"]) > len(r["fold_phone"]), r
+
+    @test
+    def test_linkedin_check_catches_influencer_posts():
+        if not lc.exists():
+            raise Skip("no linkedin")
+        r = li(fx / "ai_linkedin.txt", ok=False)
+        text = " ".join(r["errors"] + r["warnings"])
+        for want in ("announcement opener", "emoji", "hashtags", "generic closing question"):
+            assert want in text, (want, r)
+        bait = tmp / "bait.txt"
+        bait.write_text("We hit 1,000 orders.\n\nComment YES if you want the playbook!\n\n♻️ Repost to help others.")
+        assert any("engagement bait" in e for e in li(bait, ok=False)["errors"])
+        long_post = tmp / "long.txt"
+        long_post.write_text("We shipped 412 orders. " * 140)
+        assert any("3000" in e for e in li(long_post, ok=False)["errors"])
+        styled = tmp / "styled.txt"
+        styled.write_text("𝗕𝗶𝗴 𝗻𝗲𝘄𝘀: we shipped 412 orders in October.")
+        assert any("unicode" in e for e in li(styled, ok=False)["errors"])
+
+    @test
+    def test_linkedin_check_headline_about_note_and_comment():
+        if not lc.exists():
+            raise Skip("no linkedin")
+        bad = li("--headline", "--text", "Founder | Visionary | Passionate about innovation | Serial Entrepreneur", ok=False)
+        assert "buzzwords" in bad["errors"][0], bad
+        assert not li("--headline", "--text", "I help D2C brands cut returns: 31% to 11% at Solid Threads")["errors"]
+        assert li("--headline", "--text", "x" * 230, ok=False)["errors"]
+        assert any("pitch" in w for w in li("--note", "--text", "Hi, want a demo of our product?")["warnings"])
+        assert any("empty comment" in w for w in li("--comment", "--text", "Great post!")["warnings"])
+        assert not li("--comment", "--text", "We tried this at Solid Threads and returns fell from 31% to 11%. "
+                                             "Did you see the same with size charts?")["warnings"]
+
+    @test
+    def test_linkedin_check_runs_the_installed_humanizer_itself():
+        if not lc.exists():
+            raise Skip("no linkedin")
+        import shutil as _sh
+        # As founders have it after /plugin install: <marketplace>/<plugin>/<version>/...
+        cache = tmp / "cache" / "solidsforyou"
+        _sh.copytree(PLUGINS / "linkedin", cache / "linkedin" / "abc123")
+        installed = cache / "linkedin/abc123/skills/linkedin/scripts/linkedin_check.py"
+
+        def run_installed():
+            r = subprocess.run([sys.executable, str(installed), "--text", "I'm thrilled to announce our journey!",
+                                "--json"], capture_output=True, text=True, encoding="utf-8")
+            return json.loads(r.stdout)
+        alone = run_installed()
+        assert "humanizer_score" not in alone and any("humanizer@solidsforyou" in w for w in alone["warnings"]), alone
+        _sh.copytree(PLUGINS / "humanizer", cache / "humanizer" / "def456")
+        together = run_installed()
+        assert together["humanizer_score"] < 85 and together["humanizer_flags"], together
+        assert li(fx / "linkedin.txt")["humanizer_score"] >= 85  # repo layout: plugins/humanizer next door
+
+    @test
+    def test_linkedin_runs_the_humanizer_and_master_routes_to_it():
+        skill = PLUGINS / "linkedin/skills/linkedin"
+        if not skill.exists():
+            raise Skip("no linkedin")
+        assert "humanizer" in (skill / "SKILL.md").read_text(encoding="utf-8")
+        method = (skill / "linkedin.md").read_text(encoding="utf-8")
+        assert "--channel linkedin" in method and "compare" in method, "every draft goes through the humanizer"
+        router = (PLUGINS / "master/skills/master/toolbox.md").read_text(encoding="utf-8")
+        assert "linkedin" in router and "Humanizer is always on for anything going public" in router, \
+            "with Master, the humanizer must switch on by itself for public content"
+
+
 def main() -> None:
     fast = "--fast" in sys.argv
     check_structure()
@@ -818,6 +1480,16 @@ def main() -> None:
         check_memory(Path(tmp))
     with tempfile.TemporaryDirectory(prefix="sfy_ecom_") as tmp:
         check_ecom(Path(tmp))
+    with tempfile.TemporaryDirectory(prefix="sfy_video_visual_") as tmp:
+        check_video_and_visual_tools(Path(tmp))
+    with tempfile.TemporaryDirectory(prefix="sfy_transcriber_") as tmp:
+        check_transcriber(Path(tmp))
+    with tempfile.TemporaryDirectory(prefix="sfy_humanizer_") as tmp:
+        check_humanizer(Path(tmp))
+    with tempfile.TemporaryDirectory(prefix="sfy_linkedin_") as tmp:
+        check_linkedin(Path(tmp))
+    with tempfile.TemporaryDirectory(prefix="sfy_chaos_regressions_") as tmp:
+        check_chaos_regressions(Path(tmp))
     if not fast:
         with tempfile.TemporaryDirectory(prefix="sfy_tests_") as tmp:
             check_media(Path(tmp))

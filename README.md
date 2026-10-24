@@ -1,23 +1,63 @@
 # SOLIDS FOR YOU: Everything a Founder Needs
 
-**Make your Claude solid.**
+**Make your Claude solid.** 13 free Claude specialists for founders: a harsh
+buyer, an e-commerce operator, a competitor researcher, a head of social
+media, a video team and more. Two commands to install, and they work from
+your phone.
 
-Free, open-source Claude tools for starting and running a business (MIT
-licensed, see [License](#license)). Each one turns Claude
-into a specialist you'd otherwise have to hire: an audio designer, a motion
-design director, a harsh customer, a meticulous reviewer.
+[![MIT License](https://img.shields.io/badge/license-MIT-4d7cff)](LICENSE.md)
+[![Claude Code plugins](https://img.shields.io/badge/Claude%20Code-plugins-4d7cff)](#set-it-up)
+[![Works on claude.ai](https://img.shields.io/badge/claude.ai-skills-4d7cff)](#option-2-claudeai-claude-desktop-or-claude-mobile)
+[![Tests](https://github.com/Founderwithabs/SOLIDSFORYOU/actions/workflows/tests.yml/badge.svg)](https://github.com/Founderwithabs/SOLIDSFORYOU/actions/workflows/tests.yml)
+
+![SOLIDS FOR YOU in 30 seconds](assets/demo.gif)
+
+*This video was made by Claude with SOLIDS FOR YOU's own video workflow:
+built, reviewed by a harsh buyer and a motion designer, and fixed until it
+scored 86 out of 100. [How it was made](examples/launch-video).*
+
+## Start in 30 seconds
+
+In [Claude Code](https://claude.com/claude-code) (terminal, desktop app or
+claude.ai/code):
+
+```
+/plugin marketplace add Founderwithabs/SOLIDSFORYOU
+/plugin install master@solidsforyou
+```
+
+Then install the specialists you want (list below) and just ask: "review this
+listing like a harsh buyer", "what do I make per order on Flipkart?", "make a
+30-second launch video". On claude.ai or the Claude app, upload the skill
+files instead ([Option 2](#option-2-claudeai-claude-desktop-or-claude-mobile)).
+
+## Why it's different
+
+| You ask | Claude on its own | Claude with SOLIDS FOR YOU |
+|---|---|---|
+| "Should I raise my price from ₹999 to ₹1,099?" | Estimates fees as a percentage and says more price, more profit | **Ecom** works it out in code from your real fee profile, per order, with returns and ads, and spots the fee tier you'd cross: ₹1,099 makes *less* (₹248 vs ₹259). [See the real run](examples/ecom-unit-economics) |
+| "Is my listing good?" | Polite general advice | **Harsh Buyer Review** researches 3 to 5 real competitors, compares one-on-one, and says why a buyer would scroll past |
+| "Who are my competitors and what do they charge?" | A plausible list, often unsourced | **Competitor Research** sources and dates every fact, double-checks a sample, and runs on Claude's cheapest model |
+| "Make a video" | Code you have to run and judge yourself | **Master Skill** builds, renders, reviews and re-renders until it scores 85 out of 100, or tells you what's left. [See this one's report](examples/launch-video) |
+| "Write tomorrow's reel" | A caption | **Social Media** writes in your voice and scores every post out of 100 before you see it |
 
 Every tool works wherever you use Claude: **Claude Code**, **claude.ai** (web,
 desktop, mobile), or **any Claude chat** as a paste-in prompt.
+
+⭐ **If it saves you time, star the repo.** It's how other founders find it.
 
 ## The tools
 
 | Tool | What you get | Use it when |
 |---|---|---|
 | 🎧 **Audio Review** | A senior audio designer's review of any audio: a score out of 10, how it sounds, ranked problems with timestamps, a fix list, and loudness checks for Spotify, YouTube, podcasts, broadcast and ads | Before you publish a podcast, ad, song, voice-over or product sound |
-| 🏆 **Master Skill** | Keeps every tool below ready and uses only what each task needs. Making a video runs the full video workflow: it plans, builds, reviews as your buyer and as a motion designer, checks the sound, then fixes and re-renders until the video scores 85 out of 100 or more. Social media, feedback and research get their specialists, and simple tasks get none, so you save credits and get better work | Always on. Install it with the other tools and Claude picks the right ones for each task |
+| 🏆 **Master Skill** | Keeps every tool below ready and hands each task to one of five heads (**Product**, **Ecom**, **Marketing**, **Design**, **Review**), each of which calls only the tools that task needs. Making a video runs the full video workflow: it plans, builds, reviews as your buyer and as a motion designer, checks the sound, then fixes and re-renders until the video scores 85 out of 100 or more. Social media, feedback and research get their specialists, and simple tasks get none, so you save credits and get better work | Always on. Install it with the other tools and Claude picks the right ones for each task |
 | 📱 **Social Media** | Your head of social media: strategy, content calendars, posts, hooks, carousels and reel scripts for Instagram, TikTok, YouTube, LinkedIn, X and more. Every post passes a 100-point scorecard before you see it, growth stays honest, and it learns from your own results | Planning, writing, reviewing or analysing anything for social media |
 | 🎬 **Motion Design Taste** | A senior motion designer's review of a video: a score out of 100, ranking against references, and exact fixes (and Claude applies them when it has the source). It learns your taste over time | Before you ship an explainer, reel, ad or product video |
+| 🎙️ **Transcriber** | Upload a voice note, podcast, call or video, even from your phone, and Claude transcribes it with OpenAI's Whisper right in the chat: text plus timestamped captions, in English, Hindi, Hinglish and 90+ languages. Nothing to install | Whenever you need the words from a recording: captions, editing, chapters, posts |
+| ✍️ **Humanizer** | Anything your customers will read, rewritten to sound like you, not a chatbot: posts, listings, emails, video scripts and replies, in English, Hindi or Hinglish. It finds the phrases that give machine writing away, follows a guide for each channel, checks that no price or fact changed, and compares the draft with your own writing | Before you post, publish, send or record anything |
+| 💼 **LinkedIn** | Your LinkedIn ghostwriter: finds the post only you could write (a number, a decision, a mistake), writes a hook that works before "see more", and edits every draft through the Humanizer so it sounds like you. Also your headline, About section, comments, messages and a posting plan. Never makes up a story | Anything you post, write or reply to on LinkedIn |
+| 🎨 **AI Visuals** | Made a picture or video with ChatGPT, Midjourney, Gemini, Flux, Ideogram, Firefly, Canva, Sora, Veo, Kling or Runway? Claude checks it for where it'll be used (Amazon, Instagram, LinkedIn, YouTube, ads), scores it, and gives you the exact fixed prompt or edit, with every change explained. With your own OpenAI key it can generate and re-check too | Whenever an AI image or clip isn't quite right |
 | 🛍️ **Ecom** | Your e-commerce operator for Amazon, Walmart, eBay, Etsy, TikTok Shop, Shopify, Flipkart, Meesho and any other marketplace: listings that pass a harsh buyer, product images judged, planned and rendered, profit per order and prices calculated from your real fees, plus ads, returns, stock and launches | Anything about selling online, pricing or margins |
 | 🔎 **Competitor Research** | Deep competitor analysis on Amazon, Flipkart, Meesho, Myntra and any other marketplace, plus competitor websites, social media and ads. Every fact is sourced and dated, a separate pass double-checks it, and you get price, review and listing comparisons with ranked actions. Runs on Claude's cheapest model (Haiku) to save credits | Before you price, launch, change a listing, or ask for harsh buyer feedback |
 | 🛒 **Harsh Buyer Review** | A real buyer tears into your listing: researches 3 to 5 competitors, compares one-on-one, and tells you exactly why they would or wouldn't buy | Before you launch or change a product listing, images, video, copy or price |
@@ -46,7 +86,14 @@ Then install the tools you want:
 /plugin install social-media@solidsforyou
 /plugin install competitor-research@solidsforyou
 /plugin install ecom@solidsforyou
+/plugin install ai-visuals@solidsforyou
+/plugin install transcriber@solidsforyou
+/plugin install humanizer@solidsforyou
+/plugin install linkedin@solidsforyou
 ```
+
+If installing Master says an option is "not yet set", you can ignore it:
+Master starts always-on, which is the recommended setting.
 
 Or just run `/plugin` and pick them from the list. After that, ask naturally
 ("how does this audio sound?", "review this listing like a harsh buyer",
@@ -65,6 +112,18 @@ video, audio, social media, feedback and research, switch it to
 **task-specific** with `/plugin configure master@solidsforyou` (or its row in
 `/config`). For a single conversation, say "Master Skill off" or "Master Skill
 always on".
+
+**Writing that sounds like you.** With the Humanizer installed, the Master
+Skill switches it on by itself for anything going public (posts, listings,
+emails, video scripts, replies, pages), whatever you asked for: it strips the phrases that make text
+sound machine-written ("game-changer", "it's not just X, it's Y", recap
+endings) and checks every fact and price stayed exactly as it was.
+
+**Sound for videos.** The Master Skill's video workflow picks real sound
+effects and music from a free, licence-checked library (whooshes, risers,
+logo stings, background music by mood), downloading only what a video needs
+from GitHub, and lists any credits the video description needs. If your
+network blocks github.com, it uses its built-in sounds instead.
 
 **Requirements:** Audio Review and Motion Design Taste need
 [ffmpeg](https://ffmpeg.org/download.html) and Python 3. Audio Review also
@@ -87,6 +146,10 @@ Code has built in.
    [Social Media](dist/social-media-skill.zip) ·
    [Competitor Research](dist/competitor-research-skill.zip) ·
    [Ecom](dist/ecom-skill.zip) ·
+   [AI Visuals](dist/ai-visuals-skill.zip) ·
+   [Transcriber](dist/transcriber-skill.zip) ·
+   [Humanizer](dist/humanizer-skill.zip) ·
+   [LinkedIn](dist/linkedin-skill.zip) ·
    [Master Skill](dist/master-skill.zip) (upload the others too: it uses
    them)
 2. In Claude's settings, turn on code execution, then upload the zip as a
@@ -149,6 +212,9 @@ dist/                             Skill zips for claude.ai, and
                                   master-full.md (the Master Skill with
                                   every tool, in one paste-in file)
 prompts/README.md                 Links to every paste-in prompt
+examples/                         Real outputs: the launch video's report,
+                                  an Ecom profit run
+assets/                           The README video and the social preview
 taste/motion/                     SOLIDS FOR YOU's own motion taste notes
 .claude/skills/                   Lets the tools work inside this repo too
 scripts/build_skill_zip.py        Rebuilds the zips in dist/

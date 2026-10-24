@@ -41,13 +41,16 @@ them in this order and use the first that exists:
 
 | File | Holds |
 |---|---|
-| `brand-voice.md` | Who the brand is, how it talks, words it uses and never uses, emoji and slang rules, languages and language mix (for example Hinglish in Roman script), example posts the founder loves and hates |
+| `brand-voice.md` | Who the brand is talking to (one real person, described precisely, not "creators" or "customers"); how the founder actually talks (paste real transcripts or posts, not how they wish they sounded); words they use (their own phrases and tics, keep them) and never use; what they will not claim (numbers they can't show, results that aren't theirs); format habits (length, how videos open, on camera or not, swearing, emoji); languages and language mix (for example Hinglish in Roman script); example posts they love and hate |
 | `strategy.md` | Goal, audience, platforms, content pillars, cadence, funnel, what success looks like (section 4) |
 | `learnings.md` | What has worked and failed for this account, with dates and numbers (section 9) |
 | `posts.csv` | Every published post and its results, for analysis (section 9) |
 
 If none exist, run the onboarding questions in section 3 before creating
-anything substantial, then save the answers. Save into the project's
+anything substantial, then save the answers. The fastest way to a real
+`brand-voice.md` is to ask for three of the founder's own videos,
+transcripts or best posts and write it from them; anything spoken on camera
+in the wrong voice is unusable, because the founder has to say it. Save into the project's
 `social/` folder if the founder works in a project; otherwise into
 `${CLAUDE_PLUGIN_DATA}/`; outside Claude Code, give the founder a "Save this"
 block to paste back next time. Tell the founder what you saved and where.
@@ -67,6 +70,7 @@ Pick the job, then follow its section. A request can include several.
 | Trends | "What's trending?", "what should we jump on?" | 10 |
 | Analyse | Results, analytics exports, "what's working?" | 9 |
 | Engage | Reply to comments, reviews or DMs; handle criticism | 11 |
+| YouTube | Long-form scripts, titles and thumbnails, descriptions and chapters, cutting Shorts from a long video, retention exports, channel audits, outlier research | `youtube.md` next to this file, plus the sections it names |
 
 ### 3.1 Onboarding questions
 
@@ -120,7 +124,19 @@ convert), working hook, one-line idea, asset needed, owner, status.
   build habits for the audience and are faster to make.
 - Leave room for one reactive or trend post per week.
 - Batch production: group posts that share a shoot, location or template.
-- Deliver as a table (or CSV if asked), plus the shot list for the week.
+- **Size it to real hours.** Ask how many hours the founder has this week
+  and what is already half-made before planning. A week that doesn't fit is
+  a list of regrets.
+- **Anchor, cheap, cut-downs.** Each week has one anchor piece (the one the
+  week is for, posted on the day the founder's own data says is best), one
+  cheap piece built from something that exists (a clip, a reply to last
+  week's most-asked comment, a follow-up), and short clips cut from the
+  anchor rather than written separately (section 8). Fewer, finished posts
+  beat a daily plan nobody keeps.
+- Deliver as a table (or CSV if asked) with day, platform, format, working
+  hook, the one sentence it promises and what already exists for it, plus the
+  shot list for the week. End with the hours it costs and what to drop first
+  if the week goes wrong.
 
 ## 6. Creating content
 
@@ -139,6 +155,20 @@ Before writing, answer in one line each:
 The first line, first frame or first second decides whether anything else
 gets seen. Write at least ten hooks, score them (section 7), keep the best
 three, and test them where the platform allows.
+
+Use the 21 hook formulas in `SKILL_DIR/scripts/hooks.json` (each has its
+shape, an example and how it fails) as a starting library, and score every
+spoken or first-line hook with the bundled heuristic before choosing:
+
+```
+python3 "SKILL_DIR/scripts/hookscore.py" hooks.txt --format short   # reels, Shorts, TikToks, first lines
+python3 "SKILL_DIR/scripts/hookscore.py" hooks.txt                  # YouTube long-form openings
+```
+
+It scores specificity, direct address, stakes, curiosity and length, and
+names the weakest. Treat a low score as a reason to look again, never a
+high score as a promise; it is calibrated on English. Show the founder the
+best two with their scores, never just one.
 
 Hook types that work for founders (adapt; never paste as a fill-in-the-blank):
 - **Specific result:** a concrete before-and-after with a real number.
@@ -205,6 +235,8 @@ machine-written:
 Then add what models usually leave out: real details, the founder's own
 opinions and stories (from the founder, never invented), and a little
 texture: an aside, a joke, a strong opinion, a contraction.
+If the SOLIDS FOR YOU humanizer skill is installed, run its check on the
+draft (and its compare after rewriting) before the scorecard.
 
 ### 6.6 Short video (reels, shorts, TikToks)
 
@@ -223,6 +255,10 @@ Write the video as a script table: time, what's on screen, what's said
 - Cover image or first frame readable as a thumbnail at phone size.
 - Music: for brand accounts, use the platform's commercial-use library or
   licensed tracks; trending audio is often not cleared for business use.
+- **Runtime:** estimate it in code from the spoken words at about 150 words
+  a minute (adjust to the founder's real pace from their videos).
+- **No intro, no "before we start", no follow pitch at the start.** Those
+  are the most common cause of the early drop.
 
 When the founder wants the video made (not just scripted), hand the script
 to the Master Skill's video workflow if it is installed (SOLIDS FOR YOU
@@ -243,11 +279,22 @@ follow the motion-design-taste skill's rules to review whatever is produced.
 
 - Title and thumbnail work as a pair: the thumbnail shows, the title tells;
   don't repeat the same words in both.
-- Thumbnail: one subject, high contrast, three to five words at most,
+- Thumbnail: one subject, high contrast, three words (four at most),
   readable at about 160 px wide. A face with a real expression helps when it
   is honest about the video.
-- Write at least ten titles, score them, and use the platform's thumbnail
-  or title testing if it is available.
+- A number, a name or a date beats any adjective; at most two all-caps words.
+- Write at least ten titles and lint every one as a pair with its thumbnail
+  text, then show the top three with their scores and issues:
+
+  ```
+  python3 "SKILL_DIR/scripts/package_check.py" titles.txt --thumb "3 WORDS HERE"
+  ```
+
+  It checks desktop and mobile truncation (YouTube defaults; set
+  `--desktop`, `--mobile` and `--hard` for other platforms after checking
+  their current limits), repeats between title and thumbnail, vague words,
+  shouting and a missing number. Use the platform's thumbnail or title
+  testing if it is available.
 - The first 30 seconds of the video must confirm the title's promise.
 
 ## 7. Review: the pre-publish gauntlet
@@ -299,6 +346,17 @@ it's for, what they get, why follow, one call to action), link, highlights or
 pinned posts, the last 12 posts against the strategy, consistency of look,
 and the best and worst posts by the founder's own numbers (section 9).
 
+Look in this order: the last ten titles or first lines read as a set (if
+they all have the same shape, it's a format problem, not a copy problem);
+the covers and thumbnails at feed size; the first seconds of the three most
+recent videos (score their hooks); posting consistency (steady beats
+bursts); then retention or watch time if the founder can export it.
+
+End an audit with **one** fix: the single biggest one, and what to do about
+it this week. Then three specific things already working, so they aren't
+broken by accident, and what not to do yet and why. Never open with praise
+you don't mean, and never end with a list of twenty problems.
+
 ## 8. Repurposing one piece across platforms
 
 1. Find the core idea and the single best proof or moment in the source
@@ -309,9 +367,18 @@ and the best and worst posts by the founder's own numbers (section 9).
 3. Typical waterfall: one long video or article becomes short clips, a
    carousel of the key points, a text post with the story, a thread or
    short post with the sharpest line, and a newsletter or WhatsApp update.
-4. Stagger posting so each platform gets its own moment; don't post
+4. **Cutting short clips from a long video:** read the transcript and find
+   spans of about 20 to 55 seconds that open on a complete thought (no
+   context needed from earlier), contain a turn (a claim, then something
+   that proves or complicates it) and end on a line, not a trail-off. Rank
+   them and show the top five with timecodes and first lines. For each, write
+   a NEW first line (the original assumed context this viewer lacks; score it
+   with `hookscore.py --format short`), on-screen text for the first two
+   seconds in different words from the spoken line, a loop point, and a note
+   on what a vertical crop loses.
+5. Stagger posting so each platform gets its own moment; don't post
    everything in the same hour.
-5. Link between platforms only where the platform doesn't penalise outbound
+6. Link between platforms only where the platform doesn't penalise outbound
    links (check current behaviour), and only one link per post.
 
 ## 9. Measure, learn, improve
@@ -341,6 +408,24 @@ and ranks pillars, formats and hook types, flagging groups with too few
 posts to judge. Without a terminal, calculate the same rates in your code
 tool or a spreadsheet formula, never mentally.
 
+**Retention.** When the founder can export a retention curve (YouTube
+Studio's audience retention, or another platform's watch-through export),
+read it with:
+
+```
+python3 "SKILL_DIR/scripts/retention.py" retention.csv --duration <seconds> [--transcript transcript.srt]
+```
+
+It separates three problems with three fixes: the **hook leak** (lost in
+the opening; fix the first line, never the edit), **cliffs** (single steep
+drops after the opening, with what was being said there; usually an
+unsignposted topic change, a long setup or a sponsor read) and the
+**slide** (steady loss across the middle; pacing, so cut, don't rewrite).
+Name the single biggest leak and one change for it. If the hook leak is
+healthy and the slide is gentle, the video is fine and the problem is
+packaging (section 6.8). To see what was on screen at each cliff, use the
+`motion-design-taste` skill's `inspect_video.py` at the times it prints.
+
 Judge posts against the account's own median, not against other accounts
 or published "benchmarks". Shares, saves, follows and clicks matter more
 than likes. Views without follows or clicks usually mean the hook promised
@@ -369,16 +454,44 @@ general advice in this skill.
    news, and posts from accounts in the niche. Give the date you checked.
    Without web access, say you can't see current trends and ask the founder
    what they're seeing.
-2. For each trend, score: fit with the brand (does it make sense for us to
+2. **Find outliers, not big numbers.** Raw views rank account size, not
+   ideas. Collect public listings from accounts in the niche (at least four
+   posts or videos each; for YouTube, `yt-dlp --flat-playlist -J <channel
+   URL>` collects titles and views without logging in) and rank each item by
+   how far it beat its own account's median:
+
+   ```
+   python3 "SKILL_DIR/scripts/outliers.py" ch1.json ch2.json posts.csv --min 2.0 --split-shorts
+   ```
+
+   Report the top five with their multiples, the title formula each used
+   (a label for the words, not proof of why it worked), and the one
+   structural thing they share. Then say which one the founder could make
+   this week, in their voice, with what they have. Read public pages only;
+   never log in or use anyone's account.
+3. For each trend, score: fit with the brand (does it make sense for us to
    say this?), audience overlap, time left (trends fade in days or weeks),
    effort, and risk (tragedy, politics, controversy, copyrighted audio).
-3. Jump only on trends where the brand adds something; a brand on a trend
+4. Jump only on trends where the brand adds something; a brand on a trend
    it has no angle on looks desperate.
-4. Turn the trend into a post with the brand's own angle and proof, then run
+5. Turn the trend into a post with the brand's own angle and proof, then run
    it through section 7 like any other post.
 
 ## 11. Engagement and community
 
+- **Triage first.** Sort pasted comments into four piles and say how many
+  are in each before writing anything: **questions** (answer them; repeated
+  ones are your next posts), **corrections** (if right, say so plainly and
+  thank them; never argue a fact you can't check), **praise** (reply to a
+  few, with something specific from their comment; identical "thank you!"
+  replies read as automated) and **bait** (don't reply; never write a
+  comeback, however deserved).
+- Replies are short (under about 30 words), answer the question in the first
+  sentence, ask a question back only when it's real, use emoji only if the
+  founder's own replies do, and never promise a video or post nobody agreed
+  to make.
+- Say which ONE comment to pin and why: the question most people also have,
+  not the nicest comment.
 - Reply in the brand voice, quickly and specifically. Thank people for
   something specific they said.
 - Questions in comments are content ideas; log them.
@@ -448,4 +561,6 @@ For **strategy, calendar, analysis or audit**: the document or table,
 then the three most important actions for this week.
 
 Keep the founder's time in mind: put what they need to post first, and the
-reasoning after.
+reasoning after. Nothing is published by you: everything ends in a block the
+founder copies, and the last line of every delivery is the question:
+**Ship it, or change it?**

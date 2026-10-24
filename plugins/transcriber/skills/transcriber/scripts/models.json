@@ -1,0 +1,70 @@
+{
+  "note": "Whisper models (OpenAI, MIT) converted for faster-whisper and published on PyPI by SOLIDS FOR YOU. Built by scripts/build_whisper_packages.py at the repo root, which fills in this file. transcribe.py only trusts files whose SHA-256 matches the values here.",
+  "default": "base",
+  "models": {
+    "base": {
+      "published": false,
+      "source": "openai/whisper base.pt, sha256 ed3a0b6b1c0edf879ad9b11b1af5a0e6ab5db9205f891f668f8b0e6c6326e34e",
+      "packages": [
+        {
+          "name": "solidsforyou-whisper-base-1",
+          "version": "1.0.0",
+          "module": "solidsforyou_whisper_base_1"
+        },
+        {
+          "name": "solidsforyou-whisper-base-2",
+          "version": "1.0.0",
+          "module": "solidsforyou_whisper_base_2"
+        }
+      ],
+      "files": {
+        "config.json": "56a6d8110d311f19c8f0471e562832c7527f146b567275bfca59fcf7c184da9a",
+        "model.bin": "905e5bf8336bcc625ba4e33498d675a4b935504118c594d868c36e91a60c1a57",
+        "tokenizer.json": "7e146198186d5e3b9ce7d9d7f131b69b44569eaed9ad64a5516629a6c6a865c4",
+        "vocabulary.json": "22f3cb2fc2be1545b9a7db8e993ddd59aeccadfbc7d7b00ca517ca8960864766"
+      }
+    },
+    "small": {
+      "published": false,
+      "source": "openai/whisper small.pt, sha256 9ecf779972d90ba49c06d968637d720dd632c55bbf19d441fb42bf17a411e794",
+      "packages": [
+        {
+          "name": "solidsforyou-whisper-small-1",
+          "version": "1.0.0",
+          "module": "solidsforyou_whisper_small_1"
+        },
+        {
+          "name": "solidsforyou-whisper-small-2",
+          "version": "1.0.0",
+          "module": "solidsforyou_whisper_small_2"
+        },
+        {
+          "name": "solidsforyou-whisper-small-3",
+          "version": "1.0.0",
+          "module": "solidsforyou_whisper_small_3"
+        },
+        {
+          "name": "solidsforyou-whisper-small-4",
+          "version": "1.0.0",
+          "module": "solidsforyou_whisper_small_4"
+        },
+        {
+          "name": "solidsforyou-whisper-small-5",
+          "version": "1.0.0",
+          "module": "solidsforyou_whisper_small_5"
+        },
+        {
+          "name": "solidsforyou-whisper-small-6",
+          "version": "1.0.0",
+          "module": "solidsforyou_whisper_small_6"
+        }
+      ],
+      "files": {
+        "config.json": "b55496ac7940a7ae47d2c01eab40edfd8701feec1229d9cce3b40014383fb828",
+        "model.bin": "eef2cbde70d256f29b6e3432c85b92becd26f804650e855cc4ff7e66f12122b0",
+        "tokenizer.json": "7e146198186d5e3b9ce7d9d7f131b69b44569eaed9ad64a5516629a6c6a865c4",
+        "vocabulary.json": "22f3cb2fc2be1545b9a7db8e993ddd59aeccadfbc7d7b00ca517ca8960864766"
+      }
+    }
+  }
+}

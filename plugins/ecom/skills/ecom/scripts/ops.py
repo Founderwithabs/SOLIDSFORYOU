@@ -16,8 +16,15 @@ reorder point and how much to order. Standard library only.
 """
 import argparse
 import csv
+import io
+import math
 import sys
 from pathlib import Path
+
+# Windows pipes default to a legacy code page: print ₹, Hindi and emoji as UTF-8 instead of crashing.
+for _stream in (sys.stdout, sys.stderr):
+    if hasattr(_stream, "reconfigure"):
+        _stream.reconfigure(encoding="utf-8", errors="replace")
 
 ADS_COLUMNS = {
     "campaign": ["campaign name", "campaign", "ad group name", "ad group", "keyword", "search term", "name"],
@@ -30,6 +37,8 @@ ADS_COLUMNS = {
     "impressions": ["impressions", "views"],
 }
 RETURN_REASON = ["return reason", "reason", "customer comments", "return_reason"]
+# Summary rows many exports end with; counting them would double every total.
+TOTAL_ROWS = {"total", "totals", "grand total", "sum", "summary", "all campaigns"}
 
 
 def number(value):
@@ -42,9 +51,29 @@ def number(value):
         return None
 
 
+def read_table(path):
+    """Rows of a CSV or TSV export, however Excel or the platform saved it: UTF-8 or
+    Windows (cp1252) text, separated by commas, semicolons or tabs."""
+    try:
+        raw = Path(path).read_bytes()
+    except OSError as e:
+        sys.exit(f"can't read {path}: {e.strerror}")
+    for enc in ("utf-8-sig", "cp1252", "latin-1"):
+        try:
+            text = raw.decode(enc)
+            break
+        except UnicodeDecodeError:
+            continue
+    if "\x00" in text:
+        sys.exit(f"{path} isn't a text table (CSV or TSV); export it again as CSV")
+    # The header row says how columns are separated; cells further down may hold any character.
+    header = next((line for line in text.splitlines() if line.strip()), "")
+    delimiter = max([",", ";", "\t"], key=header.count) if header else ","
+    return list(csv.DictReader(io.StringIO(text, newline=""), delimiter=delimiter))
+
+
 def read(path):
-    with open(path, newline="", encoding="utf-8-sig") as f:
-        rows = list(csv.DictReader(f))
+    rows = read_table(path)
     if not rows:
         sys.exit(f"{path} has no rows")
     return rows
@@ -83,9 +112,12 @@ def cmd_ads(args):
     cols = {k: find_column(rows[0].keys(), v) for k, v in ADS_COLUMNS.items()}
     if not cols["spend"] or not cols["sales"]:
         sys.exit(f"couldn't find spend and sales columns; headers are: {', '.join(rows[0].keys())}")
-    groups = {}
+    groups, skipped = {}, []
     for r in rows:
         key = (r.get(cols["campaign"]) or "(all)").strip() if cols["campaign"] else "(all)"
+        if key.lower().rstrip(":") in TOTAL_ROWS:
+            skipped.append(key)
+            continue
         g = groups.setdefault(key, {"spend": 0, "sales": 0, "orders": 0, "clicks": 0, "impressions": 0})
         for k in g:
             if cols[k]:
@@ -93,7 +125,10 @@ def cmd_ads(args):
     total = {k: sum(g[k] for g in groups.values()) for k in ["spend", "sales", "orders", "clicks", "impressions"]}
     out = ["# Advertising report", "",
            "Columns used: " + ", ".join(f"{k} = '{v}'" for k, v in cols.items() if v) + ".",
-           "ACoS = spend ÷ ad sales. ROAS = ad sales ÷ spend. CVR = orders ÷ clicks.", ""]
+           "ACoS = spend ÷ ad sales. ROAS = ad sales ÷ spend. CVR = orders ÷ clicks."]
+    if skipped:
+        out.append(f"Left out the report's own summary row ({', '.join(skipped)}), so nothing is counted twice.")
+    out.append("")
     head = "| Campaign | Spend | Ad sales | ACoS | ROAS | Orders | CPC | CTR | CVR |" + (" Flag |" if args.breakeven_acos else "")
     out += [head, "|" + "---|" * (head.count("|") - 1)]
     ranked = sorted(groups.items(), key=lambda kv: kv[1]["spend"], reverse=True)
@@ -136,6 +171,8 @@ def cmd_returns(args):
     out = ["# Returns report", "", f"Returns: {n}. Reason column: '{col}'."]
     if args.orders:
         out.append(f"Return rate: {n} ÷ {args.orders:g} orders = {f(pct(n, args.orders), '%', 1)}.")
+        if n > args.orders:
+            out.append("More returns than orders: check that --orders covers the same period as this export.")
     out += ["", "| Reason | Returns | Share |", "|---|---|---|"]
     for reason, c in sorted(counts.items(), key=lambda kv: kv[1], reverse=True):
         out.append(f"| {reason} | {c} | {f(pct(c, n), '%', 1)} |")
@@ -143,6 +180,10 @@ def cmd_returns(args):
 
 
 def cmd_reorder(args):
+    for name in ("daily_sales", "lead_days", "on_hand", "inbound", "safety_days", "cover_days"):
+        v = getattr(args, name)
+        if not math.isfinite(v) or v < 0 or v > 1e9:
+            sys.exit(f"--{name.replace('_', '-')} must be a plain number from 0 up, not {v:g}")
     d = args.daily_sales
     if d <= 0:
         sys.exit("--daily-sales must be above 0")
