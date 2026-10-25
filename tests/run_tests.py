@@ -1561,6 +1561,107 @@ def check_clipper(tmp: Path) -> None:
             (PLUGINS / "clipper/skills/clipper/SKILL.md").read_text(encoding="utf-8")
 
 
+def check_publisher(tmp: Path) -> None:
+    ig = PLUGINS / "publisher/skills/publisher/scripts/ig.py"
+    import http.server, threading, urllib.parse as up
+    seen = []
+
+    class Fake(http.server.BaseHTTPRequestHandler):
+        def log_message(self, *a):
+            pass
+
+        def _send(self, obj, code=200):
+            body = json.dumps(obj).encode()
+            self.send_response(code)
+            self.send_header("Content-Type", "application/json")
+            self.end_headers()
+            self.wfile.write(body)
+
+        def do_GET(self):
+            u = up.urlparse(self.path)
+            q = dict(up.parse_qsl(u.query))
+            seen.append(("GET", u.path, q))
+            if q.get("access_token") != "SECRET-TOKEN-123":
+                return self._send({"error": {"message": "Invalid OAuth access token"}}, 400)
+            if u.path == "/me":
+                return self._send({"user_id": "1784", "username": "moneymomentsdailys", "account_type": "MEDIA_CREATOR"})
+            if u.path == "/1784/content_publishing_limit":
+                return self._send({"data": [{"quota_usage": 2, "config": {"quota_total": 50}}]})
+            if u.path == "/C1":
+                return self._send({"status_code": "FINISHED"})
+            if u.path == "/M1":
+                return self._send({"permalink": "https://www.instagram.com/reel/abc/"})
+            if u.path == "/M1/insights":
+                return self._send({"data": [{"name": "views", "values": [{"value": 1234}]}, {"name": "likes", "values": [{"value": 56}]}]})
+            if u.path == "/1784/insights":
+                return self._send({"data": [{"total_value": {"breakdowns": [{"results": [
+                    {"dimension_values": ["US"], "value": 30}, {"dimension_values": ["IN"], "value": 60}, {"dimension_values": ["GB"], "value": 10}]}]}}]})
+            return self._send({"error": {"message": "unknown path"}}, 404)
+
+        def do_POST(self):
+            n = int(self.headers.get("Content-Length", 0))
+            q = dict(up.parse_qsl(self.rfile.read(n).decode()))
+            seen.append(("POST", self.path, q))
+            if self.path == "/1784/media":
+                return self._send({"id": "C1"})
+            if self.path == "/1784/media_publish":
+                return self._send({"id": "M1"})
+            return self._send({"error": {"message": "unknown path"}}, 404)
+
+    srv = http.server.ThreadingHTTPServer(("127.0.0.1", 0), Fake)
+    threading.Thread(target=srv.serve_forever, daemon=True).start()
+    env = {**os.environ, "IG_API_BASE": f"http://127.0.0.1:{srv.server_port}", "IG_ACCESS_TOKEN": "SECRET-TOKEN-123"}
+
+    def run(*args, ok=True, e=None):
+        r = subprocess.run([sys.executable, str(ig), *args], capture_output=True, text=True, env=e or env, timeout=60)
+        out = r.stdout + r.stderr
+        assert (r.returncode == 0) == ok, out
+        assert "SECRET-TOKEN-123" not in out, "the token must never be printed"
+        assert "Traceback" not in out, out
+        return out
+
+    @test
+    def test_publisher_posts_a_reel_and_reads_numbers_without_leaking_the_token():
+        if not ig.exists():
+            raise Skip("no publisher")
+        cap = tmp / "cap.txt"
+        cap.write_text("Netflix offered itself to Blockbuster for $50 million. #netflix #business", encoding="utf-8")
+        out = run("publish", "--video", "https://drive.google.com/file/d/1AbCdEfGhIjKlMnOp/view?usp=sharing",
+                  "--caption-file", str(cap), "--cover-ms", "500", "--json")
+        res = json.loads(out)
+        assert res["published"] and res["permalink"].endswith("/reel/abc/"), res
+        made = [q for m, p, q in seen if p == "/1784/media"][0]
+        assert made["media_type"] == "REELS" and made["thumb_offset"] == "500", made
+        assert made["video_url"] == "https://drive.usercontent.google.com/download?id=1AbCdEfGhIjKlMnOp&export=download&confirm=t", made
+        assert "#netflix" in made["caption"]
+        assert "1234" in run("insights", "M1")
+        aud = json.loads(run("audience", "--json"))
+        assert aud["us_uk_ca_au_share"] == 40.0 and aud["top_countries"][0][0] == "IN", aud
+        assert "posts_left_today: 48" in run("whoami")
+
+    @test
+    def test_publisher_refuses_bad_posts_plainly():
+        if not ig.exists():
+            raise Skip("no publisher")
+        assert "public https link" in run("publish", "--video", str(tmp / "local.mp4"), "--caption", "hi", ok=False)
+        long = tmp / "long.txt"
+        long.write_text("x" * 2300, encoding="utf-8")
+        assert "2200" in run("publish", "--video", "https://example.com/v.mp4", "--caption-file", str(long), ok=False)
+        tags = " ".join(f"#t{i}" for i in range(31))
+        assert "hashtags" in run("publish", "--video", "https://example.com/v.mp4", "--caption", tags, ok=False)
+        noenv = {k: v for k, v in env.items() if k != "IG_ACCESS_TOKEN"}
+        assert "IG_ACCESS_TOKEN" in run("whoami", ok=False, e=noenv)
+        bad = {**env, "IG_ACCESS_TOKEN": "WRONG"}
+        assert "Invalid OAuth" in run("whoami", ok=False, e=bad)
+        dry = json.loads(run("publish", "--video", "https://example.com/v.mp4", "--caption", "ok", "--dry-run", "--json"))
+        assert dry["dry_run"] and not any(p == "/1784/media" and q.get("video_url") == "https://example.com/v.mp4" for _, p, q in seen)
+        cov = json.loads(run("publish", "--video", "https://example.com/v.mp4", "--caption", "ok", "--dry-run", "--json",
+                             "--cover-url", "https://drive.google.com/file/d/COVER123456789/view"))
+        assert cov["cover_url"] == "https://drive.usercontent.google.com/download?id=COVER123456789&export=download&confirm=t"
+        assert "public https link to a JPEG" in run("publish", "--video", "https://example.com/v.mp4", "--caption", "ok",
+                                                    "--cover-url", "cover.jpg", ok=False)
+
+
 def main() -> None:
     fast = "--fast" in sys.argv
     check_structure()
@@ -1582,6 +1683,8 @@ def main() -> None:
         check_linkedin(Path(tmp))
     with tempfile.TemporaryDirectory(prefix="sfy_clipper_") as tmp:
         check_clipper(Path(tmp))
+    with tempfile.TemporaryDirectory(prefix="sfy_publisher_") as tmp:
+        check_publisher(Path(tmp))
     with tempfile.TemporaryDirectory(prefix="sfy_chaos_regressions_") as tmp:
         check_chaos_regressions(Path(tmp))
     if not fast:

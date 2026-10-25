@@ -21,7 +21,8 @@ Claude Project's instructions.
 | Master Skill | [master-full.md](../dist/master-full.md) (the Master Skill with every tool and the video workflow, in one file) | Nothing. Claude picks the tools each task needs |
 
 Economy Mode has no paste-in version, because it needs Claude Code's
-subagents.
+subagents. Publisher has none either: it needs Claude Code and an Instagram
+token stored in the environment.
 
 **Shortcut for a Claude that can browse the web:** instead of pasting, send it
 the prompt's raw link and ask it to follow it. For example:
