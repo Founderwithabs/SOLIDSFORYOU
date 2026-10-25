@@ -1,0 +1,18 @@
+{
+  "name": "publisher",
+  "displayName": "Publisher by SOLIDS FOR YOU",
+  "description": "SOLIDS FOR YOU Publisher: posts the founder's finished Reels to their own Instagram account through Instagram's official API, with captions checked against Instagram's limits, and reads back views, reach, likes and audience countries. No passwords, no unofficial tools; every post is approved by the founder first.",
+  "author": {
+    "name": "SOLIDS FOR YOU"
+  },
+  "homepage": "https://github.com/Founderwithabs/SOLIDSFORYOU",
+  "license": "MIT",
+  "keywords": [
+    "instagram",
+    "reels",
+    "publishing",
+    "scheduling",
+    "analytics",
+    "social media"
+  ]
+}

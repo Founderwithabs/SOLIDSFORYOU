@@ -151,6 +151,13 @@ or its wording without the owner's explicit decision.
   score only sorts; Claude judges), `render` cuts them 9:16 (blurred fill or
   crop) with word-by-word captions from the transcriber's word timings, a
   hook line and -14 LUFS sound. It never posts, submits or logs in.
+- **Publisher:** `publisher.md` is the method (rules, one-time Meta app setup,
+  publishing, results, token refresh, hand-back). `scripts/ig.py` uses only
+  Instagram's official API (Instagram login): `whoami`, `publish` (needs a
+  public video link; Drive share links become direct links; `--dry-run`
+  checks caption limits), `status`, `media`, `insights`, `audience`,
+  `refresh`. The token comes from `IG_ACCESS_TOKEN` and is never printed;
+  every post needs the founder's approval.
 - **AI visuals:** `ai-visuals.md` is the method (rules, brief, reading an
   image or video, prompt anatomy, fix ladder, scorecard, hand-back);
   `purposes.md` and `generators.md` are references read by section, and

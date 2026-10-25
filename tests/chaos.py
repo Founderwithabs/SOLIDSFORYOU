@@ -272,6 +272,16 @@ def text_tools():
     run("linkedin_check no args", [P, str(LC)])
     run("linkedin_check two kinds", [P, str(LC), "--text", "hi", "--headline", "--note"])
     run("humanize bad channel", [P, str(HZ), "check", "--text", "hi", "--channel", "nope"])
+    IG = R / "publisher/skills/publisher/scripts/ig.py"
+    dead = {"IG_API_BASE": "http://127.0.0.1:9", "IG_ACCESS_TOKEN": "x"}
+    for args in ([], ["nope"], ["whoami"], ["publish"], ["publish", "--video"], ["publish", "--video", "ftp://x", "--caption", "a"],
+                 ["publish", "--video", "https://e.com/v.mp4", "--caption-file", str(W / "binary.bin")],
+                 ["publish", "--video", "https://e.com/v.mp4", "--caption-file", str(W / "missing.txt")],
+                 ["publish", "--video", "https://e.com/v.mp4", "--caption-file", str(W / "hk_long.txt")],
+                 ["publish", "--video", "https://e.com/v.mp4", "--caption", "a", "--cover-ms", "-5"],
+                 ["media", "--limit", "abc"], ["status"], ["insights"], ["audience"], ["refresh"]):
+        run("ig " + " ".join(args[:3]), [P, str(IG), *args], env=dead, timeout=90)
+    run("ig no token", [P, str(IG), "whoami"], env={"IG_ACCESS_TOKEN": "", "IG_API_BASE": "http://127.0.0.1:9"})
     CL = R / "clipper/skills/clipper/scripts/clip.py"
     f("cl_nulls.json", json.dumps({"segments": [{"start": None, "end": None, "text": None, "words": None},
                                                 {"start": 0, "end": 1e308, "text": "x"}, "junk", 7]}))
