@@ -123,6 +123,11 @@ emails, video scripts, replies, pages), whatever you asked for: it strips the ph
 sound machine-written ("game-changer", "it's not just X, it's Y", recap
 endings) and checks every fact and price stayed exactly as it was.
 
+**Post to Instagram from Claude.** The Publisher posts your finished Reels
+through Instagram's official API after a one-time setup of about 30 minutes:
+[connect your Instagram](plugins/publisher/skills/publisher/instagram-setup.md).
+Your password is never shared, and nothing is posted without your yes.
+
 **Sound for videos.** The Master Skill's video workflow picks real sound
 effects and music from a free, licence-checked library (whooshes, risers,
 logo stings, background music by mood), downloading only what a video needs

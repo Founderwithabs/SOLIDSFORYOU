@@ -26,6 +26,10 @@ The script is in `scripts/` next to this file (in Claude Code:
 
 ## 2. One-time setup (walk the founder through it)
 
+The founder-facing guide, step by step with troubleshooting, is
+`instagram-setup.md` next to this file: follow it one step at a time and
+wait for the founder to finish each. In short:
+
 1. Instagram account set to Creator (or Business).
 2. A free Meta developer app with the use case "Manage messaging & content on
    Instagram", set up with **Instagram login**; permissions
