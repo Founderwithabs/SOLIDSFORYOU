@@ -56,6 +56,8 @@ python3 "SKILL_DIR/scripts/ig.py" publish --video "<Drive link>" --caption-file 
 python3 "SKILL_DIR/scripts/ig.py" publish --video "<Drive link>" --caption-file caption.txt --cover-ms 500
 ```
 
+- For a designed cover (the image shown in the profile grid), pass `--cover-url` with a public JPEG
+  link (a Drive share link works) instead of `--cover-ms`.
 - Run `--dry-run` first: it checks the caption against Instagram's limits
   (2,200 characters, 30 hashtags, 20 mentions; check, they change) without
   posting.

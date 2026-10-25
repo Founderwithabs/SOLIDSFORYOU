@@ -1655,6 +1655,11 @@ def check_publisher(tmp: Path) -> None:
         assert "Invalid OAuth" in run("whoami", ok=False, e=bad)
         dry = json.loads(run("publish", "--video", "https://example.com/v.mp4", "--caption", "ok", "--dry-run", "--json"))
         assert dry["dry_run"] and not any(p == "/1784/media" and q.get("video_url") == "https://example.com/v.mp4" for _, p, q in seen)
+        cov = json.loads(run("publish", "--video", "https://example.com/v.mp4", "--caption", "ok", "--dry-run", "--json",
+                             "--cover-url", "https://drive.google.com/file/d/COVER123456789/view"))
+        assert cov["cover_url"] == "https://drive.usercontent.google.com/download?id=COVER123456789&export=download&confirm=t"
+        assert "public https link to a JPEG" in run("publish", "--video", "https://example.com/v.mp4", "--caption", "ok",
+                                                    "--cover-url", "cover.jpg", ok=False)
 
 
 def main() -> None:

@@ -4,7 +4,7 @@ Instagram's official API (Instagram API with Instagram Login). No passwords, no 
 
     python3 ig.py whoami
     python3 ig.py publish --video <public https link or Google Drive share link> --caption-file caption.txt
-        [--caption "text"] [--cover-ms 1500] [--no-feed] [--dry-run]
+        [--caption "text"] [--cover-ms 1500 | --cover-url <public image link>] [--no-feed] [--dry-run]
     python3 ig.py status <container_id>
     python3 ig.py media [--limit 10]
     python3 ig.py insights <media_id>
@@ -151,6 +151,7 @@ def main():
         cap_file = take(a, "--caption-file")
         caption = take(a, "--caption", "")
         cover = take(a, "--cover-ms")
+        cover_url = take(a, "--cover-url")
         feed = "--no-feed" not in a
         dry = "--dry-run" in a
         if not video:
@@ -171,13 +172,17 @@ def main():
             sys.exit("caption refused: " + "; ".join(problems))
         if cover is not None and not cover.isdigit():
             sys.exit("--cover-ms is the cover frame's time in milliseconds, e.g. 1500")
+        if cover_url is not None and not re.match(r"https?://", cover_url):
+            sys.exit("--cover-url must be a public https link to a JPEG (a Google Drive link shared with anyone works)")
         params = {"media_type": "REELS", "video_url": direct_link(video), "caption": caption,
                   "share_to_feed": "true" if feed else "false"}
         if cover is not None:
             params["thumb_offset"] = cover
+        if cover_url is not None:
+            params["cover_url"] = direct_link(cover_url)
         if dry:
             out = {"dry_run": True, "video_url": params["video_url"], "caption_chars": len(caption),
-                   "share_to_feed": feed, "cover_ms": cover}
+                   "share_to_feed": feed, "cover_ms": cover, "cover_url": params.get("cover_url")}
         else:
             uid = user_id()
             cid = call("POST", f"{uid}/media", params).get("id")
