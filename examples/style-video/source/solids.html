@@ -1,0 +1,412 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<!-- SOLIDS FOR YOU in the style of a fast-cut 4:5 storytelling reel the
+     founder liked: grey-vignette UI scenes, word slams with hand-drawn
+     magenta strokes, highlighter sweeps, a cursor dot with a trail, red
+     check timelines. renderFrame(t) only; every cut sits on the music's
+     beat grid (CUE, in beats). -->
+<style>
+  :root {
+    --ink: #0d0d0d; --white: #ffffff; --mag: #c21bff; --mag-soft: rgba(212, 120, 255, 0.38);
+    --red: #f2161b; --grey: #8d8d8d; --line: #d7d7d7; --paper: #ebe5da;
+  }
+  html, body { margin: 0; width: 1080px; height: 1350px; overflow: hidden; background: #000; }
+  body { font-family: "Inter", sans-serif; color: var(--ink); }
+  .scene { position: absolute; inset: 0; visibility: hidden; overflow: hidden; }
+  .cam { position: absolute; inset: 0; transform-origin: 50% 50%; }
+  .vig-white { background: radial-gradient(ellipse 62% 55% at 50% 48%, #fbfbfb 0%, #ededed 45%, #c9c9c9 85%, #a8a8a8 100%); }
+  .vig-paper { background: radial-gradient(ellipse 58% 52% at 50% 48%, #f1ece3 0%, #e6dfd2 50%, #b9b0a2 82%, #5e574d 100%); }
+  .dark { background: #0b0b0b; }
+  .center { position: absolute; left: 0; right: 0; text-align: center; }
+  .slam { font-family: "Inter Display", "Inter", sans-serif; font-weight: 900; letter-spacing: -0.04em; line-height: 1; }
+  .ui { font-family: "Inter", sans-serif; }
+  .hl { background-image: linear-gradient(var(--mag-soft), var(--mag-soft)); background-repeat: no-repeat;
+        background-position: 0 60%; background-size: 0% 100%; padding: 0 4px; margin: 0 -4px; }
+  .hl-y { background-image: linear-gradient(#f7e64a, #f7e64a); background-repeat: no-repeat;
+          background-position: 0 70%; background-size: 0% 90%; padding: 0 4px; margin: 0 -4px; }
+  svg.stroke path { fill: none; stroke-linecap: round; stroke-linejoin: round; }
+  .grain { position: absolute; inset: -50px; pointer-events: none; opacity: 0.09; mix-blend-mode: multiply;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/></filter><rect width='240' height='240' filter='url(%23n)'/></svg>"); }
+  .grain-light { opacity: 0.05; mix-blend-mode: normal; }
+  .card { position: absolute; background: #fff; border-radius: 26px; box-shadow: 0 30px 70px rgba(0,0,0,0.16), 0 4px 12px rgba(0,0,0,0.06); }
+  .dot { position: absolute; width: 34px; height: 34px; margin: -17px 0 0 -17px; border-radius: 50%; background: #111; }
+  .ghost { opacity: 0.25; }
+  .row { position: absolute; left: 0; display: flex; align-items: center; gap: 34px; }
+  .node { width: 66px; height: 66px; border-radius: 50%; box-sizing: border-box; border: 5px solid #d9d9d9; background: #fff;
+          display: flex; align-items: center; justify-content: center; flex: none; }
+  .node.on { background: var(--red); border-color: var(--red); box-shadow: 0 0 0 10px rgba(242,22,27,0.12); }
+  .node svg { width: 34px; height: 34px; }
+  .rowtxt { font-size: 46px; font-weight: 500; letter-spacing: -0.01em; color: #111; white-space: nowrap; }
+  .rail { position: absolute; width: 8px; margin-left: -4px; border-radius: 4px; }
+</style>
+</head>
+<body>
+
+<!-- 1 · "Founders" slam with a magenta stroke -->
+<div class="scene dark" id="s1"><div class="cam" id="c1">
+  <div class="center slam" id="w-founders" style="top:560px; font-size:210px; color:#fff">Founders</div>
+  <svg class="stroke" width="1080" height="1350" style="position:absolute; left:0; top:0">
+    <path id="u1" d="M215 815 C 380 790, 610 800, 870 778" stroke="#c21bff" stroke-width="16"/>
+  </svg>
+</div><div class="grain grain-light"></div></div>
+
+<!-- 2 · Paper: the to-do list -->
+<div class="scene vig-paper" id="s2"><div class="cam" id="c2">
+  <div style="position:absolute; left:150px; top:380px; width:780px">
+    <div class="ui" id="todo-title" style="font-size:66px; font-weight:800; letter-spacing:-0.025em; color:#2b2722; line-height:1.12"></div>
+    <div id="todo-lines" style="margin-top:46px"></div>
+  </div>
+</div><div class="grain"></div></div>
+
+<!-- 3 · White: the red-check timeline of jobs -->
+<div class="scene vig-white" id="s3"><div class="cam" id="c3">
+  <div id="tl3" style="position:absolute; left:260px; top:0; width:700px; height:1350px"></div>
+</div><div class="grain grain-light"></div></div>
+
+<!-- 4 · Magenta: "It's a lot." -->
+<div class="scene" id="s4" style="background:#bf12ff"><div class="cam" id="c4">
+  <div class="center slam" id="w4" style="top:600px; font-size:150px; color:#fff">It's a lot.</div>
+</div></div>
+
+<!-- 5 · Black: "So we built" -->
+<div class="scene dark" id="s5"><div class="cam" id="c5">
+  <div class="center slam" id="w5" style="top:590px; font-size:170px; color:#fff">So we built</div>
+  <svg class="stroke" width="1080" height="1350" style="position:absolute; left:0; top:0">
+    <path id="u5" d="M170 820 C 420 800, 700 812, 915 792" stroke="#c21bff" stroke-width="15"/>
+  </svg>
+</div></div>
+
+<!-- 6 · White: the prompt card, typed and highlighted, then the cursor clicks -->
+<div class="scene vig-white" id="s6"><div class="cam" id="c6">
+  <div class="card" id="pcard" style="left:110px; top:430px; width:860px; height:470px">
+    <div class="ui" style="position:absolute; left:44px; top:38px; font-size:28px; color:#888">New skill</div>
+    <div class="ui" id="installbtn" style="position:absolute; right:40px; top:28px; padding:12px 30px; border-radius:30px; background:#1d9bf0; color:#fff; font-size:28px; font-weight:700">Install</div>
+    <div style="position:absolute; left:44px; top:112px; width:66px; height:66px; border-radius:50%; background:linear-gradient(135deg,#c21bff,#5b0b8a)"></div>
+    <div class="ui" id="ptext" style="position:absolute; left:134px; top:112px; width:680px; font-size:52px; font-weight:600; line-height:1.28; letter-spacing:-0.015em"></div>
+    <div style="position:absolute; left:44px; right:44px; bottom:96px; height:2px; background:#eee"></div>
+    <div id="icons" style="position:absolute; left:44px; bottom:36px; display:flex; gap:26px"></div>
+  </div>
+  <div id="cur6"></div>
+</div><div class="grain grain-light"></div></div>
+
+<!-- 7 · Black burst: one skill per half beat -->
+<div class="scene dark" id="s7"><div class="cam" id="c7">
+  <div class="center slam" id="burst" style="top:595px; font-size:128px; color:#fff"></div>
+  <div class="ui" id="burstn" style="position:absolute; left:0; right:0; top:1150px; text-align:center; font-size:30px; letter-spacing:0.2em; color:#6c6c6c"></div>
+</div></div>
+
+<!-- 8 · Dark: 14 skills, $0 circled -->
+<div class="scene dark" id="s8"><div class="cam" id="c8">
+  <div id="glow8" style="position:absolute; left:140px; top:275px; width:800px; height:800px; border-radius:50%; background:radial-gradient(circle, rgba(194,27,255,0.30) 0%, rgba(194,27,255,0.08) 45%, transparent 70%)"></div>
+  <div class="center slam" id="n14" style="top:330px; font-size:118px; color:#fff"></div>
+  <div class="center slam" id="price" style="top:610px; font-size:300px; color:#fff">$0</div>
+  <svg class="stroke" width="1080" height="1350" style="position:absolute; left:0; top:0">
+    <path id="circ" d="M560 590 C 330 585, 300 930, 540 945 C 780 960, 800 610, 585 596 C 520 592, 470 610, 445 630" stroke="#d24bff" stroke-width="13"/>
+  </svg>
+  <div class="center ui" id="free8" style="top:1030px; font-size:44px; font-weight:600; color:#bdbdbd">free, every one of them</div>
+</div></div>
+
+<!-- 9 · "But then." / "one is paid." -->
+<div class="scene" id="s9" style="background:#161616"><div class="cam" id="c9">
+  <div style="position:absolute; left:150px; top:560px">
+    <div class="slam" id="bt1" style="font-size:118px; color:#c21bff">But one</div>
+    <div class="slam" id="bt2" style="font-size:118px; color:#3a3a3a; margin-top:10px">is paid.</div>
+  </div>
+  <div id="pix9" style="position:absolute; left:830px; top:640px; width:16px; height:16px; background:#c21bff"></div>
+</div></div>
+
+<!-- 10 · Purple: the phone posting a Reel -->
+<div class="scene" id="s10" style="background:radial-gradient(ellipse 70% 60% at 50% 55%, #6a0fa0 0%, #2a0742 55%, #0c0312 100%)"><div class="cam" id="c10">
+  <div class="center ui" id="rp-label" style="top:120px; font-size:40px; font-weight:700; color:#fff; letter-spacing:-0.01em">Reels Publisher for Instagram</div>
+  <div class="center ui" id="rp-sub" style="top:178px; font-size:30px; color:#d9b8ec">posts to your own account, through the official API</div>
+  <div id="phone" style="position:absolute; left:320px; top:290px; width:440px; height:900px; border-radius:62px; background:#0a0a0a; box-shadow:0 40px 120px rgba(0,0,0,0.6), 0 0 0 3px #2c2c2c inset">
+    <div style="position:absolute; left:16px; top:16px; right:16px; bottom:16px; border-radius:48px; overflow:hidden; background:#101010">
+      <div id="reel" style="position:absolute; inset:0; background:linear-gradient(160deg,#ff7ad9 0%,#a020f0 45%,#24083d 100%)"></div>
+      <div style="position:absolute; left:50%; top:26px; width:110px; height:30px; margin-left:-55px; border-radius:16px; background:#000"></div>
+      <div class="ui" style="position:absolute; left:28px; top:92px; font-size:26px; font-weight:700; color:#fff">New reel</div>
+      <div class="ui" id="clock" style="position:absolute; right:28px; top:92px; font-size:26px; font-weight:600; color:#fff">7:30 PM</div>
+      <div class="ui" style="position:absolute; left:28px; right:28px; bottom:150px; font-size:26px; line-height:1.35; color:#fff">Finished Reel, caption and time come from you.</div>
+      <div id="sharebtn" class="ui" style="position:absolute; left:28px; right:28px; bottom:50px; height:74px; border-radius:18px; background:#fff; color:#111; font-size:30px; font-weight:800; display:flex; align-items:center; justify-content:center">Publish</div>
+      <svg id="ring" width="200" height="200" style="position:absolute; left:104px; top:300px; opacity:0">
+        <circle cx="100" cy="100" r="78" stroke="rgba(255,255,255,0.25)" stroke-width="12" fill="none"/>
+        <circle id="ringfill" cx="100" cy="100" r="78" stroke="#fff" stroke-width="12" fill="none" stroke-linecap="round" transform="rotate(-90 100 100)" stroke-dasharray="490" stroke-dashoffset="490"/>
+      </svg>
+      <div id="notif" class="ui" style="position:absolute; left:18px; right:18px; top:-130px; height:108px; border-radius:26px; background:rgba(255,255,255,0.94); box-shadow:0 10px 30px rgba(0,0,0,0.3)">
+        <div style="position:absolute; left:20px; top:24px; width:60px; height:60px; border-radius:16px; background:linear-gradient(135deg,#c21bff,#5b0b8a)"></div>
+        <div style="position:absolute; left:96px; top:22px; font-size:24px; font-weight:800; color:#111">Reel is live</div>
+        <div style="position:absolute; left:96px; top:56px; font-size:22px; color:#555">Link copied.</div>
+      </div>
+    </div>
+  </div>
+  <div id="cur10"></div>
+</div></div>
+
+<!-- 11 · White: the price list as a red-check timeline -->
+<div class="scene vig-white" id="s11"><div class="cam" id="c11">
+  <div id="tl11" style="position:absolute; left:200px; top:0; width:800px; height:1350px"></div>
+</div><div class="grain grain-light"></div></div>
+
+<!-- 12 · Paper end card -->
+<div class="scene vig-paper" id="s12"><div class="cam" id="c12">
+  <div class="center slam" id="e1" style="top:470px; font-size:120px; color:#2b2722">SOLIDS FOR YOU</div>
+  <div class="center ui" id="e2" style="top:640px; font-size:64px; font-weight:700; color:#2b2722; letter-spacing:-0.02em"><span class="hl-y" id="e2h">Make your Claude solid.</span></div>
+  <div class="center ui" id="e3" style="top:800px; font-size:32px; color:#6b6358">github.com/Founderwithabs/SOLIDSFORYOU</div>
+</div><div class="grain"></div></div>
+
+<script>
+const FPS = 30;
+const BEAT = 0.4594;                 // the music's beat, from beats.json
+const b = (n) => n * BEAT;
+const frames = (n) => n / FPS;
+
+// Shot boundaries in beats. Every cut lands on a beat.
+const CUT = [0, 4, 10, 16, 18, 20, 28, 36, 42, 46, 58, 64, 74];
+const DURATION = b(CUT[CUT.length - 1]);
+
+const ease = {
+  linear: (x) => x,
+  outCubic: (x) => 1 - Math.pow(1 - x, 3),
+  inCubic: (x) => x * x * x,
+  outQuint: (x) => 1 - Math.pow(1 - x, 5),
+  inOutCubic: (x) => (x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2),
+  outBack: (x) => { const c1 = 1.9, c3 = c1 + 1; return 1 + c3 * Math.pow(x - 1, 3) + c1 * Math.pow(x - 1, 2); },
+};
+function tween(t, start, dur, from, to, e = ease.outCubic) {
+  if (t <= start) return from;
+  if (t >= start + dur) return to;
+  return from + (to - from) * e((t - start) / dur);
+}
+const $ = (id) => document.getElementById(id);
+const clamp = (x, a, b) => Math.max(a, Math.min(b, x));
+
+// A stroke drawn on like a marker.
+function draw(path, t, start, dur) {
+  const len = path.getTotalLength();
+  path.style.strokeDasharray = len;
+  path.style.strokeDashoffset = len * (1 - tween(t, start, dur, 0, 1, ease.inOutCubic));
+}
+// Typed text: n characters at `cps` per second.
+const typed = (s, t, start, cps) => s.slice(0, clamp(Math.floor((t - start) * cps), 0, s.length));
+// A highlighter sweep across an element.
+function sweep(el, t, start, dur) { el.style.backgroundSize = `${tween(t, start, dur, 0, 100, ease.inOutCubic)}% 100%`; }
+
+// Cut punch: every new shot lands 6% big and settles in 8 frames, then drifts in.
+function camera(cam, lt, len, { punch = 1.06, drift = 0.035, x = 0, y = 0 } = {}) {
+  const s = tween(lt, 0, frames(8), punch, 1, ease.outCubic) * (1 + drift * (lt / len));
+  cam.style.transform = `translate(${x}px, ${y}px) scale(${s})`;
+}
+
+// Cursor dot with a short motion trail (three ghosts from earlier frames).
+function cursor(host, pathFn, lt, pressAt) {
+  if (!host.children.length) {
+    for (let i = 0; i < 4; i++) { const d = document.createElement("div"); d.className = "dot" + (i ? " ghost" : ""); host.appendChild(d); }
+  }
+  [...host.children].forEach((d, i) => {
+    const p = pathFn(lt - i * frames(1.5));
+    const press = pressAt != null ? tween(lt, pressAt, frames(3), 1, 0.72, ease.outCubic) * tween(lt, pressAt + frames(3), frames(6), 1, 1 / 0.72, ease.outCubic) : 1;
+    d.style.left = p.x + "px"; d.style.top = p.y + "px";
+    d.style.transform = `scale(${i ? 1 - i * 0.12 : press})`;
+    d.style.opacity = (p.o ?? 1) * (i ? 0.28 - i * 0.05 : 1);
+  });
+}
+const path2 = (lt, start, dur, a, c) => {
+  const k = tween(lt, start, dur, 0, 1, ease.inOutCubic);
+  // a gentle arc between a and c
+  return { x: a.x + (c.x - a.x) * k, y: a.y + (c.y - a.y) * k - Math.sin(k * Math.PI) * 60, o: lt < start - 0.01 ? 0 : 1 };
+};
+
+const CHECK = '<svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5" stroke="#fff" stroke-width="3.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+
+// A vertical red-check timeline that scrolls up as each row is ticked.
+function buildTimeline(host, rows) {
+  host.innerHTML = "";
+  const rail = document.createElement("div"); rail.className = "rail"; rail.style.background = "#dcdcdc"; host.appendChild(rail);
+  const fill = document.createElement("div"); fill.className = "rail"; fill.style.background = "var(--red)"; host.appendChild(fill);
+  host._rows = rows.map((txt, i) => {
+    const r = document.createElement("div"); r.className = "row";
+    r.innerHTML = `<div class="node">${CHECK}</div><div class="rowtxt">${txt}</div>`;
+    host.appendChild(r); return r;
+  });
+  host._rail = rail; host._fill = fill;
+}
+function renderTimeline(host, lt, { gap = 190, firstAt = 0.25, every = BEAT, centerY = 640 } = {}) {
+  const rows = host._rows, n = rows.length;
+  const progress = clamp((lt - firstAt) / every, -0.5, n - 1);   // rows ticked so far
+  const scroll = tween(progress, 0, 1, 0, 0, ease.linear) + Math.max(0, progress) * gap; // keep the active row centred
+  const off = centerY - scroll;
+  rows.forEach((r, i) => {
+    const y = off + i * gap;
+    const on = lt >= firstAt + i * every;
+    r.style.top = (y - 33) + "px";
+    r.querySelector(".node").classList.toggle("on", on);
+    const pop = on ? tween(lt, firstAt + i * every, frames(8), 0.7, 1, ease.outBack) : 1;
+    r.querySelector(".node").style.transform = `scale(${pop})`;
+    const dist = Math.abs(y - centerY);
+    r.style.opacity = clamp(1 - (dist - 260) / 260, 0, 1);
+    const txt = r.querySelector(".rowtxt");
+    txt.style.opacity = on ? tween(lt, firstAt + i * every, frames(6), 0, 1, ease.linear) : 0.0;
+    txt.style.transform = `translateX(${on ? tween(lt, firstAt + i * every, frames(8), -18, 0) : -18}px)`;
+  });
+  const top = off, bottom = off + (n - 1) * gap;
+  host._rail.style.left = "33px"; host._rail.style.top = top + "px"; host._rail.style.height = (bottom - top) + "px";
+  host._fill.style.left = "33px"; host._fill.style.top = top + "px";
+  host._fill.style.height = Math.max(0, Math.min(progress, n - 1)) * gap + "px";
+}
+
+// ---- Content ---------------------------------------------------------------
+const TODO_TITLE = "2026 Founder To-Do List";
+const TODO = ["write the listings", "price every product", "cut the Reels", "caption them", "check the competitors", "reply to everyone"];
+const JOBS = ["Listings", "Pricing", "Reels", "Captions", "Competitors", "Replies"];
+const PROMPT = "A skill for every job.";
+const SKILLS = ["Ecom", "Careful mode", "Humanizer", "Clipper", "Transcriber", "LinkedIn", "Social media", "Competitor research",
+                "AI visuals", "Audio review", "Motion taste", "Harsh buyer", "Economy mode", "Master"];
+const PRICES = ["14 skills: free", "Reels Publisher: paid", "That's the only one"];
+
+buildTimeline($("tl3"), JOBS);
+buildTimeline($("tl11"), PRICES);
+$("icons").innerHTML = Array.from({ length: 8 }, () => '<div style="width:30px;height:30px;border-radius:50%;border:3px solid #1d9bf0;opacity:.7"></div>').join("");
+$("todo-title").innerHTML = '<span id="tt"></span>';
+$("todo-lines").innerHTML = TODO.map((s, i) => `<div id="td${i}" style="font-size:40px; color:#6f675c; line-height:1.75"></div>`).join("");
+
+// ---- Shots -------------------------------------------------------------------
+const SHOTS = [
+  // 1 · Founders
+  (lt, len) => {
+    camera($("c1"), lt, len, { punch: 1.18, drift: 0.05 });
+    $("w-founders").style.opacity = tween(lt, 0, frames(3), 0, 1, ease.linear);
+    draw($("u1"), lt, b(1.2), b(1.6));
+  },
+  // 2 · Paper to-do list: title types, "Founder" gets highlighted, lines tick in
+  (lt, len) => {
+    camera($("c2"), lt, len, { punch: 1.04, drift: 0.06 });
+    const title = typed(TODO_TITLE, lt, 0.05, 34);
+    const i = title.indexOf("Founder");
+    $("tt").innerHTML = i < 0 ? title : `${title.slice(0, i)}<span class="hl-y" id="tth">${title.slice(i, i + 7)}</span>${title.slice(i + 7)}`;
+    if ($("tth")) sweep($("tth"), lt, b(1.6), b(1));
+    TODO.forEach((s, k) => {
+      const at = b(2.2) + k * frames(5);
+      $("td" + k).textContent = lt >= at ? "□  " + s : "";
+      $("td" + k).style.opacity = tween(lt, at, frames(5), 0, 1, ease.linear);
+    });
+  },
+  // 3 · Red-check timeline, one job per beat
+  (lt, len) => {
+    camera($("c3"), lt, len, { punch: 1.05, drift: 0.03 });
+    renderTimeline($("tl3"), lt, { firstAt: b(0.5), every: b(0.75), gap: 170 });
+  },
+  // 4 · Magenta slam
+  (lt, len) => {
+    camera($("c4"), lt, len, { punch: 1.25, drift: 0.06 });
+  },
+  // 5 · "So we built" with a stroke
+  (lt, len) => {
+    camera($("c5"), lt, len, { punch: 1.2, drift: 0.05 });
+    draw($("u5"), lt, b(0.6), b(1.1));
+  },
+  // 6 · Prompt card: zoom out from the text, type, highlight, cursor clicks Install
+  (lt, len) => {
+    const z = tween(lt, 0, b(1.6), 2.6, 1.16, ease.outQuint) * (1 + 0.03 * lt / len);
+    $("c6").style.transform = `translate(${tween(lt, 0, b(1.6), 380, 0, ease.outQuint)}px, ${tween(lt, 0, b(1.6), 260, 0, ease.outQuint)}px) scale(${z})`;
+    const s = typed(PROMPT, lt, 0, 30);
+    const j = s.indexOf("every job");
+    $("ptext").innerHTML = j < 0 ? s : `${s.slice(0, j)}<span class="hl" id="ph">${s.slice(j)}</span>`;
+    if ($("ph")) sweep($("ph"), lt, b(2.2), b(1.2));
+    const press = b(6.2);
+    cursor($("cur6"), (u) => u < press + frames(6) ? path2(u, b(3.8), b(2.2), { x: 1150, y: 1180 }, { x: 860, y: 488 })
+                                         : path2(u, press + frames(6), b(1.2), { x: 860, y: 488 }, { x: 760, y: 760 }), lt, press);
+    const btn = $("installbtn");
+    const on = lt >= press;
+    btn.textContent = on ? "Installed" : "Install";
+    btn.style.background = on ? "#111" : "#1d9bf0";
+    btn.style.transform = `scale(${tween(lt, press, frames(3), 1, 0.9) * tween(lt, press + frames(3), frames(8), 1, 1 / 0.9, ease.outBack)})`;
+  },
+  // 7 · Burst: one skill name per half beat, the counter ticks
+  (lt, len) => {
+    const k = clamp(Math.floor(lt / b(0.5)), 0, SKILLS.length - 1);
+    const local = lt - k * b(0.5);
+    $("burst").textContent = SKILLS[k];
+    $("burstn").textContent = String(k + 1).padStart(2, "0") + " / 14";
+    const flash = k % 4 === 3;           // every fourth name lands on magenta
+    $("s7").style.background = flash ? "#bf12ff" : "#0b0b0b";
+    const s = tween(local, 0, frames(5), 1.16, 1, ease.outCubic);
+    $("burst").style.transform = `scale(${s})`;
+    $("burst").style.fontSize = SKILLS[k].length > 14 ? "100px" : "128px";
+    $("c7").style.transform = "none";
+  },
+  // 8 · 14 skills, then $0 gets circled
+  (lt, len) => {
+    camera($("c8"), lt, len, { punch: 1.08, drift: 0.04 });
+    const n = Math.round(tween(lt, 0, b(1.4), 0, 14, ease.outCubic));
+    $("n14").textContent = `${n} skills`;
+    $("price").style.opacity = tween(lt, b(1.6), frames(4), 0, 1, ease.linear);
+    $("price").style.transform = `scale(${tween(lt, b(1.6), frames(10), 1.3, 1, ease.outBack)})`;
+    draw($("circ"), lt, b(2.6), b(1.4));
+    $("free8").style.opacity = tween(lt, b(3.8), frames(8), 0, 1, ease.linear);
+    $("glow8").style.transform = `scale(${1 + 0.05 * Math.sin(lt * 3)})`;
+  },
+  // 9 · "But one / is paid."
+  (lt, len) => {
+    camera($("c9"), lt, len, { punch: 1.04, drift: 0.05 });
+    const reveal = (el, at) => { el.style.clipPath = `inset(0 ${100 - tween(lt, at, frames(9), 0, 100, ease.outCubic)}% 0 0)`; };
+    reveal($("bt1"), 0.02);
+    reveal($("bt2"), b(1.5));
+    $("bt2").style.color = lt > b(2.3) ? "#ffffff" : "#3a3a3a";
+    $("pix9").style.transform = `translate(${Math.sin(lt * 9) * 6}px, ${Math.cos(lt * 7) * 6}px)`;
+    $("pix9").style.opacity = lt < b(1.5) ? 1 : 0;
+  },
+  // 10 · Phone: cursor taps Publish, the ring fills, the notification drops
+  (lt, len) => {
+    camera($("c10"), lt, len, { punch: 1.1, drift: 0.05 });
+    $("rp-label").style.opacity = tween(lt, 0.05, frames(8), 0, 1, ease.linear);
+    $("rp-sub").style.opacity = tween(lt, b(1), frames(8), 0, 1, ease.linear);
+    $("phone").style.transform = `translateY(${tween(lt, 0, b(1.4), 260, 0, ease.outQuint)}px) rotate(${tween(lt, 0, b(1.4), 6, -2, ease.outQuint)}deg)`;
+    $("reel").style.filter = `hue-rotate(${lt * 18}deg)`;
+    const tap = b(3.2);
+    cursor($("cur10"), (u) => u < tap + frames(6) ? path2(u, b(1.6), b(1.6), { x: 980, y: 1300 }, { x: 545, y: 1110 })
+                                          : path2(u, tap + frames(6), b(1.4), { x: 545, y: 1110 }, { x: 900, y: 1250 }), lt, tap);
+    $("sharebtn").style.transform = `scale(${tween(lt, tap, frames(3), 1, 0.94) * tween(lt, tap + frames(3), frames(8), 1, 1 / 0.94, ease.outBack)})`;
+    $("sharebtn").textContent = lt >= tap ? "Publishing…" : "Publish";
+    const ringOn = tween(lt, tap + frames(2), frames(6), 0, 1, ease.linear) * tween(lt, b(6.8), frames(6), 1, 0, ease.linear);
+    $("ring").style.opacity = ringOn;
+    $("ringfill").style.strokeDashoffset = 490 * (1 - tween(lt, tap + frames(4), b(3.2), 0, 1, ease.inOutCubic));
+    const live = b(7);
+    $("notif").style.top = tween(lt, live, frames(12), -130, 70, ease.outBack) + "px";
+    if (lt >= live) $("sharebtn").textContent = "Posted";
+  },
+  // 11 · Price timeline
+  (lt, len) => {
+    camera($("c11"), lt, len, { punch: 1.05, drift: 0.03 });
+    renderTimeline($("tl11"), lt, { firstAt: b(0.4), every: b(1.6), gap: 210 });
+  },
+  // 12 · End card
+  (lt, len) => {
+    camera($("c12"), lt, len, { punch: 1.05, drift: 0.04 });
+    const rise = (el, at) => { el.style.opacity = tween(lt, at, frames(8), 0, 1, ease.linear); el.style.transform = `translateY(${tween(lt, at, frames(12), 30, 0)}px)`; };
+    rise($("e1"), 0.02); rise($("e2"), b(1)); rise($("e3"), b(2.4));
+    sweep($("e2h"), lt, b(1.6), b(1.4));
+    // fade to black over the last 12 frames
+    $("s12").style.filter = `brightness(${tween(lt, len - frames(12), frames(12), 1, 0, ease.inCubic)})`;
+  },
+];
+
+function renderFrame(t) {
+  let k = 0;
+  while (k < SHOTS.length - 1 && t >= b(CUT[k + 1])) k++;
+  document.querySelectorAll(".scene").forEach((s, i) => (s.style.visibility = i === k ? "visible" : "hidden"));
+  const start = b(CUT[k]), len = b(CUT[k + 1]) - start;
+  SHOTS[k](t - start, len);
+}
+
+window.renderFrame = renderFrame;
+window.DURATION = DURATION;
+if (!navigator.webdriver) {
+  const t0 = performance.now();
+  (function loop() { renderFrame(((performance.now() - t0) / 1000) % DURATION); requestAnimationFrame(loop); })();
+} else {
+  renderFrame(0);
+}
+</script>
+</body>
+</html>

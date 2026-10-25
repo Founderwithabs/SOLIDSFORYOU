@@ -1,0 +1,267 @@
+[
+ {
+  "t": 0.0,
+  "sfx": "/root/.cache/solidsforyou-sounds/sfx-kit/sounds/impacts/impact-heavy-firm.wav",
+  "gain": 0.45
+ },
+ {
+  "t": 0.551,
+  "sfx": "/root/.cache/solidsforyou-sounds/sfx-kit/sounds/writing-and-drawing/writing-marker-draw.wav",
+  "gain": 0.35
+ },
+ {
+  "t": 1.838,
+  "sfx": "/root/.cache/solidsforyou-sounds/sfx-kit/sounds/swipes/swipe-fast-soft.wav",
+  "gain": 0.3
+ },
+ {
+  "t": 1.884,
+  "sfx": "/root/.cache/solidsforyou-sounds/sfx-kit/sounds/keyboard/keyboard-typing-quick-short.wav",
+  "gain": 0.22
+ },
+ {
+  "t": 2.573,
+  "sfx": "/root/.cache/solidsforyou-sounds/sfx-kit/sounds/writing-and-drawing/writing-highlighter.wav",
+  "gain": 0.4
+ },
+ {
+  "t": 2.848,
+  "sfx": "/root/.cache/solidsforyou-sounds/sfx-kit/sounds/writing-and-drawing/writing-pen-tick.wav",
+  "gain": 0.18
+ },
+ {
+  "t": 3.0146666666666664,
+  "sfx": "/root/.cache/solidsforyou-sounds/sfx-kit/sounds/writing-and-drawing/writing-pen-tick.wav",
+  "gain": 0.18
+ },
+ {
+  "t": 3.1813333333333333,
+  "sfx": "/root/.cache/solidsforyou-sounds/sfx-kit/sounds/writing-and-drawing/writing-pen-tick.wav",
+  "gain": 0.18
+ },
+ {
+  "t": 3.348,
+  "sfx": "/root/.cache/solidsforyou-sounds/sfx-kit/sounds/writing-and-drawing/writing-pen-tick.wav",
+  "gain": 0.18
+ },
+ {
+  "t": 3.5146666666666664,
+  "sfx": "/root/.cache/solidsforyou-sounds/sfx-kit/sounds/writing-and-drawing/writing-pen-tick.wav",
+  "gain": 0.18
+ },
+ {
+  "t": 3.6813333333333333,
+  "sfx": "/root/.cache/solidsforyou-sounds/sfx-kit/sounds/writing-and-drawing/writing-pen-tick.wav",
+  "gain": 0.18
+ },
+ {
+  "t": 4.594,
+  "sfx": "/root/.cache/solidsforyou-sounds/sfx-kit/sounds/swipes/swipe-fast-soft.wav",
+  "gain": 0.28
+ },
+ {
+  "t": 4.824,
+  "sfx": "/root/.cache/solidsforyou-sounds/sfx-kit/sounds/interface/click-tap-soft.wav",
+  "gain": 0.3
+ },
+ {
+  "t": 5.168,
+  "sfx": "/root/.cache/solidsforyou-sounds/sfx-kit/sounds/interface/click-tap-soft.wav",
+  "gain": 0.3
+ },
+ {
+  "t": 5.513,
+  "sfx": "/root/.cache/solidsforyou-sounds/sfx-kit/sounds/interface/click-tap-soft.wav",
+  "gain": 0.3
+ },
+ {
+  "t": 5.857,
+  "sfx": "/root/.cache/solidsforyou-sounds/sfx-kit/sounds/interface/click-tap-soft.wav",
+  "gain": 0.3
+ },
+ {
+  "t": 6.202,
+  "sfx": "/root/.cache/solidsforyou-sounds/sfx-kit/sounds/interface/click-tap-soft.wav",
+  "gain": 0.3
+ },
+ {
+  "t": 6.546,
+  "sfx": "/root/.cache/solidsforyou-sounds/sfx-kit/sounds/interface/click-tap-soft.wav",
+  "gain": 0.3
+ },
+ {
+  "t": 7.35,
+  "sfx": "/root/.cache/solidsforyou-sounds/sfx-kit/sounds/impacts/impact-medium-firm.wav",
+  "gain": 0.45
+ },
+ {
+  "t": 8.269,
+  "sfx": "/root/.cache/solidsforyou-sounds/sfx-kit/sounds/whooshes/whoosh-fast-medium.wav",
+  "gain": 0.3
+ },
+ {
+  "t": 8.545,
+  "sfx": "/root/.cache/solidsforyou-sounds/sfx-kit/sounds/writing-and-drawing/writing-marker-draw.wav",
+  "gain": 0.35
+ },
+ {
+  "t": 9.188,
+  "sfx": "/root/.cache/solidsforyou-sounds/sfx-kit/sounds/whooshes/whoosh-medium-soft.wav",
+  "gain": 0.3
+ },
+ {
+  "t": 9.234,
+  "sfx": "/root/.cache/solidsforyou-sounds/sfx-kit/sounds/keyboard/keyboard-typing-quick-short.wav",
+  "gain": 0.22
+ },
+ {
+  "t": 10.199,
+  "sfx": "/root/.cache/solidsforyou-sounds/sfx-kit/sounds/writing-and-drawing/writing-highlighter.wav",
+  "gain": 0.4
+ },
+ {
+  "t": 12.036,
+  "sfx": "/root/.cache/solidsforyou-sounds/sfx-kit/sounds/interface/click-button-medium.wav",
+  "gain": 0.5
+ },
+ {
+  "t": 12.863,
+  "sfx": "/root/.cache/solidsforyou-sounds/sfx-kit/sounds/interface/click-hover-soft.wav",
+  "gain": 0.16
+ },
+ {
+  "t": 13.093,
+  "sfx": "/root/.cache/solidsforyou-sounds/sfx-kit/sounds/interface/click-hover-soft.wav",
+  "gain": 0.16
+ },
+ {
+  "t": 13.323,
+  "sfx": "/root/.cache/solidsforyou-sounds/sfx-kit/sounds/interface/click-hover-soft.wav",
+  "gain": 0.16
+ },
+ {
+  "t": 13.782,
+  "sfx": "/root/.cache/solidsforyou-sounds/sfx-kit/sounds/interface/click-hover-soft.wav",
+  "gain": 0.16
+ },
+ {
+  "t": 14.012,
+  "sfx": "/root/.cache/solidsforyou-sounds/sfx-kit/sounds/interface/click-hover-soft.wav",
+  "gain": 0.16
+ },
+ {
+  "t": 14.241,
+  "sfx": "/root/.cache/solidsforyou-sounds/sfx-kit/sounds/interface/click-hover-soft.wav",
+  "gain": 0.16
+ },
+ {
+  "t": 14.701,
+  "sfx": "/root/.cache/solidsforyou-sounds/sfx-kit/sounds/interface/click-hover-soft.wav",
+  "gain": 0.16
+ },
+ {
+  "t": 14.93,
+  "sfx": "/root/.cache/solidsforyou-sounds/sfx-kit/sounds/interface/click-hover-soft.wav",
+  "gain": 0.16
+ },
+ {
+  "t": 15.16,
+  "sfx": "/root/.cache/solidsforyou-sounds/sfx-kit/sounds/interface/click-hover-soft.wav",
+  "gain": 0.16
+ },
+ {
+  "t": 15.62,
+  "sfx": "/root/.cache/solidsforyou-sounds/sfx-kit/sounds/interface/click-hover-soft.wav",
+  "gain": 0.16
+ },
+ {
+  "t": 15.849,
+  "sfx": "/root/.cache/solidsforyou-sounds/sfx-kit/sounds/interface/click-hover-soft.wav",
+  "gain": 0.16
+ },
+ {
+  "t": 13.552,
+  "sfx": "/root/.cache/solidsforyou-sounds/sfx-kit/sounds/impacts/impact-light-firm.wav",
+  "gain": 0.3
+ },
+ {
+  "t": 14.471,
+  "sfx": "/root/.cache/solidsforyou-sounds/sfx-kit/sounds/impacts/impact-light-firm.wav",
+  "gain": 0.3
+ },
+ {
+  "t": 15.39,
+  "sfx": "/root/.cache/solidsforyou-sounds/sfx-kit/sounds/impacts/impact-light-firm.wav",
+  "gain": 0.3
+ },
+ {
+  "t": 16.538,
+  "sfx": "/root/.cache/solidsforyou-sounds/sfx-kit/sounds/swipes/swipe-medium-soft.wav",
+  "gain": 0.28
+ },
+ {
+  "t": 17.273,
+  "sfx": "/root/.cache/solidsforyou-sounds/sfx-kit/sounds/impacts/impact-heavy-hard.wav",
+  "gain": 0.5
+ },
+ {
+  "t": 17.733,
+  "sfx": "/root/.cache/solidsforyou-sounds/sfx-kit/sounds/writing-and-drawing/writing-marker-draw.wav",
+  "gain": 0.4
+ },
+ {
+  "t": 19.295,
+  "sfx": "/root/.cache/solidsforyou-sounds/sfx-kit/sounds/whooshes/whoosh-fast-soft.wav",
+  "gain": 0.28
+ },
+ {
+  "t": 19.984,
+  "sfx": "/root/.cache/solidsforyou-sounds/sfx-kit/sounds/pops/pop-medium-in.wav",
+  "gain": 0.3
+ },
+ {
+  "t": 21.132,
+  "sfx": "/root/.cache/solidsforyou-sounds/sfx-kit/sounds/whooshes/whoosh-medium-medium.wav",
+  "gain": 0.32
+ },
+ {
+  "t": 22.602,
+  "sfx": "/root/.cache/solidsforyou-sounds/sfx-kit/sounds/interface/click-button-medium.wav",
+  "gain": 0.5
+ },
+ {
+  "t": 24.348,
+  "sfx": "/root/.cache/solidsforyou-sounds/sfx-kit/sounds/notifications/notification-success-chime.wav",
+  "gain": 0.45
+ },
+ {
+  "t": 26.645,
+  "sfx": "/root/.cache/solidsforyou-sounds/sfx-kit/sounds/swipes/swipe-fast-soft.wav",
+  "gain": 0.28
+ },
+ {
+  "t": 26.829,
+  "sfx": "/root/.cache/solidsforyou-sounds/sfx-kit/sounds/interface/click-tap-medium.wav",
+  "gain": 0.35
+ },
+ {
+  "t": 27.564,
+  "sfx": "/root/.cache/solidsforyou-sounds/sfx-kit/sounds/interface/click-tap-medium.wav",
+  "gain": 0.35
+ },
+ {
+  "t": 28.299,
+  "sfx": "/root/.cache/solidsforyou-sounds/sfx-kit/sounds/interface/click-tap-medium.wav",
+  "gain": 0.35
+ },
+ {
+  "t": 29.402,
+  "sfx": "/root/.cache/solidsforyou-sounds/sfx-kit/sounds/logo-stings/sting-minimal-long.wav",
+  "gain": 0.4
+ },
+ {
+  "t": 30.137,
+  "sfx": "/root/.cache/solidsforyou-sounds/sfx-kit/sounds/writing-and-drawing/writing-highlighter.wav",
+  "gain": 0.35
+ }
+]
