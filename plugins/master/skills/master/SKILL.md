@@ -5,7 +5,9 @@ description: SOLIDS FOR YOU Master Skill: hands each task to one of five heads (
 
 The files this skill uses sit next to this SKILL.md. In Claude Code that
 folder is `${CLAUDE_SKILL_DIR}`; anywhere else, use the folder this file was
-loaded from. Below, `SKILL_DIR` means that folder.
+loaded from. If the files came as text with no folder (for example from a
+skill marketplace), save the ones a task needs to a temporary folder, never
+the founder's project, and use that. Below, `SKILL_DIR` means that folder.
 
 1. If the toolbox is not already in your context, read `SKILL_DIR/toolbox.md`
    now. Keep it in mind for the rest of the conversation; don't re-read it for

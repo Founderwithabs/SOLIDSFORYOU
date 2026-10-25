@@ -5,7 +5,9 @@ description: Evidence-based competitor research on marketplaces (Amazon, Flipkar
 
 The files this skill uses sit next to this SKILL.md. In Claude Code that
 folder is `${CLAUDE_SKILL_DIR}`; anywhere else, use the folder this file was
-loaded from. Below, `SKILL_DIR` means that folder. When you pass it to a
+loaded from. If the files came as text with no folder (for example from a
+skill marketplace), save the ones a task needs to a temporary folder, never
+the founder's project, and use that. Below, `SKILL_DIR` means that folder. When you pass it to a
 helper, pass the full absolute path.
 
 The method is in `SKILL_DIR/competitor-research.md`. This skill is analysis
