@@ -225,6 +225,8 @@ def text_tools():
     run("listing_check limits garbage", [P, str(E / "listing_check.py"), str(W / "l_emoji.json"), "--limits", "nonsense"])
     run("listing_check keywords binary", [P, str(E / "listing_check.py"), str(W / "l_emoji.json"), "--keywords", binary])
     run("listing_check keywords missing", [P, str(E / "listing_check.py"), str(W / "l_emoji.json"), "--keywords", missing])
+    run("listing_check avoid binary", [P, str(E / "listing_check.py"), str(W / "l_emoji.json"), "--avoid", binary])
+    run("listing_check avoid missing", [P, str(E / "listing_check.py"), str(W / "l_emoji.json"), "--avoid", missing])
 
     # memory
     mem = lambda *a, label=None, env=None: run(label or "memory " + " ".join(a)[:60], [P, str(M), "--file", str(W / "mem/memory.csv"), *a], env=env)

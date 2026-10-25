@@ -71,12 +71,13 @@ Run the bundled checker (next to this skill's SKILL.md):
 
 ```
 python3 "SKILL_DIR/scripts/listing_check.py" listing.json --keywords keywords.txt \
-  --limits title=200,bullet=500,description=2000,search_terms=250
+  --avoid brands.txt --limits title=200,bullet=500,description=2000,search_terms=250
 ```
 
 `listing.json` holds `{"title": "...", "bullets": [...], "description":
-"...", "search_terms": "..."}`. Use the limits you confirmed for this
-marketplace and category. It reports length in characters and bytes, words
+"...", "search_terms": "..."}`. `brands.txt` lists the competitor brands and
+trademarks from the research, one per line; any found is a problem to fix.
+Use the limits you confirmed for this marketplace and category. It reports length in characters and bytes, words
 repeated, keywords covered and missing, and risky words (superlatives,
 guarantees, health and environmental claims, urgency words, competitor-style
 terms) to check against the rules.

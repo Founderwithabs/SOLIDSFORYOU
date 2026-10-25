@@ -837,8 +837,14 @@ def check_ecom(tmp: Path) -> None:
         assert "| search terms | 19 | 21 | 20 bytes | OVER by 1 |" in out, out  # ₹ is 3 bytes
         assert "Keywords covered: 1 of 3" in out and "slim fit" in out, out
         assert "'guaranteed' in bullet 2" in out and "'100%' in bullet 2" in out, out
+        brands = tmp / "brands.txt"
+        brands.write_text("Hydro Flask\nJockey\n")
+        listing.write_text(json.dumps({"title": "Cotton joggers", "search_terms": "jockey style lounge pant"}))
+        out = py("listing_check.py", listing, "--avoid", brands, ok=False)  # competitor brand: exit 1
+        assert "'Jockey' in search terms" in out and "Hydro Flask" not in out.split("own (remove them):")[1], out
         listing.write_text(json.dumps({"title": "Cotton joggers"}))
         py("listing_check.py", listing)  # within limits: exit 0
+        py("listing_check.py", listing, "--avoid", brands)  # no brands: exit 0
 
     @test
     def test_ecom_image_check_measures_background_and_fill():

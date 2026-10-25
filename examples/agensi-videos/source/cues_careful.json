@@ -1,0 +1,142 @@
+[
+ {
+  "t": 0.848,
+  "sfx": "sfx-kit/sounds/whooshes/whoosh-fast-soft.wav",
+  "gain": 0.3
+ },
+ {
+  "t": 1.387,
+  "sfx": "sfx-kit/sounds/impacts/impact-heavy-firm.wav",
+  "gain": 0.55
+ },
+ {
+  "t": 3.692,
+  "sfx": "sfx-kit/sounds/impacts/impact-light-soft.wav",
+  "gain": 0.3
+ },
+ {
+  "t": 4.61,
+  "sfx": "sfx-kit/sounds/data/data-progress-short.wav",
+  "gain": 0.25
+ },
+ {
+  "t": 5.538,
+  "sfx": "sfx-kit/sounds/notifications/notification-error-soft.wav",
+  "gain": 0.35
+ },
+ {
+  "t": 5.997,
+  "sfx": "sfx-kit/sounds/writing-and-drawing/writing-marker-draw.wav",
+  "gain": 0.4
+ },
+ {
+  "t": 6.466,
+  "sfx": "sfx-kit/sounds/pops/pop-small-in.wav",
+  "gain": 0.3
+ },
+ {
+  "t": 6.925,
+  "sfx": "sfx-kit/sounds/data/data-progress-short.wav",
+  "gain": 0.25
+ },
+ {
+  "t": 7.383,
+  "sfx": "sfx-kit/sounds/notifications/notification-success-soft.wav",
+  "gain": 0.3
+ },
+ {
+  "t": 8.762,
+  "sfx": "sfx-kit/sounds/whooshes/whoosh-medium-medium.wav",
+  "gain": 0.45
+ },
+ {
+  "t": 10.157,
+  "sfx": "sfx-kit/sounds/writing-and-drawing/writing-pen-tick.wav",
+  "gain": 0.4
+ },
+ {
+  "t": 10.626,
+  "sfx": "sfx-kit/sounds/writing-and-drawing/writing-pen-tick.wav",
+  "gain": 0.4
+ },
+ {
+  "t": 11.075,
+  "sfx": "sfx-kit/sounds/writing-and-drawing/writing-pen-tick.wav",
+  "gain": 0.4
+ },
+ {
+  "t": 11.534,
+  "sfx": "sfx-kit/sounds/writing-and-drawing/writing-pen-tick.wav",
+  "gain": 0.4
+ },
+ {
+  "t": 11.993,
+  "sfx": "sfx-kit/sounds/notifications/notification-attention-soft.wav",
+  "gain": 0.35
+ },
+ {
+  "t": 13.38,
+  "sfx": "sfx-kit/sounds/writing-and-drawing/writing-pen-tick.wav",
+  "gain": 0.45
+ },
+ {
+  "t": 14.767,
+  "sfx": "sfx-kit/sounds/impacts/impact-light-soft.wav",
+  "gain": 0.3
+ },
+ {
+  "t": 16.154,
+  "sfx": "sfx-kit/sounds/notifications/notification-alert-soft.wav",
+  "gain": 0.3
+ },
+ {
+  "t": 16.613,
+  "sfx": "sfx-kit/sounds/writing-and-drawing/writing-marker-draw.wav",
+  "gain": 0.4
+ },
+ {
+  "t": 17.54,
+  "sfx": "sfx-kit/sounds/impacts/impact-heavy-hard.wav",
+  "gain": 0.5
+ },
+ {
+  "t": 19.153,
+  "sfx": "sfx-kit/sounds/swipes/swipe-medium-soft.wav",
+  "gain": 0.45
+ },
+ {
+  "t": 20.314,
+  "sfx": "sfx-kit/sounds/whooshes/whoosh-fast-soft.wav",
+  "gain": 0.25
+ },
+ {
+  "t": 22.158,
+  "sfx": "sfx-kit/sounds/notifications/notification-attention-soft.wav",
+  "gain": 0.3
+ },
+ {
+  "t": 22.417,
+  "sfx": "sfx-kit/sounds/whooshes/whoosh-fast-soft.wav",
+  "gain": 0.25
+ },
+ {
+  "t": 23.529,
+  "sfx": "sfx-kit/sounds/whooshes/whoosh-medium-medium.wav",
+  "gain": 0.45
+ },
+ {
+  "t": 24.465,
+  "sfx": "sfx-kit/sounds/keyboard/keyboard-typing-quick-medium.wav",
+  "gain": 0.25
+ },
+ {
+  "t": 28.285,
+  "sfx": "sfx-kit/sounds/reverse-whooshes/reverse-whoosh-short-soft.wav",
+  "gain": 0.45
+ },
+ {
+  "t": 29.084,
+  "sfx": "sfx-kit/sounds/logo-stings/sting-tech-short.wav",
+  "gain": 0.45
+ }
+]

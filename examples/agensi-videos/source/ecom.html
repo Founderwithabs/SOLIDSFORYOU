@@ -1,0 +1,332 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<!-- Ecom by SOLIDS FOR YOU, Agensi demo. Built from the Master Skill's scene
+     template in the launch video v2 system: renderFrame(t) only, cue times on
+     the music's beat grid. Every number is real script output from this
+     session; mock content is labelled. -->
+<style>
+  :root {
+    --bg: #0a0a0a; --grid: rgba(255,255,255,0.045); --rule: rgba(255,255,255,0.16);
+    --text: #f4f3ef; --muted: #8b8a85; --dim: #5c5b56; --accent: #ff5b2e;
+  }
+  html, body { margin: 0; width: 1920px; height: 1080px; overflow: hidden; background: var(--bg); }
+  body { font-family: "Inter", sans-serif; color: var(--text); }
+  #stage { position: absolute; inset: 0; overflow: hidden; }
+  #grid { position: absolute; inset: 0;
+    background-image: linear-gradient(var(--grid) 1px, transparent 1px), linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+    background-size: 120px 120px; }
+  #grain { position: absolute; inset: 0; opacity: 0.05; pointer-events: none;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/></filter><rect width='200' height='200' filter='url(%23n)'/></svg>"); }
+  .mono { font-family: "JetBrains Mono", monospace; }
+  .tag { font-family: "JetBrains Mono", monospace; font-size: 26px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+  .scene { position: absolute; inset: 0; visibility: hidden; }
+  .display { font-family: "Inter Display", "Inter", sans-serif; font-weight: 700; letter-spacing: -0.035em; line-height: 1.0; }
+  .desc { font-size: 32px; line-height: 1.45; color: var(--muted); }
+  .mask { display: block; overflow: hidden; padding-bottom: 0.08em; }
+  .mask > span { display: inline-block; }
+  .accent { color: var(--accent); }
+  .muted { color: var(--muted); }
+  .src { position: absolute; font-family: "JetBrains Mono", monospace; font-size: 26px; color: var(--dim); letter-spacing: 0.04em; }
+  .panel { position: absolute; border: 1.5px solid var(--rule); background: #111110; }
+  .hl { background-image: linear-gradient(rgba(255,91,46,0.42), rgba(255,91,46,0.42)); background-repeat: no-repeat;
+        background-position: 0 85%; background-size: 0% 70%; }
+  #brand { position: absolute; left: 96px; top: 64px; }
+  #index { position: absolute; right: 96px; top: 64px; text-align: right; }
+  #bar { position: absolute; left: 96px; right: 96px; bottom: 64px; height: 2px; background: var(--rule); }
+  #barfill { position: absolute; left: 0; top: 0; bottom: 0; width: 0; background: var(--accent); }
+  #wipe { position: absolute; top: 0; bottom: 0; left: 0; width: 1920px; background: var(--accent); transform: translateX(-2000px); }
+  .cell { position: absolute; width: 330px; height: 150px; border: 1.5px solid var(--rule); }
+  .cell div { position: absolute; left: 28px; bottom: 26px; font-size: 40px; font-weight: 600; letter-spacing: -0.02em; }
+</style>
+</head>
+<body>
+<div id="stage">
+  <div id="grid"></div>
+
+  <!-- 0 · Hook -->
+  <div class="scene" id="s0">
+    <div class="display" style="position:absolute; left:96px; top:250px; font-size:150px">
+      <span class="mask"><span id="h1">Selling online?</span></span>
+      <span class="mask"><span id="h2" class="muted">Every number,</span></span>
+    </div>
+    <div class="display accent" id="h3" style="position:absolute; left:96px; top:560px; font-size:280px; transform-origin:0 80%">in code.</div>
+    <div class="tag" id="h4" style="position:absolute; left:104px; top:900px">Ecom · listings · images · pricing · ads · stock</div>
+  </div>
+
+  <!-- 1 · Listings: the checker highlights what breaks the rules -->
+  <div class="scene" id="s1">
+    <div class="tag" style="position:absolute; left:96px; top:250px">01 · Listings</div>
+    <div class="display" style="position:absolute; left:96px; top:310px; font-size:96px">
+      <span class="mask"><span id="l1">Every listing,</span></span>
+      <span class="mask"><span id="l2">checked first.</span></span>
+    </div>
+    <div class="desc" id="l-note" style="position:absolute; left:96px; top:560px; width:640px">Length, keywords, risky claims and competitor brands, flagged in code before you upload.</div>
+    <div class="panel" id="l-panel" style="left:900px; top:220px; width:924px; height:446px">
+      <div class="mono" style="position:absolute; left:40px; top:34px; font-size:22px; color:var(--dim)">TITLE</div>
+      <div style="position:absolute; left:40px; top:66px; width:840px; font-size:30px; line-height:1.4">Solids Steel Water Bottle 1 Litre, Double Wall Insulated, Leak Proof, Keeps Cold 24 Hours, <span class="hl" id="w1">Best</span> Bottle Ever</div>
+      <div class="mono" style="position:absolute; left:40px; top:200px; font-size:22px; color:var(--dim)">BULLET 3</div>
+      <div style="position:absolute; left:40px; top:232px; width:840px; font-size:30px; line-height:1.4"><span class="hl" id="w2">100% guaranteed</span> eco-friendly and BPA free, <span class="hl" id="w3">clinically</span> proven safe.</div>
+      <div class="mono" style="position:absolute; left:40px; top:340px; font-size:22px; color:var(--dim)">SEARCH TERMS</div>
+      <div class="mono" style="position:absolute; left:40px; top:372px; font-size:28px">flask thermos sipper <span class="hl" id="w4">hydro flask</span></div>
+    </div>
+    <div class="mono" id="r2" style="position:absolute; left:900px; top:710px; font-size:28px"><span class="muted">claims to check</span> &nbsp;best · 100% · guaranteed · clinically</div>
+    <div class="mono accent" id="r3" style="position:absolute; left:900px; top:766px; font-size:28px">brand you don't own &nbsp;'Hydro Flask' → remove</div>
+    <div id="l-prob" style="position:absolute; left:96px; top:760px"><span class="display accent" style="font-size:64px">1 problem</span><span class="desc" style="margin-left:18px">to fix before upload</span></div>
+    <div class="src" style="left:900px; top:880px">REAL OUTPUT · LISTING_CHECK.PY · ILLUSTRATIVE LISTING</div>
+  </div>
+
+  <!-- 2 · Economics: a waterfall that steps down to the profit -->
+  <div class="scene" id="s2">
+    <div class="tag" style="position:absolute; left:96px; top:250px">02 · Unit economics</div>
+    <div class="display" style="position:absolute; left:96px; top:310px; font-size:96px">
+      <span class="mask"><span id="e1">What one order</span></span>
+      <span class="mask"><span id="e2" class="muted">really earns.</span></span>
+    </div>
+    <div id="e-call" style="position:absolute; left:96px; top:560px; width:660px">
+      <div class="display" style="font-size:60px; line-height:1.1"><span class="accent" style="position:relative">₹245<span id="e-ul" style="position:absolute; left:0; right:0; bottom:-8px; height:5px; background:var(--accent); transform-origin:0 50%"></span></span> profit on<br>a ₹999 sale.</div>
+      <div class="desc" style="margin-top:24px">After marketplace fees, returns, product cost, packaging and ads. Worked out per order, in code.</div>
+    </div>
+    <div id="wf" style="position:absolute; left:900px; top:200px; width:924px; height:660px"></div>
+    <div class="src" style="left:900px; top:880px">REAL OUTPUT · ECONOMICS.PY · EXAMPLE FEE PROFILE</div>
+  </div>
+
+  <!-- 3 · Ads: rows slide in, flags stamp on -->
+  <div class="scene" id="s3">
+    <div class="tag" style="position:absolute; left:96px; top:250px">03 · Ads and operations</div>
+    <div class="display" style="position:absolute; left:96px; top:310px; font-size:96px">
+      <span class="mask"><span id="a1">Which ads</span></span>
+      <span class="mask"><span id="a2">lose money?</span></span>
+    </div>
+    <div class="desc" id="a-note" style="position:absolute; left:96px; top:560px; width:640px">ACoS against your real break-even, plus returns and when to reorder.</div>
+    <div id="ads" class="mono" style="position:absolute; left:900px; top:240px; width:924px; font-size:28px"></div>
+    <div id="a-tot" style="position:absolute; left:900px; top:600px">
+      <div class="display" style="font-size:96px"><span id="a-pct" class="accent"></span></div>
+      <div class="mono muted" style="font-size:26px; margin-top:10px; width:924px; line-height:1.4">of ad spend is above break-even (36.7% ACoS)<br>or brings no sales</div>
+    </div>
+    <div class="mono" id="a-next" style="position:absolute; left:96px; top:740px; width:700px; font-size:26px; line-height:1.5"><span class="accent">Next →</span> lower bids on Bottle Auto,<br>add negatives to Gym Broad</div>
+    <div class="src" style="left:900px; top:880px">REAL OUTPUT · OPS.PY · EXAMPLE ADS REPORT</div>
+  </div>
+
+  <!-- 4 · Marketplaces: names cut onto a grid on the beat -->
+  <div class="scene" id="s4">
+    <div class="tag" style="position:absolute; left:96px; top:180px">04 · Any marketplace</div>
+    <div class="display" style="position:absolute; left:96px; top:230px; font-size:80px">
+      <span class="mask"><span id="m1">Fees from your settlement report,</span></span>
+      <span class="mask"><span id="m2" class="muted">never from memory.</span></span>
+    </div>
+    <div id="cells" style="position:absolute; left:96px; top:440px; width:1728px; height:500px"></div>
+  </div>
+
+  <!-- 5 · End -->
+  <div class="scene" id="s5">
+    <div class="display" style="position:absolute; left:96px; top:270px; font-size:150px">
+      <span class="mask"><span id="z1">Your e-commerce</span></span>
+      <span class="mask"><span id="z2" class="accent">operator.</span></span>
+    </div>
+    <div id="z5" style="position:absolute; left:100px; top:610px; width:520px; height:6px; background:var(--accent); transform-origin:0 50%"></div>
+    <div class="mono" id="z3" style="position:absolute; left:100px; top:660px; font-size:40px">Ecom by SOLIDS FOR YOU · <span class="accent">free on Agensi</span></div>
+    <div class="mono" id="z4" style="position:absolute; left:100px; top:740px; font-size:28px; color:var(--muted)">Make your Claude solid. · github.com/Founderwithabs/SOLIDSFORYOU</div>
+  </div>
+
+  <div class="tag" id="brand">Solids for you</div>
+  <div class="tag" id="index"></div>
+  <div id="bar"><div id="barfill"></div></div>
+  <div id="wipe"></div>
+  <div id="grain"></div>
+</div>
+<script>
+const FPS = 30;
+const B = __BEATS__;
+const beat = (k) => B[k];
+const DURATION = 32.3;
+
+const ease = {
+  linear: (x) => x,
+  outCubic: (x) => 1 - Math.pow(1 - x, 3),
+  outQuart: (x) => 1 - Math.pow(1 - x, 4),
+  inCubic: (x) => x * x * x,
+  inOutCubic: (x) => (x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2),
+  outBack: (x) => { const c1 = 1.6, c3 = c1 + 1; return 1 + c3 * Math.pow(x - 1, 3) + c1 * Math.pow(x - 1, 2); },
+};
+function tween(t, start, dur, from, to, e = ease.outCubic) {
+  if (t <= start) return from;
+  if (t >= start + dur) return to;
+  return from + (to - from) * e((t - start) / dur);
+}
+const frames = (n) => n / FPS;
+const $ = (id) => document.getElementById(id);
+const clamp01 = (x) => Math.max(0, Math.min(1, x));
+
+// ---- Cue sheet (beats) -------------------------------------------------------
+const SCB = [0, 8, 24, 40, 52, 60];
+const SC = SCB.map(beat); SC.push(DURATION);
+const N = SCB.length;
+
+function reveal(el, t, start, dur = frames(14)) {
+  el.style.transform = `translateY(${tween(t, start, dur, 110, 0, ease.outQuart)}%)`;
+}
+function fadeUp(el, t, start, dy = 24, dur = frames(12)) {
+  el.style.opacity = tween(t, start, dur * 0.7, 0, 1, ease.linear);
+  el.style.transform = `translateY(${tween(t, start, dur, dy, 0, ease.outQuart)}px)`;
+}
+
+// ---- Build: waterfall (economics.py, example profile, ₹999, per order) -------
+const WF = [["Revenue", 820.61, "total"], ["Fees", -179.29], ["Returns", -8.00], ["Product", -276.12],
+            ["Packing", -20.00], ["Ads", -91.91], ["Profit", 245.29, "total"]];
+const wf = $("wf"), BASE = 560, SCALE = 470 / 820.61, CW = 104, GAP = 32;
+let level = 0;
+WF.forEach(([name, v, kind], i) => {
+  const x = i * (CW + GAP);
+  let top, h;
+  if (kind) { h = v * SCALE; top = BASE - h; }
+  else { top = BASE - level * SCALE; h = -v * SCALE; }
+  level = kind ? v : level + v;
+  const col = i === WF.length - 1 ? "var(--accent)" : kind ? "var(--text)" : "#3a3934";
+  wf.insertAdjacentHTML("beforeend", `
+    <div id="wb${i}" style="position:absolute; left:${x}px; width:${CW}px; top:${top}px; height:${Math.max(h, 3)}px; background:${col};
+      transform-origin:50% ${kind ? "100%" : "0%"}"></div>
+    <div class="mono" id="wv${i}" style="position:absolute; left:${x - 20}px; width:${CW + 40}px; text-align:center; top:${kind ? top - 46 : top + Math.max(h, 3) + 10}px; font-size:24px; ${i === WF.length - 1 ? "color:var(--accent)" : kind ? "" : "color:var(--muted)"}">${kind ? "" : "−"}${Math.round(Math.abs(v))}</div>
+    <div class="mono" style="position:absolute; left:${x - 20}px; width:${CW + 40}px; text-align:center; top:${BASE + 18}px; font-size:24px; color:var(--muted)">${name}</div>`);
+});
+wf.insertAdjacentHTML("beforeend", `<div style="position:absolute; left:0; right:0; top:${BASE}px; height:2px; background:var(--rule)"></div>
+  <div class="mono" style="position:absolute; left:0; top:-10px; font-size:24px; color:var(--dim)">₹999 SALE · ₹ PER ORDER PLACED</div>`);
+
+// ---- Build: ads table (ops.py on the example report) --------------------------
+const ADS = [["Bottle Exact", "₹4,500", "20.5%", ""], ["Bottle Auto", "₹9,600", "53.3%", "ABOVE BREAK-EVEN"], ["Gym Broad", "₹1,800", "n/a", "SPEND, NO SALES"]];
+const ads = $("ads");
+ads.insertAdjacentHTML("beforeend", `<div style="display:flex; color:var(--dim); font-size:24px; padding-bottom:18px; border-bottom:1.5px solid var(--rule)">
+  <div style="width:290px">CAMPAIGN</div><div style="width:170px">SPEND</div><div style="width:150px">ACOS</div><div>FLAG</div></div>`);
+ADS.forEach(([c, s, a, f], i) => ads.insertAdjacentHTML("beforeend", `
+  <div style="overflow:hidden; border-bottom:1px solid rgba(255,255,255,0.08)"><div id="ar${i}" style="display:flex; align-items:center; padding:26px 0">
+    <div style="width:290px">${c}</div><div style="width:170px" class="muted">${s}</div><div style="width:150px" class="${f ? "accent" : ""}">${a}</div>
+    <div>${f ? `<span id="af${i}" style="display:inline-block; border:2px solid var(--accent); color:var(--accent); padding:4px 12px; font-size:20px; letter-spacing:0.06em">${f}</span>` : `<span class="muted" id="af${i}">ok</span>`}</div>
+  </div></div>`));
+
+// ---- Build: marketplace grid ------------------------------------------------------
+const MK = ["Amazon", "Flipkart", "Meesho", "Shopify", "Walmart", "eBay", "Etsy", "TikTok Shop",
+            "Myntra", "Nykaa", "Shopee", "Mercado Libre", "Noon", "Zalando", "and more"];
+const cells = $("cells");
+MK.forEach((n, i) => {
+  const x = (i % 5) * 350, y = Math.floor(i / 5) * 170;
+  cells.insertAdjacentHTML("beforeend", `<div class="cell" id="mc${i}" style="left:${x}px; top:${y}px"><div ${i === MK.length - 1 ? 'class="muted"' : ""}>${n}</div></div>`);
+});
+
+// ---- Transitions: 0→1 cut · 1→2 push up · 2→3 accent wipe · 3→4 cut · 4→5 zoom through
+const TRANS = ["cut", "push", "wipe", "cut", "zoom"];
+const WIPE = frames(14), PUSH = frames(14), ZOOM = frames(10);
+function placeScenes(t) {
+  let cur = 0;
+  for (let i = 0; i < N; i++) if (t >= SC[i]) cur = i;
+  for (let i = 0; i < N; i++) {
+    const el = $(`s${i}`);
+    el.style.visibility = i === cur ? "visible" : "hidden";
+    el.style.transform = "none"; el.style.opacity = 1;
+  }
+  $("wipe").style.transform = "translateX(-2000px)";
+  for (let k = 0; k < N - 1; k++) {
+    const at = SC[k + 1];
+    if (TRANS[k] === "wipe" && t >= at - WIPE / 2 && t < at + WIPE / 2)
+      $("wipe").style.transform = `translateX(${tween(t, at - WIPE / 2, WIPE, -1920, 1920, ease.inOutCubic)}px)`;
+    if (TRANS[k] === "push" && t >= at - PUSH && t < at) {
+      const p = tween(t, at - PUSH, PUSH, 0, 1, ease.inOutCubic);
+      $(`s${k}`).style.transform = `translateY(${-1080 * p}px)`;
+      const b = $(`s${k + 1}`); b.style.visibility = "visible"; b.style.transform = `translateY(${1080 * (1 - p)}px)`;
+    }
+    if (TRANS[k] === "zoom" && t >= at - ZOOM && t < at + ZOOM) {
+      if (t < at) {
+        const p = tween(t, at - ZOOM, ZOOM, 0, 1, ease.inCubic);
+        const a = $(`s${k}`); a.style.transform = `scale(${1 + 0.25 * p})`; a.style.opacity = 1 - p;
+      } else {
+        const p = tween(t, at, ZOOM, 0, 1, ease.outCubic);
+        const b = $(`s${k + 1}`); b.style.transform = `scale(${0.9 + 0.1 * p})`; b.style.opacity = p;
+      }
+    }
+  }
+  return cur;
+}
+
+function renderFrame(t) {
+  const cur = placeScenes(t);
+  $("index").textContent = cur >= 1 && cur <= 4 ? `0${cur} / 04` : "";
+  $("barfill").style.width = `${100 * clamp01(t / DURATION)}%`;
+
+  // 0 · hook: masked rises, then "in code." slams
+  reveal($("h1"), t, frames(-4));
+  reveal($("h2"), t, beat(2));
+  $("h3").style.opacity = t >= beat(3) ? 1 : 0;
+  $("h3").style.transform = `scale(${tween(t, beat(3), frames(9), 1.35, 1, ease.outBack)})`;
+  fadeUp($("h4"), t, beat(5));
+
+  // 1 · listings: panel unrolls, a highlighter sweeps each risky phrase, results type in
+  const s1 = SC[1];
+  reveal($("l1"), t, s1); reveal($("l2"), t, s1 + frames(3));
+  fadeUp($("l-note"), t, s1 + frames(8));
+  $("l-panel").style.clipPath = `inset(0 0 ${100 - 100 * tween(t, s1 + frames(4), frames(16), 0, 1, ease.outQuart)}% 0)`;
+  [["w1", 11], ["w2", 12], ["w3", 13], ["w4", 15]].forEach(([id, b]) => {
+    $(id).style.backgroundSize = `${100 * tween(t, beat(b), frames(9), 0, 1, ease.inOutCubic)}% 70%`;
+  });
+  fadeUp($("r2"), t, beat(13) + frames(6), 14, frames(8));
+  fadeUp($("r3"), t, beat(16), 14, frames(8));
+  fadeUp($("l-prob"), t, beat(19), 30, frames(12));
+
+  // 2 · economics: revenue grows, each cost drops from the level above, profit lands
+  const s2 = SC[2];
+  reveal($("e1"), t, s2); reveal($("e2"), t, s2 + frames(3));
+  WF.forEach((_, i) => {
+    const at = i === 0 ? beat(26) : i === WF.length - 1 ? beat(34) : beat(27 + i);
+    const g = tween(t, at, frames(i === 0 || i === WF.length - 1 ? 16 : 10), 0, 1, ease.outCubic);
+    $(`wb${i}`).style.transform = `scaleY(${g})`;
+    $(`wv${i}`).style.opacity = clamp01((g - 0.6) / 0.4);
+  });
+  fadeUp($("e-call"), t, beat(35), 30, frames(14));
+  $("e-ul").style.transform = `scaleX(${tween(t, beat(37), frames(14), 0, 1, ease.inOutCubic)})`;
+
+  // 3 · ads: rows rise out of their own lines, flags stamp, the share counts up
+  const s3 = SC[3];
+  reveal($("a1"), t, s3); reveal($("a2"), t, s3 + frames(3));
+  fadeUp($("a-note"), t, s3 + frames(8));
+  ADS.forEach((_, i) => {
+    $(`ar${i}`).style.transform = `translateY(${tween(t, s3 + frames(6 + 4 * i), frames(12), 110, 0, ease.outQuart)}%)`;
+    const st = beat(42) + i * (beat(43) - beat(42));
+    $(`af${i}`).style.opacity = t >= st ? 1 : 0;
+    $(`af${i}`).style.transform = `scale(${tween(t, st, frames(8), 1.8, 1, ease.outBack)})`;
+  });
+  const pct = tween(t, beat(46), frames(20), 0, 71.7, ease.outCubic);
+  $("a-pct").textContent = t >= beat(46) ? `${pct.toFixed(1)}%` : "";
+  fadeUp($("a-tot"), t, beat(46), 20, frames(10));
+  fadeUp($("a-next"), t, beat(48), 20, frames(12));
+
+  // 4 · marketplaces: each name cuts in on a half beat, its border flashes the accent
+  const s4 = SC[4];
+  reveal($("m1"), t, s4); reveal($("m2"), t, s4 + frames(3));
+  const hb = (beat(53) - beat(52)) / 2;
+  MK.forEach((_, i) => {
+    const at = s4 + frames(8) + i * hb * 0.75;
+    const c = $(`mc${i}`);
+    c.style.opacity = t >= at ? 1 : 0;
+    const flash = clamp01(1 - (t - at) / 0.35);
+    c.style.borderColor = t >= at && flash > 0 ? `rgba(255,91,46,${0.25 + 0.75 * flash})` : "var(--rule)";
+  });
+
+  // 5 · end
+  const s5 = SC[5];
+  reveal($("z1"), t, s5);
+  reveal($("z2"), t, beat(61), frames(12));
+  fadeUp($("z3"), t, beat(62));
+  fadeUp($("z4"), t, beat(63));
+  $("z5").style.transform = `scaleX(${tween(t, beat(62), DURATION - beat(62) - 0.4, 0, 1, ease.inOutCubic)})`;
+}
+
+window.renderFrame = renderFrame;
+window.DURATION = DURATION;
+if (!navigator.webdriver) {
+  const t0 = performance.now();
+  (function loop() { renderFrame(((performance.now() - t0) / 1000) % DURATION); requestAnimationFrame(loop); })();
+} else {
+  renderFrame(0);
+}
+</script>
+</body>
+</html>

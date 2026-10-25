@@ -1,0 +1,397 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<!-- Careful mode by SOLIDS FOR YOU, Agensi demo. Launch video v2 system:
+     renderFrame(t) only, cue times on the music's beat grid. Each review has
+     its own visual and motion. The work being checked is illustrative and
+     labelled; the three reviews and the record follow the skill's text. -->
+<style>
+  :root {
+    --bg: #0a0a0a; --grid: rgba(255,255,255,0.045); --rule: rgba(255,255,255,0.16);
+    --text: #f4f3ef; --muted: #8b8a85; --dim: #5c5b56; --accent: #ff5b2e;
+  }
+  html, body { margin: 0; width: 1920px; height: 1080px; overflow: hidden; background: var(--bg); }
+  body { font-family: "Inter", sans-serif; color: var(--text); }
+  #stage { position: absolute; inset: 0; overflow: hidden; }
+  #grid { position: absolute; inset: 0;
+    background-image: linear-gradient(var(--grid) 1px, transparent 1px), linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+    background-size: 120px 120px; }
+  #grain { position: absolute; inset: 0; opacity: 0.05; pointer-events: none;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/></filter><rect width='200' height='200' filter='url(%23n)'/></svg>"); }
+  .mono { font-family: "JetBrains Mono", monospace; }
+  .tag { font-family: "JetBrains Mono", monospace; font-size: 26px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+  .scene { position: absolute; inset: 0; visibility: hidden; }
+  .display { font-family: "Inter Display", "Inter", sans-serif; font-weight: 700; letter-spacing: -0.035em; line-height: 1.0; }
+  .desc { font-size: 32px; line-height: 1.45; color: var(--muted); }
+  .mask { display: block; overflow: hidden; padding-bottom: 0.08em; }
+  .mask > span { display: inline-block; }
+  .accent { color: var(--accent); }
+  .muted { color: var(--muted); }
+  .src { position: absolute; font-family: "JetBrains Mono", monospace; font-size: 26px; color: var(--dim); letter-spacing: 0.04em; }
+  .num { position: absolute; font-family: "Inter Display", sans-serif; font-weight: 800; font-size: 420px; line-height: 1;
+         color: transparent; -webkit-text-stroke: 3px rgba(255,255,255,0.14); letter-spacing: -0.05em; }
+  .panel { position: absolute; border: 1.5px solid var(--rule); background: #111110; }
+  #brand { position: absolute; left: 96px; top: 64px; }
+  #index { position: absolute; right: 96px; top: 64px; text-align: right; }
+  #bar { position: absolute; left: 96px; right: 96px; bottom: 64px; height: 2px; background: var(--rule); }
+  #barfill { position: absolute; left: 0; top: 0; bottom: 0; width: 0; background: var(--accent); }
+  #wipe { position: absolute; top: 0; bottom: 0; left: 0; width: 1920px; background: var(--accent); transform: translateX(-2000px); }
+  svg text { font-family: "JetBrains Mono", monospace; }
+</style>
+</head>
+<body>
+<div id="stage">
+  <div id="grid"></div>
+
+  <!-- 0 · Hook: three strokes, then the words -->
+  <div class="scene" id="s0">
+    <div class="display" style="position:absolute; left:96px; top:250px; font-size:150px">
+      <span class="mask"><span id="h1">Checked once?</span></span>
+      <span class="mask"><span id="h2" class="muted">Check it</span></span>
+    </div>
+    <div class="display accent" id="h3" style="position:absolute; left:96px; top:560px; font-size:280px; transform-origin:0 80%">three times.</div>
+    <div class="tag" id="h4" style="position:absolute; left:104px; top:900px">Careful mode · before anything is handed over</div>
+  </div>
+
+  <!-- 1 · Review 1: a scan line finds the wrong price -->
+  <div class="scene" id="s1">
+    <div class="tag" style="position:absolute; left:96px; top:250px">Review 1 · Correctness</div>
+    <div class="display" style="position:absolute; left:96px; top:310px; font-size:96px">
+      <span class="mask"><span id="c1">Is it right?</span></span>
+    </div>
+    <div class="desc" id="c-note" style="position:absolute; left:96px; top:450px; width:640px">Every price, name, date and link checked against the source again. Not from memory.</div>
+    <div class="panel" id="c-panel" style="left:900px; top:220px; width:924px; height:520px">
+      <div class="mono" style="position:absolute; left:40px; top:30px; width:844px; display:flex; font-size:24px; color:var(--dim)">
+        <div style="width:380px">PRODUCT</div><div style="width:220px">CATALOG</div><div>YOUR DRAFT</div></div>
+      <div id="rows" class="mono" style="position:absolute; left:40px; top:80px; width:844px; font-size:30px"></div>
+      <div id="scan" style="position:absolute; left:0; right:0; top:80px; height:3px; background:var(--accent); box-shadow:0 0 0 1px rgba(255,91,46,0.2)"></div>
+    </div>
+    <div class="mono accent" id="c-find" style="position:absolute; left:900px; top:780px; font-size:28px">Found: Linen Shirt is ₹1,199, not ₹1,299 → fixed</div>
+    <div class="src" style="left:900px; top:880px">ILLUSTRATIVE WORK BEING CHECKED</div>
+  </div>
+
+  <!-- 2 · Review 2: requirements tick off, one is missing -->
+  <div class="scene" id="s2">
+    <div class="tag" style="position:absolute; left:96px; top:250px">Review 2 · Completeness</div>
+    <div class="display" style="position:absolute; left:96px; top:310px; font-size:96px">
+      <span class="mask"><span id="d1">Is it</span></span>
+      <span class="mask"><span id="d2">everything?</span></span>
+    </div>
+    <div class="desc" id="d-note" style="position:absolute; left:96px; top:560px; width:640px">Every requirement you asked for, ticked off. Nothing extra, no leftover TODOs.</div>
+    <div id="reqs" style="position:absolute; left:900px; top:240px; width:924px"></div>
+    <div class="src" style="left:900px; top:880px">ILLUSTRATIVE REQUEST</div>
+  </div>
+
+  <!-- 3 · Review 3: the action that can't be undone -->
+  <div class="scene" id="s3">
+    <div class="tag" style="position:absolute; left:96px; top:250px">Review 3 · Adversarial</div>
+    <div class="display" style="position:absolute; left:96px; top:310px; font-size:96px">
+      <span class="mask"><span id="v1">How could it</span></span>
+      <span class="mask"><span id="v2">go wrong?</span></span>
+    </div>
+    <div class="desc" id="v-note" style="position:absolute; left:96px; top:560px; width:640px">Read like a strict critic. Anything that can't be undone waits for your yes.</div>
+    <div class="panel" id="v-card" style="left:900px; top:300px; width:924px; height:300px">
+      <div class="mono" style="position:absolute; left:48px; top:40px; font-size:24px; color:var(--dim)">NEXT ACTION</div>
+      <div class="display" style="position:absolute; left:48px; top:90px; font-size:56px; line-height:1.15">Publish new prices to<br>240 live listings</div>
+      <div class="mono" id="v-warn" style="position:absolute; left:48px; top:236px; font-size:26px; color:var(--accent)">✕ can't be undone · customers see it at once</div>
+    </div>
+    <svg width="1920" height="1080" style="position:absolute; left:0; top:0">
+      <rect id="v-box" x="890" y="290" width="944" height="320" fill="none" stroke="#ff5b2e" stroke-width="4"/>
+    </svg>
+    <div id="stamp" style="position:absolute; left:1330px; top:640px; border:6px solid var(--accent); color:var(--accent); padding:10px 26px; font-family:'Inter Display'; font-weight:800; font-size:64px; letter-spacing:0.04em; transform-origin:50% 50%">ASK FIRST</div>
+  </div>
+
+  <!-- 4 · The loop: any fix restarts the reviews -->
+  <div class="scene" id="s4">
+    <div class="tag" style="position:absolute; left:96px; top:250px">The rule</div>
+    <div class="display" style="position:absolute; left:96px; top:310px; font-size:96px">
+      <span class="mask"><span id="o1">Fixed something?</span></span>
+      <span class="mask"><span id="o2" class="accent">Start again at 1.</span></span>
+    </div>
+    <div class="desc" id="o-note" style="position:absolute; left:96px; top:560px; width:640px">A fix can bring a new mistake, so every fix sends the work back through all three reviews.</div>
+    <svg id="loop" width="924" height="640" style="position:absolute; left:900px; top:200px">
+      <path id="arc" d="M 462 90 A 230 230 0 1 1 461 90" fill="none" stroke="rgba(255,255,255,0.22)" stroke-width="3"/>
+      <path id="arcA" d="M 462 90 A 230 230 0 1 1 461 90" fill="none" stroke="#ff5b2e" stroke-width="5"/>
+    </svg>
+    <div id="nodes" style="position:absolute; left:900px; top:200px; width:924px; height:640px"></div>
+  </div>
+
+  <!-- 5 · The record -->
+  <div class="scene" id="s5">
+    <div class="tag" style="position:absolute; left:96px; top:250px">Every handover</div>
+    <div class="display" style="position:absolute; left:96px; top:310px; font-size:96px">
+      <span class="mask"><span id="r1">Ends with</span></span>
+      <span class="mask"><span id="r2">the record.</span></span>
+    </div>
+    <div class="desc" id="r-note" style="position:absolute; left:96px; top:560px; width:640px">What was checked, what was fixed, and what couldn't be verified. No claims it didn't earn.</div>
+    <div class="panel mono" id="rec" style="left:900px; top:240px; width:924px; height:440px; font-size:27px; line-height:1.55">
+      <div id="rec-in" style="position:absolute; left:48px; top:44px; width:840px; white-space:pre"></div>
+    </div>
+    <div class="src" style="left:900px; top:720px">FORMAT FROM THE SKILL · ILLUSTRATIVE CONTENT</div>
+  </div>
+
+  <!-- 6 · End -->
+  <div class="scene" id="s6">
+    <div class="display" style="position:absolute; left:96px; top:270px; font-size:150px">
+      <span class="mask"><span id="z1">Right, then</span></span>
+      <span class="mask"><span id="z2" class="accent">done.</span></span>
+    </div>
+    <div id="z5" style="position:absolute; left:100px; top:610px; width:520px; height:6px; background:var(--accent); transform-origin:0 50%"></div>
+    <div class="mono" id="z3" style="position:absolute; left:100px; top:660px; font-size:40px">Careful mode by SOLIDS FOR YOU · <span class="accent">free on Agensi</span></div>
+    <div class="mono" id="z4" style="position:absolute; left:100px; top:740px; font-size:28px; color:var(--muted)">Make your Claude solid. · github.com/Founderwithabs/SOLIDSFORYOU</div>
+  </div>
+
+  <div class="tag" id="brand">Solids for you</div>
+  <div class="tag" id="index"></div>
+  <div id="bar"><div id="barfill"></div></div>
+  <div id="wipe"></div>
+  <div id="grain"></div>
+</div>
+<script>
+const FPS = 30;
+const B = __BEATS__;
+const beat = (k) => B[k];
+const DURATION = 32.3;
+
+const ease = {
+  linear: (x) => x,
+  outCubic: (x) => 1 - Math.pow(1 - x, 3),
+  outQuart: (x) => 1 - Math.pow(1 - x, 4),
+  inCubic: (x) => x * x * x,
+  inOutCubic: (x) => (x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2),
+  outBack: (x) => { const c1 = 1.6, c3 = c1 + 1; return 1 + c3 * Math.pow(x - 1, 3) + c1 * Math.pow(x - 1, 2); },
+};
+function tween(t, start, dur, from, to, e = ease.outCubic) {
+  if (t <= start) return from;
+  if (t >= start + dur) return to;
+  return from + (to - from) * e((t - start) / dur);
+}
+const frames = (n) => n / FPS;
+const $ = (id) => document.getElementById(id);
+const clamp01 = (x) => Math.max(0, Math.min(1, x));
+
+// ---- Cue sheet (beats) -------------------------------------------------------
+const SCB = [0, 8, 20, 32, 42, 52, 62];
+const SC = SCB.map(beat); SC.push(DURATION);
+const N = SCB.length;
+
+function reveal(el, t, start, dur = frames(14)) {
+  el.style.transform = `translateY(${tween(t, start, dur, 110, 0, ease.outQuart)}%)`;
+}
+function fadeUp(el, t, start, dy = 24, dur = frames(12)) {
+  el.style.opacity = tween(t, start, dur * 0.7, 0, 1, ease.linear);
+  el.style.transform = `translateY(${tween(t, start, dur, dy, 0, ease.outQuart)}px)`;
+}
+function draw(el, t, start, dur) {
+  const len = el.getTotalLength();
+  el.style.strokeDasharray = len;
+  el.style.strokeDashoffset = len * (1 - tween(t, start, dur, 0, 1, ease.inOutCubic));
+}
+// A big outlined numeral slides in from the right edge, slower than the content.
+function numeral(el, t, start) {
+  el.style.transform = `translateX(${tween(t, start, frames(24), 260, 0, ease.outQuart)}px)`;
+  el.style.opacity = tween(t, start, frames(12), 0, 1, ease.linear);
+}
+
+// ---- Build: price check rows ---------------------------------------------------
+const PR = [["Cotton Kurta, Navy", "₹999", "₹999"], ["Linen Shirt, White", "₹1,199", "₹1,299"],
+            ["Joggers, Grey", "₹849", "₹849"], ["Tote Bag", "₹499", "₹499"], ["Socks, 3-pack", "₹299", "₹299"]];
+const ROWH = 82;
+PR.forEach(([p, c, d], i) => $("rows").insertAdjacentHTML("beforeend", `
+  <div id="pr${i}" style="position:absolute; left:-16px; padding-left:16px; top:${i * ROWH}px; width:860px; height:${ROWH}px; display:flex; align-items:center; border-bottom:1px solid rgba(255,255,255,0.08)">
+    <div style="width:380px">${p}</div><div style="width:220px" class="muted">${c}</div>
+    <div style="position:relative">${i === 1
+      ? `<span id="bad" style="position:relative">${d}<span id="strike" style="position:absolute; left:-4px; right:-4px; top:50%; height:4px; background:var(--accent); transform-origin:0 50%"></span></span> <span id="good" class="accent" style="margin-left:18px">₹1,199</span>`
+      : d}</div>
+    <div id="ok${i}" class="muted" style="position:absolute; right:12px">✓</div>
+  </div>`));
+
+// ---- Build: requirements ---------------------------------------------------------
+const RQ = ["Launch email, under 150 words", "Price and date match the sheet", "Link goes to the right page",
+            "Hindi version too", "Friendly tone, no hype"];
+RQ.forEach((r, i) => $("reqs").insertAdjacentHTML("beforeend", `
+  <div id="rqrow${i}" style="position:relative; height:104px; border-bottom:1px solid rgba(255,255,255,0.08)">
+    <svg width="56" height="56" style="position:absolute; left:0; top:24px">
+      <rect x="2" y="2" width="52" height="52" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="2"/>
+      <path id="tk${i}" d="M 13 29 L 24 40 L 44 16" fill="none" stroke="${i === 3 ? "#ff5b2e" : "#f4f3ef"}" stroke-width="5" stroke-linecap="square"/>
+    </svg>
+    <div style="position:absolute; left:96px; top:30px; font-size:36px" id="rq${i}">${r}</div>
+    ${i === 3 ? `<div class="mono accent" id="miss" style="position:absolute; right:0; top:32px; font-size:30px; font-weight:700"></div>` : ""}
+  </div>`));
+
+// ---- Build: loop nodes on the circle ----------------------------------------------------
+const CX = 462, CY = 320, R = 230;
+const NODES = [["1", "Right?", -90], ["2", "Complete?", 30], ["3", "What breaks?", 150]];
+NODES.forEach(([n, l, deg], i) => {
+  const a = deg * Math.PI / 180, x = CX + R * Math.cos(a), y = CY + R * Math.sin(a);
+  const lx = i === 0 ? x + 70 : i === 1 ? x + 70 : x - 330;
+  $("nodes").insertAdjacentHTML("beforeend", `
+    <div id="nd${i}" style="position:absolute; left:${x - 52}px; top:${y - 52}px; width:104px; height:104px; border-radius:50%;
+      background:#111110; border:3px solid rgba(255,255,255,0.3); display:flex; align-items:center; justify-content:center;
+      font-family:'Inter Display'; font-weight:800; font-size:52px">${n}</div>
+    <div class="mono muted" id="nl${i}" style="position:absolute; left:${lx}px; top:${y - 18}px; width:260px; font-size:28px; ${i === 2 ? "text-align:right" : ""}">${l}</div>`);
+});
+$("nodes").insertAdjacentHTML("afterbegin", `<div id="dot" style="position:absolute; left:${CX - 14}px; top:${CY - R - 14}px; width:28px; height:28px; border-radius:50%; background:var(--accent)"></div>
+  <div class="mono" id="fix" style="position:absolute; left:${CX - 180}px; top:${CY - 20}px; width:360px; text-align:center; font-size:30px"></div>`);
+
+// ---- Build: the record (the skill's report format) --------------------------------------
+const REC = [["Careful mode: reviewed 3×", "text"],
+             ["1. Correctness: 5 prices checked against", ""], ["   the catalog; 1 wrong price fixed.", ""],
+             ["2. Completeness: 5 of 5 requirements;", ""], ["   Hindi version added.", ""],
+             ["3. Adversarial: publishing to 240 listings", ""], ["   waits for your yes.", ""],
+             ["Not verified: live store page (no access).", "muted"]];
+
+// ---- Transitions: 0→1 cut · 1→2 push · 2→3 cut · 3→4 wipe · 4→5 push · 5→6 zoom
+const TRANS = ["cut", "push", "cut", "wipe", "push", "zoom"];
+const WIPE = frames(14), PUSH = frames(14), ZOOM = frames(10);
+function placeScenes(t) {
+  let cur = 0;
+  for (let i = 0; i < N; i++) if (t >= SC[i]) cur = i;
+  for (let i = 0; i < N; i++) {
+    const el = $(`s${i}`);
+    el.style.visibility = i === cur ? "visible" : "hidden";
+    el.style.transform = "none"; el.style.opacity = 1;
+  }
+  $("wipe").style.transform = "translateX(-2000px)";
+  for (let k = 0; k < N - 1; k++) {
+    const at = SC[k + 1];
+    if (TRANS[k] === "wipe" && t >= at - WIPE / 2 && t < at + WIPE / 2)
+      $("wipe").style.transform = `translateX(${tween(t, at - WIPE / 2, WIPE, -1920, 1920, ease.inOutCubic)}px)`;
+    if (TRANS[k] === "push" && t >= at - PUSH && t < at) {
+      const p = tween(t, at - PUSH, PUSH, 0, 1, ease.inOutCubic);
+      $(`s${k}`).style.transform = `translateX(${-1920 * p}px)`;
+      const b = $(`s${k + 1}`); b.style.visibility = "visible"; b.style.transform = `translateX(${1920 * (1 - p)}px)`;
+    }
+    if (TRANS[k] === "zoom" && t >= at - ZOOM && t < at + ZOOM) {
+      if (t < at) {
+        const p = tween(t, at - ZOOM, ZOOM, 0, 1, ease.inCubic);
+        const a = $(`s${k}`); a.style.transform = `scale(${1 + 0.25 * p})`; a.style.opacity = 1 - p;
+      } else {
+        const p = tween(t, at, ZOOM, 0, 1, ease.outCubic);
+        const b = $(`s${k + 1}`); b.style.transform = `scale(${0.9 + 0.1 * p})`; b.style.opacity = p;
+      }
+    }
+  }
+  return cur;
+}
+
+function renderFrame(t) {
+  const cur = placeScenes(t);
+  $("index").textContent = cur >= 1 && cur <= 3 ? `Review ${cur} / 3` : "";
+  $("barfill").style.width = `${100 * clamp01(t / DURATION)}%`;
+
+  // 0 · hook
+  reveal($("h1"), t, frames(-4));
+  reveal($("h2"), t, beat(2));
+  $("h3").style.opacity = t >= beat(3) ? 1 : 0;
+  $("h3").style.transform = `scale(${tween(t, beat(3), frames(9), 1.35, 1, ease.outBack)})`;
+  fadeUp($("h4"), t, beat(5));
+
+  // 1 · correctness: a scan line runs down the table; the wrong price is struck and replaced
+  const s1 = SC[1];
+  reveal($("c1"), t, s1);
+  fadeUp($("c-note"), t, s1 + frames(6));
+  $("c-panel").style.clipPath = `inset(0 ${100 - 100 * tween(t, s1 + frames(4), frames(16), 0, 1, ease.outQuart)}% 0 0)`;
+  // scan: rows 0..4, pauses on row 1
+  const y0 = beat(10), stopAt = beat(12), resume = beat(15), end = beat(18);
+  let sy;
+  if (t < stopAt) sy = tween(t, y0, stopAt - y0, 0, ROWH * 1.5, ease.inOutCubic);
+  else if (t < resume) sy = ROWH * 1.5;
+  else sy = tween(t, resume, end - resume, ROWH * 1.5, ROWH * 5, ease.inOutCubic);
+  $("scan").style.transform = `translateY(${sy}px)`;
+  $("scan").style.opacity = t >= y0 && t < end + frames(6) ? 1 : 0;
+  PR.forEach((_, i) => {
+    const passed = t >= y0 && sy >= (i + 0.5) * ROWH;
+    $(`ok${i}`).style.opacity = i === 1 ? 0 : passed ? 1 : 0;
+    $(`pr${i}`).style.background = i === 1 && t >= stopAt ? `rgba(255,91,46,${t < resume ? 0.16 : 0.07})` : "transparent";
+  });
+  $("strike").style.transform = `scaleX(${tween(t, beat(13), frames(8), 0, 1, ease.inOutCubic)})`;
+  $("bad").style.color = t >= beat(13) ? "var(--muted)" : "var(--text)";
+  $("good").style.opacity = t >= beat(14) ? 1 : 0;
+  $("good").style.display = "inline-block";
+  $("good").style.transform = `translateY(${tween(t, beat(14), frames(10), 20, 0, ease.outQuart)}px)`;
+  fadeUp($("c-find"), t, beat(16), 16, frames(10));
+
+  // 2 · completeness: ticks draw on the beat; one box stays empty, flagged, then filled
+  const s2 = SC[2];
+  reveal($("d1"), t, s2); reveal($("d2"), t, s2 + frames(3));
+  fadeUp($("d-note"), t, s2 + frames(8));
+  const tickAt = [22, 23, 24, 29, 25];
+  RQ.forEach((_, i) => {
+    fadeUp($(`rq${i}`), t, s2 + frames(6 + 3 * i), 16, frames(10));
+    draw($(`tk${i}`), t, beat(tickAt[i]), frames(8));
+  });
+  $("rqrow3").style.background = t >= beat(26) && t < beat(29) + frames(10) ? "rgba(255,91,46,0.12)" : "transparent";
+  $("miss").textContent = t >= beat(26) && t < beat(29) ? "MISSING" : t >= beat(29) ? "ADDED" : "";
+  $("miss").style.opacity = t >= beat(26) ? (t < beat(29) ? (Math.floor((t - beat(26)) * 4) % 2 ? 0.45 : 1) : 1) : 0;
+
+  // 3 · adversarial: the action card, a border draws around it, a stamp lands
+  const s3 = SC[3];
+  reveal($("v1"), t, s3); reveal($("v2"), t, s3 + frames(3));
+  fadeUp($("v-note"), t, s3 + frames(8));
+  $("v-card").style.clipPath = `inset(0 0 ${100 - 100 * tween(t, s3 + frames(4), frames(14), 0, 1, ease.outQuart)}% 0)`;
+  $("v-warn").style.opacity = t >= beat(35) ? 1 : 0;
+  draw($("v-box"), t, beat(36), frames(16));
+  $("stamp").style.opacity = t >= beat(38) ? 1 : 0;
+  $("stamp").style.transform = `rotate(-6deg) scale(${tween(t, beat(38), frames(8), 2.2, 1, ease.outBack)})`;
+
+  // 4 · loop: the arc draws, the dot travels 1→2→3, "fix" sends it back to 1
+  const s4 = SC[4];
+  reveal($("o1"), t, s4); reveal($("o2"), t, beat(44));
+  fadeUp($("o-note"), t, beat(45));
+  draw($("arc"), t, s4 + frames(4), frames(20));
+  NODES.forEach((_, i) => fadeUp($(`nd${i}`), t, s4 + frames(10 + 4 * i), 0, frames(8)));
+  NODES.forEach((_, i) => fadeUp($(`nl${i}`), t, s4 + frames(14 + 4 * i), 10, frames(8)));
+  // dot: lap 1 from beat 44 to 48 (stops at 3, a fix), lap 2 from 49 to 51.5
+  const lap = t < beat(48) ? tween(t, beat(44), beat(48) - beat(44), 0, 240, ease.inOutCubic)
+                           : tween(t, beat(48) + frames(8), beat(51) - beat(48), 240, 720, ease.inOutCubic);
+  const ang = (-90 + lap) * Math.PI / 180;
+  $("dot").style.transform = `translate(${R * Math.cos(ang)}px, ${R * Math.sin(ang) + R}px)`;
+  $("dot").style.opacity = t >= beat(44) ? 1 : 0;
+  const arcA = $("arcA"), L = arcA.getTotalLength();
+  arcA.style.strokeDasharray = `${L * (lap % 360) / 360} ${L}`;
+  arcA.style.opacity = t >= beat(44) ? 1 : 0;
+  $("fix").innerHTML = t >= beat(47) + frames(14) && t < beat(49) + frames(6) ? '<span class="accent">fix</span> → back to 1' : "";
+  NODES.forEach((_, i) => {
+    const deg = i * 120, k = ((lap - deg) % 360 + 360) % 360;
+    const lit = t >= beat(44) && k < 40;
+    $(`nd${i}`).style.borderColor = lit ? "var(--accent)" : "rgba(255,255,255,0.3)";
+  });
+
+  // 5 · record: types in line by line
+  const s5 = SC[5];
+  reveal($("r1"), t, s5); reveal($("r2"), t, s5 + frames(3));
+  fadeUp($("r-note"), t, s5 + frames(8));
+  $("rec").style.clipPath = `inset(0 ${100 - 100 * tween(t, s5 + frames(4), frames(14), 0, 1, ease.outQuart)}% 0 0)`;
+  let html = "";
+  REC.forEach(([line, cls], i) => {
+    const st = beat(53) + i * frames(7);
+    const n = Math.round(tween(t, st, frames(10), 0, line.length, ease.linear));
+    const txt = line.slice(0, n);
+    html += `<span class="${cls === "text" ? "accent" : cls}">${txt}</span>\n`;
+  });
+  const doneAt = beat(53) + (REC.length - 1) * frames(7) + frames(10);
+  if (t >= doneAt) html = html.replace(/\n$/, "") + `<span class="accent" style="opacity:${Math.floor((t - doneAt) * 2.2) % 2 ? 0 : 1}">▍</span>`;
+  $("rec-in").innerHTML = html;
+
+  // 6 · end
+  const s6 = SC[6];
+  reveal($("z1"), t, s6);
+  reveal($("z2"), t, beat(63), frames(12));
+  fadeUp($("z3"), t, beat(64));
+  fadeUp($("z4"), t, beat(65));
+  $("z5").style.transform = `scaleX(${tween(t, beat(64), DURATION - beat(64) - 0.4, 0, 1, ease.inOutCubic)})`;
+}
+
+window.renderFrame = renderFrame;
+window.DURATION = DURATION;
+if (!navigator.webdriver) {
+  const t0 = performance.now();
+  (function loop() { renderFrame(((performance.now() - t0) / 1000) % DURATION); requestAnimationFrame(loop); })();
+} else {
+  renderFrame(0);
+}
+</script>
+</body>
+</html>

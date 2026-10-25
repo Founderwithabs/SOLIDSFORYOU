@@ -2,12 +2,13 @@
 """Check listing text in code: lengths, repeats, keyword coverage, risky words.
 
 Usage:
-  python3 listing_check.py listing.json [--keywords keywords.txt]
+  python3 listing_check.py listing.json [--keywords keywords.txt] [--avoid brands.txt]
         [--limits title=200,bullet=500,description=2000,search_terms=250]
 
 listing.json: {"title": "...", "bullets": ["...", ...], "description": "...",
 "search_terms": "..."} (any field may be missing). keywords.txt: one keyword
-or phrase per line. Limits are the ones you confirmed for this marketplace
+or phrase per line. brands.txt: competitor brand names and trademarks you don't
+own, one per line; any found in any field is a problem to fix. Limits are the ones you confirmed for this marketplace
 and category; the search_terms limit is checked in bytes (UTF-8), the others
 in characters. Standard library only.
 """
@@ -39,10 +40,19 @@ def words(text):
     return re.findall(r"[a-z0-9][a-z0-9'\-]*", text.lower())
 
 
+def read_lines(path):
+    try:
+        return [k.strip() for k in Path(path).read_text(encoding="utf-8-sig", errors="replace")
+                .splitlines() if k.strip()]
+    except OSError as e:
+        sys.exit(f"can't read {path}: {e.strerror}")
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("listing")
     ap.add_argument("--keywords")
+    ap.add_argument("--avoid", help="file of competitor brand names and trademarks you don't own")
     ap.add_argument("--limits", default="")
     args = ap.parse_args()
     try:
@@ -101,11 +111,7 @@ def main():
 
     everything = " ".join(t for _, _, t in fields).lower()
     if args.keywords:
-        try:
-            kws = [k.strip() for k in Path(args.keywords).read_text(encoding="utf-8-sig", errors="replace")
-                   .splitlines() if k.strip()]
-        except OSError as e:
-            sys.exit(f"can't read {args.keywords}: {e.strerror}")
+        kws = read_lines(args.keywords)
         covered = [k for k in kws if all(w in words(everything) for w in words(k))]
         missing = [k for k in kws if k not in covered]
         in_title = [k for k in covered if all(w in words(listing.get("title", "")) for w in words(k))]
@@ -119,9 +125,18 @@ def main():
         for label, _, text in fields:
             if re.search(pattern, text.lower()):
                 hits.append(f"'{term}' in {label}")
+    if args.avoid:
+        found = []
+        for term in read_lines(args.avoid):
+            pattern = r"(?<![a-z0-9])" + re.escape(term.lower()) + r"(?![a-z0-9])"
+            found += [f"'{term}' in {label}" for label, _, text in fields if re.search(pattern, text.lower())]
+        problems += len(found)
+        out += ["", "Brand names you don't own (remove them): " + ("; ".join(found) if found else "none") + "."]
+
     out += ["", "Words to check against the marketplace's rules and your evidence: "
             + ("; ".join(hits) if hits else "none") + "."]
-    out += ["", f"{problems} field(s) over their limit." if problems else "All fields within the limits given."]
+    out += ["", f"{problems} problem(s) to fix (fields over their limit or brand names you don't own)."
+            if problems else "All fields within the limits given."]
     print("\n".join(out))
     sys.exit(1 if problems else 0)
 
