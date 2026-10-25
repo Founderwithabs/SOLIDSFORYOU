@@ -67,8 +67,9 @@ def call(method, path, params=None, timeout=60):
 
 
 def scrub(text):
-    t = os.environ.get("IG_ACCESS_TOKEN", "")
-    return str(text).replace(t, "<token>") if t else str(text)
+    t = os.environ.get("IG_ACCESS_TOKEN", "").strip()
+    # real tokens are long; masking a very short value would garble ordinary text
+    return str(text).replace(t, "<token>") if len(t) >= 12 else str(text)
 
 
 def user_id():
