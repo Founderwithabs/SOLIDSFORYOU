@@ -7,10 +7,11 @@ Usage:
 
 listing.json: {"title": "...", "bullets": ["...", ...], "description": "...",
 "search_terms": "..."} (any field may be missing). keywords.txt: one keyword
-or phrase per line. brands.txt: competitor brand names and trademarks you don't
-own, one per line; any found in any field is a problem to fix. Limits are the ones you confirmed for this marketplace
-and category; the search_terms limit is checked in bytes (UTF-8), the others
-in characters. Standard library only.
+or phrase per line. brands.txt: competitor brand names and trademarks you
+don't own, one per line; any found in any field is a problem to fix. Limits
+are the ones you confirmed for this marketplace and category; the
+search_terms limit is checked in bytes (UTF-8), the others in characters.
+Standard library only.
 """
 import argparse
 import json

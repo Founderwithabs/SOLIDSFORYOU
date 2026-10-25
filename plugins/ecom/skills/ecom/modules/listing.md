@@ -77,10 +77,10 @@ python3 "SKILL_DIR/scripts/listing_check.py" listing.json --keywords keywords.tx
 `listing.json` holds `{"title": "...", "bullets": [...], "description":
 "...", "search_terms": "..."}`. `brands.txt` lists the competitor brands and
 trademarks from the research, one per line; any found is a problem to fix.
-Use the limits you confirmed for this marketplace and category. It reports length in characters and bytes, words
-repeated, keywords covered and missing, and risky words (superlatives,
-guarantees, health and environmental claims, urgency words, competitor-style
-terms) to check against the rules.
+Use the limits you confirmed for this marketplace and category. It reports
+length in characters and bytes, words repeated, keywords covered and
+missing, and risky words (superlatives, guarantees, health and environmental
+claims, urgency words, competitor-style terms) to check against the rules.
 
 ## 5. Images and A+ content plan
 
