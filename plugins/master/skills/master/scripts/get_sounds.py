@@ -243,7 +243,7 @@ def main():
         sys.exit(f"--dest {args.dest} is a file; give a folder for the sounds")
     if args.cmd == "fetch" and not shutil.which("git"):
         sys.exit("downloading sounds needs git: install it (Mac: xcode-select --install; Windows: winget "
-                 "install Git.Git; Linux: sudo apt install git), or use sfx_mix.py's built-in sounds")
+                 "install Git.Git; Linux: apt install git), or use sfx_mix.py's built-in sounds")
     lib = load_library()
     {"list": cmd_list, "fetch": cmd_fetch, "find": cmd_find, "credits": cmd_credits}[args.cmd](lib, args)
 

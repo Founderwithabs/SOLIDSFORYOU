@@ -83,7 +83,7 @@ def main():
     args = ap.parse_args()
     if not (shutil.which("ffmpeg") and shutil.which("ffprobe")):
         sys.exit("sfx_mix needs ffmpeg: install it (Mac: brew install ffmpeg; Windows: winget install "
-                 "ffmpeg; Linux: sudo apt install ffmpeg)")
+                 "ffmpeg; Linux: apt install ffmpeg)")
     if not args.duration > 0:
         sys.exit("--duration is the video's length in seconds, e.g. --duration 30")
     if args.vo and not os.path.isfile(args.vo):

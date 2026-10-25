@@ -212,7 +212,7 @@ def has_audio(path):
 def render(video, cues, spans, out_dir, frame, x, hooks, hook_s, captions, w, h, lufs, say=print):
     if not (shutil.which("ffmpeg") and shutil.which("ffprobe")):
         sys.exit("render needs ffmpeg: install it (Mac: brew install ffmpeg; Windows: winget install "
-                 "ffmpeg; Linux: sudo apt install ffmpeg)")
+                 "ffmpeg; Linux: apt install ffmpeg)")
     if not os.path.isfile(video):
         sys.exit(f"not a file: {video}")
     video = os.path.abspath(video)

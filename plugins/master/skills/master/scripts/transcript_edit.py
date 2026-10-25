@@ -148,7 +148,7 @@ def media_duration(path):
 def apply(spans, src, dst):
     if not (shutil.which("ffmpeg") and shutil.which("ffprobe")):
         sys.exit("--apply needs ffmpeg: install it (Mac: brew install ffmpeg; Windows: winget install "
-                 "ffmpeg; Linux: sudo apt install ffmpeg), or apply the edit list by hand")
+                 "ffmpeg; Linux: apt install ffmpeg), or apply the edit list by hand")
     if not os.path.isfile(src):
         sys.exit(f"not a file: {src}")
     dur = media_duration(src)

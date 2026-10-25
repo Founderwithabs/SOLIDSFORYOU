@@ -10,6 +10,7 @@
 //   node render_html_video.cjs PAGE.html OUT.mp4 \
 //     [--fps 30] [--width 1920] [--height 1080] [--duration 10] \
 //     [--audio mix.wav] [--from 0] [--to 10] [--png] [--transparent]
+//     [--chromium PATH]   (a Chromium to use instead of Playwright's own)
 //
 // --from/--to render only part of the video (for quick checks of one scene).
 // Frames are captured as JPEG at quality 95 (about 10x faster than PNG and
@@ -17,7 +18,7 @@
 // --transparent keeps the page background see-through (set the page's
 // html/body background to transparent) and writes a ProRes 4444 .mov with
 // alpha, for laying graphics over footage with ffmpeg's overlay filter.
-const { spawn, execSync } = require("child_process");
+const { spawn } = require("child_process");
 const fs = require("fs");
 const path = require("path");
 const { pathToFileURL } = require("url");
@@ -26,8 +27,14 @@ function loadPlaywright() {
   try {
     return require("playwright");
   } catch {
-    const root = execSync("npm root -g").toString().trim();
-    return require(path.join(root, "playwright"));
+    // Not installed next to the script: try the global npm folder of this Node.js.
+    const bin = path.dirname(process.execPath);
+    for (const dir of [path.join(bin, "..", "lib", "node_modules"), path.join(bin, "node_modules")]) {
+      try {
+        return require(path.join(dir, "playwright"));
+      } catch {}
+    }
+    throw new Error("Playwright isn't installed: run npm install -g playwright, then npx playwright install chromium");
   }
 }
 
@@ -61,7 +68,7 @@ async function main() {
   fs.mkdirSync(path.dirname(o.out), { recursive: true });
   const { chromium } = loadPlaywright();
   const launch = {};
-  if (process.env.CHROMIUM_PATH) launch.executablePath = process.env.CHROMIUM_PATH;
+  if (o.chromium) launch.executablePath = o.chromium;
   const browser = await chromium.launch(launch);
   const page = await browser.newPage({ viewport: { width, height }, deviceScaleFactor: 1 });
   page.on("pageerror", (e) => console.error("page error:", e.message));
@@ -95,7 +102,7 @@ async function main() {
   const ff = spawn("ffmpeg", args, { stdio: ["pipe", "inherit", "inherit"] });
   const ffDone = new Promise((res, rej) => {
     ff.on("error", (e) => rej(e.code === "ENOENT"
-      ? new Error("ffmpeg isn't installed: install it (Mac: brew install ffmpeg; Windows: winget install ffmpeg; Linux: sudo apt install ffmpeg)")
+      ? new Error("ffmpeg isn't installed: install it (Mac: brew install ffmpeg; Windows: winget install ffmpeg; Linux: apt install ffmpeg)")
       : e));
     ff.on("close", (code) => (code === 0 ? res() : rej(new Error("ffmpeg exit " + code))));
   });

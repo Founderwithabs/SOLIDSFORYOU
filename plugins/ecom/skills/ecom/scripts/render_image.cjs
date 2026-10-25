@@ -5,31 +5,42 @@
 // Usage:
 //   node render_image.cjs PAGE.html OUT.png [--width 2000] [--height 2000]
 //     [--quality 92]   (JPEG only; the format follows OUT's extension)
+//     [--chromium PATH] (a Chromium to use instead of Playwright's own)
 //
 // Images and fonts the page uses must be local files or data URLs. The page
 // can set window.READY = false while it loads and true when done; the
 // renderer waits for it (up to 15 s), and for fonts and images to load.
 const fs = require("fs");
 const path = require("path");
-const { execSync } = require("child_process");
 
 function loadPlaywright() {
   try {
     return require("playwright");
   } catch {
-    return require(path.join(execSync("npm root -g").toString().trim(), "playwright"));
+    // Not installed next to the script: try the global npm folder of this Node.js.
+    const bin = path.dirname(process.execPath);
+    for (const dir of [path.join(bin, "..", "lib", "node_modules"), path.join(bin, "node_modules")]) {
+      try {
+        return require(path.join(dir, "playwright"));
+      } catch {}
+    }
+    throw new Error("Playwright isn't installed: run npm install -g playwright, then npx playwright install chromium");
   }
 }
 
 async function main() {
   const args = process.argv.slice(2);
+  const str = (name) => {
+    const i = args.indexOf(`--${name}`);
+    return i >= 0 ? args[i + 1] : undefined;
+  };
   const opt = (name, dflt) => {
     const i = args.indexOf(`--${name}`);
     return i >= 0 ? Number(args[i + 1]) : dflt;
   };
   const pos = args.filter((a, i) => !a.startsWith("--") && !(args[i - 1] || "").startsWith("--"));
   if (pos.length !== 2) {
-    console.error("usage: render_image.cjs PAGE.html OUT.png [--width 2000] [--height 2000] [--quality 92]");
+    console.error("usage: render_image.cjs PAGE.html OUT.png [--width 2000] [--height 2000] [--quality 92] [--chromium PATH]");
     process.exit(2);
   }
   const [page, out] = pos.map((p) => path.resolve(p));
@@ -43,7 +54,7 @@ async function main() {
   fs.mkdirSync(path.dirname(out), { recursive: true });
   const { chromium } = loadPlaywright();
   const browser = await chromium.launch(
-    process.env.CHROMIUM_PATH ? { executablePath: process.env.CHROMIUM_PATH } : {});
+    str("chromium") ? { executablePath: str("chromium") } : {});
   const tab = await browser.newPage({ viewport: { width, height }, deviceScaleFactor: 1 });
   const errors = [];
   tab.on("pageerror", (e) => errors.push(e.message));

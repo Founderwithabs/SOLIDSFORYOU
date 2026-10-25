@@ -141,7 +141,7 @@ def main():
     args = ap.parse_args()
     if not (shutil.which("ffmpeg") and shutil.which("ffprobe")):
         sys.exit("this needs ffmpeg: install it (Mac: brew install ffmpeg; Windows: winget install ffmpeg; "
-                 "Linux: sudo apt install ffmpeg), then run it again")
+                 "Linux: apt install ffmpeg), then run it again")
     if not os.path.isfile(args.video):
         sys.exit(f"not a file: {args.video}")
     if os.path.exists(args.out_dir) and not os.path.isdir(args.out_dir):

@@ -591,7 +591,7 @@ def main() -> None:
     args = ap.parse_args()
     if not (shutil.which("ffmpeg") and shutil.which("ffprobe")):
         sys.exit("this needs ffmpeg: install it (Mac: brew install ffmpeg; Windows: winget install ffmpeg; "
-                 "Linux: sudo apt install ffmpeg), then run it again")
+                 "Linux: apt install ffmpeg), then run it again")
     if not Path(args.audio).is_file():
         sys.exit(f"not a file: {args.audio}")
     try:

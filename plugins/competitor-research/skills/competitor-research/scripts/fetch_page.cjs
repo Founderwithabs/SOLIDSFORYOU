@@ -5,21 +5,26 @@
 // get around blocks: if a page is blocked it says so.
 //
 // Usage:
-//   node fetch_page.cjs URL OUT_DIR [--full] [--wait 2500]
+//   node fetch_page.cjs URL OUT_DIR [--full] [--wait 2500] [--locale en-IN] [--chromium PATH]
 //
 // Writes OUT_DIR/text.txt, OUT_DIR/meta.json and OUT_DIR/screenshot.png
 // (--full captures the whole page). Hints in meta.json are pointers only:
 // confirm every value in text.txt or the screenshot before recording it.
 const fs = require("fs");
 const path = require("path");
-const { execSync } = require("child_process");
 
 function loadPlaywright() {
   try {
     return require("playwright");
   } catch {
-    const root = execSync("npm root -g").toString().trim();
-    return require(path.join(root, "playwright"));
+    // Not installed next to the script: try the global npm folder of this Node.js.
+    const bin = path.dirname(process.execPath);
+    for (const dir of [path.join(bin, "..", "lib", "node_modules"), path.join(bin, "node_modules")]) {
+      try {
+        return require(path.join(dir, "playwright"));
+      } catch {}
+    }
+    throw new Error("Playwright isn't installed: run npm install -g playwright, then npx playwright install chromium");
   }
 }
 
@@ -109,20 +114,24 @@ async function main() {
   const full = args.includes("--full");
   const waitIdx = args.indexOf("--wait");
   const wait = waitIdx >= 0 ? Number(args[waitIdx + 1]) : 2500;
-  const pos = args.filter((a, i) => !a.startsWith("--") && args[i - 1] !== "--wait");
+  const valueOf = (name) => {
+    const i = args.indexOf(`--${name}`);
+    return i >= 0 ? args[i + 1] : undefined;
+  };
+  const pos = args.filter((a, i) => !a.startsWith("--") && !["--wait", "--locale", "--chromium"].includes(args[i - 1]));
   if (pos.length !== 2) {
-    console.error("usage: fetch_page.cjs URL OUT_DIR [--full] [--wait ms]");
+    console.error("usage: fetch_page.cjs URL OUT_DIR [--full] [--wait ms] [--locale en-IN] [--chromium PATH]");
     process.exit(2);
   }
   const [url, outDir] = pos;
   fs.mkdirSync(outDir, { recursive: true });
 
   const { chromium } = loadPlaywright();
-  const launch = process.env.CHROMIUM_PATH ? { executablePath: process.env.CHROMIUM_PATH } : {};
+  const launch = valueOf("chromium") ? { executablePath: valueOf("chromium") } : {};
   const browser = await chromium.launch(launch);
   const context = await browser.newContext({
     viewport: { width: 1366, height: 900 },
-    locale: process.env.FETCH_LOCALE || "en-IN",
+    locale: valueOf("locale") || "en-IN",
   });
   const page = await context.newPage();
   const result = { url, fetched_at: new Date().toISOString(), status: null, final_url: null };

@@ -137,7 +137,7 @@ def main():
     args = ap.parse_args()
     if not (shutil.which("ffmpeg") and shutil.which("ffprobe")):
         sys.exit("this needs ffmpeg: install it (Mac: brew install ffmpeg; Windows: winget install ffmpeg; "
-                 "Linux: sudo apt install ffmpeg), then run it again")
+                 "Linux: apt install ffmpeg), then run it again")
     out_dir = Path(args.out)
     out_dir.mkdir(parents=True, exist_ok=True)
     paths = [Path(p) for p in args.images]
