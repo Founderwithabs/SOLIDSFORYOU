@@ -30,3 +30,9 @@ Source: the first launch video (32 s, 1920x1080); founder's verdict: "all of the
 - Five tool scenes used one identical layout (label, prompt, text card, ring with a number). Each tool needs its own visual that shows what it does (a marked-up listing, a price chart, a ledger, a phone post, an edit timeline), not the same card with new words.
 - A big soft blue radial glow on navy read as childish. Prefer a near-black or paper background with no glow blobs; structure from thin lines, a grid, type and one accent colour.
 - This overrides the "deep blue glow" and "floating cards" notes in the SFY reference reel entry above.
+
+## SOLIDS FOR YOU website redesign (disliked details, 2026-10-26)
+Source: founder's feedback on the mobile-first homepage preview.
+- Text placed on top of product or model photos (a "Solid Blue · M" tag in a black box, "01/03" counters, labels over the hero) makes the photos look fake. Keep photos clean: labels, prices and headlines go above or below the image, never on it, and the header doesn't float over a photo.
+- Never use the word "real" in copy ("Real photo. Real fabric.", "Yes, really.").
+- Assets come only from the brand's own Drive folder (product, model, street and crew photos), not from older site files or the Rainbrand folder.
